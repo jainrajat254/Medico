@@ -29,9 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,36 +44,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.medico.R
 import com.example.medico.controllers.Routes
-import com.example.medico.models.AuthState
+import com.example.medico.data.LoginCredentials
 import com.example.medico.models.AuthViewModel
+import com.example.medico.sharedPreferences.SharedPreferencesManager.saveUserToPreferences
 
 @Composable
-fun LoginPage(navController: NavHostController? = null, context: Context) {
+fun LoginPage(navController: NavController, context: Context, vm: AuthViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var usernameError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
-
-    val authViewModel: AuthViewModel = viewModel()
-    val authState = authViewModel.authState.observeAsState()
-
-    LaunchedEffect(authState.value) {
-        when (authState.value) {
-            is AuthState.Authenticated -> navController?.navigate(Routes.Home.routes)
-            is AuthState.Error -> Toast.makeText(
-                context,
-                (authState.value as AuthState.Error).message,
-                Toast.LENGTH_SHORT
-            ).show()
-
-            else -> Unit
-        }
-    }
 
     Scaffold { paddingValues ->
         Box(
@@ -190,7 +172,26 @@ fun LoginPage(navController: NavHostController? = null, context: Context) {
                                 usernameError = username.isEmpty()
                                 passwordError = password.isEmpty()
                                 if (!usernameError && !passwordError) {
-                                    authViewModel.login(username, password)
+                                    val user = LoginCredentials(username, password)
+                                    vm.login(
+                                        user,
+                                        onSuccess = { userResponse ->
+                                            saveUserToPreferences(context, userResponse)
+                                            navController.navigate(Routes.Home.routes) {
+                                                popUpTo(0) {
+                                                    inclusive = true
+                                                }
+                                            }
+                                        },
+                                        onError = {
+                                            navController.navigate(Routes.Login.routes)
+                                            Toast.makeText(
+                                                context,
+                                                "Invalid username or password. Please try again.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    )
                                 }
                             },
                             modifier = Modifier

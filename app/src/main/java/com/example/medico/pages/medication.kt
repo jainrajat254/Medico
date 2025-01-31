@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.medico.R
-import com.example.medico.controllers.MyBottomBar
+import com.example.medico.controllers.BottomNavBar
 import com.example.medico.controllers.Routes
 import com.example.medico.data.Medication
 
@@ -54,7 +54,7 @@ fun MedicationPage(navController: NavHostController) {
 
     Scaffold(
         bottomBar = {
-            MyBottomBar(navController)
+            BottomNavBar(modifier = Modifier, navController = navController)
         }
     ) { paddingValues ->
         Box(

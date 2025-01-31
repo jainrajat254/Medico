@@ -1,12 +1,11 @@
 package com.example.medico.controllers
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.medico.models.AuthViewModel
 import com.example.medico.pages.AddMedicationPage
 import com.example.medico.pages.AppThemeScreen
 import com.example.medico.pages.ChangePasswordScreen
@@ -23,39 +22,21 @@ import com.example.medico.pages.Register
 import com.example.medico.pages.SettingsPage
 import com.example.medico.pages.SplashScreen
 import com.example.medico.pages.TermsOfServiceScreen
-import android.content.Context
-import android.content.SharedPreferences
+import org.koin.androidx.compose.koinViewModel
 
-fun isFirstLaunch(context: Context): Boolean {
-    val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-    var isFirstLaunch = sharedPreferences.getBoolean("isFirstLaunch", true)
-
-    if (isFirstLaunch) {
-        sharedPreferences.edit().putBoolean("isFirstLaunch", false)
-            .apply()  // Set the flag to false after first launch
-    }
-
-    return isFirstLaunch
-}
-
-
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun App() {
 
+    val navController = rememberNavController()
     val context = LocalContext.current
-    val startDestination = if (isFirstLaunch(context)) Routes.Splash.routes else Routes.Home.routes
+    val vm: AuthViewModel = koinViewModel()
 
-    NavHost(navController = navController, startDestination = startDestination) {
+    NavHost(navController = navController, startDestination = Routes.Splash.routes) {
         composable(Routes.Splash.routes) {
             SplashScreen(navController = navController)
         }
         composable(Routes.Home.routes) {
             HomePage(navController)
-        }
-        composable(Routes.BottomNav.routes) {
-            BottomNav(navController)
         }
         composable(Routes.Medications.routes) {
             MedicationPage(navController)
@@ -73,10 +54,10 @@ fun NavGraph(navController: NavHostController) {
             SettingsPage(navController)
         }
         composable(Routes.Login.routes) {
-            LoginPage(navController, context)
+            LoginPage(navController, context, vm)
         }
         composable(Routes.Register.routes) {
-            Register(navController)
+            Register(navController, vm)
         }
 
         composable(Routes.PersonalInfo.routes) { PersonalInfoScreen(navController) }

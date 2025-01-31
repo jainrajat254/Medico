@@ -28,9 +28,9 @@ fun SplashScreen(navController: NavHostController) {
         )
     }
 
-    // Navigate to the login screen after 2 seconds, logo stays visible during this time
     LaunchedEffect(Unit) {
         delay(2000)  // Wait for 2 seconds before navigating
+        navController.popBackStack()
         navController.navigate("login") // Navigate to login screen
     }
 }

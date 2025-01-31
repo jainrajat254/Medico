@@ -21,7 +21,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -33,9 +32,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.medico.R
-import com.example.medico.controllers.MyBottomBar
+import com.example.medico.controllers.BottomNavBar
 import com.example.medico.data.HealthRecord
 
 val records = listOf(
@@ -50,7 +48,7 @@ fun HealthRecords(navController: NavHostController) {
 
     Scaffold(
         bottomBar = {
-            MyBottomBar(navController)
+            BottomNavBar(modifier = Modifier, navController = navController)
         }
     ) { paddingValues ->
         Box(

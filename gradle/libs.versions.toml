@@ -1,23 +1,29 @@
 [versions]
 agp = "8.5.2"
 androidxMaterial3 = "1.3.1"
-coilCompose = "2.2.2"
 coilComposeVersion = "2.4.0"
 coreSplashscreen = "1.0.1"
+koinAndroid = "3.5.0"
+koinAndroidxCompose = "3.5.0"
 kotlin = "1.9.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+ktorClientContentNegotiation = "2.3.7"
+ktorClientCore = "2.3.7"
+ktorClientLogging = "2.3.7"
+ktorClientOkhttp = "2.3.7"
+ktorSerializationKotlinxJson = "2.3.7"
 lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.9.3"
-composeBom = "2024.11.00"
-materialIconsExtended = "1.7.5"
-navigationCompose = "2.8.4"
+activityCompose = "1.10.0"
+composeBom = "2025.01.01"
+materialIconsExtended = "1.7.7"
+navigationCompose = "2.8.6"
 googleGmsGoogleServices = "4.4.2"
 firebaseAuth = "23.1.0"
 appcompat = "1.7.0"
-runtimeLivedata = "1.7.5"
+runtimeLivedata = "1.7.7"
 firebaseDatabase = "21.0.0"
 
 [libraries]
@@ -43,6 +49,13 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorClientContentNegotiation" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClientLogging" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientOkhttp" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

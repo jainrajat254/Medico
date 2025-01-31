@@ -33,9 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.medico.R
-import com.example.medico.controllers.MyBottomBar
+import com.example.medico.controllers.BottomNavBar
 import com.example.medico.data.HealthReport
 
 val reports = listOf(
@@ -49,7 +48,7 @@ val reports = listOf(
 fun HealthReports(navController: NavHostController) {
     Scaffold(
         bottomBar = {
-            MyBottomBar(navController)
+            BottomNavBar(modifier = Modifier, navController = navController)
         }
     ) { paddingValues ->
         Box(

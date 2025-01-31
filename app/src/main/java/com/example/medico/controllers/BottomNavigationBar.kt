@@ -1,115 +1,93 @@
 package com.example.medico.controllers
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.medico.R
-import com.example.medico.pages.HealthRecords
-import com.example.medico.pages.HealthReports
-import com.example.medico.pages.HomePage
-import com.example.medico.pages.MedicationPage
-import com.example.medico.pages.SettingsPage
 
-data class BottomNavItem(
-    val title: String,
-    val route: String,
-    val iconResId: Int // Resource ID of the image
-)
-
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BottomNav(navController: NavHostController) {
-    Scaffold(
-        bottomBar = {
-            val currentRoute =
-                navController.currentBackStackEntryAsState().value?.destination?.route
-            if (currentRoute in listOf(
-                    Routes.Home.routes,
-                    Routes.Medications.routes,
-                    Routes.Records.routes,
-                    Routes.Reports.routes,
-                    Routes.Settings.routes
-                )
-            ) {
-                MyBottomBar(navController)
-            }
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Routes.Home.routes, // Use Home as the start destination instead of Splash for testing
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Routes.Home.routes) {
-                HomePage(navController)
-            }
-            composable(Routes.Medications.routes) {
-                MedicationPage(navController)
-            }
-            composable(Routes.Records.routes) {
-                HealthRecords(navController = navController)
-            }
-            composable(Routes.Reports.routes) {
-                HealthReports(navController)
-            }
-            composable(Routes.Reports.routes) {
-                SettingsPage(navController)
-            }
+fun BottomNavBar(
+    modifier: Modifier,
+    navController: NavController,
+) {
+
+    val items = listOf(
+        BottomNavItem(Routes.Home.routes, R.drawable.home, "Home"),
+        BottomNavItem(Routes.Medications.routes, R.drawable.capsule, "Medications"),
+        BottomNavItem(Routes.Records.routes, R.drawable.records, "Records"),
+        BottomNavItem(Routes.Reports.routes, R.drawable.reports, "Reports"),
+        BottomNavItem(Routes.Settings.routes, R.drawable.settings, "Settings")
+    )
+
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .background(Color(0xF1AD7118)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        items.forEach { item ->
+            BottomNavBarItem(
+                item = item,
+                isSelected = currentRoute == item.route,
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(Routes.Home.routes) {
+                            inclusive = false
+                        }
+                    }
+                }
+            )
         }
     }
 }
 
-
 @Composable
-fun MyBottomBar(navController: NavHostController) {
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route
-
-    val items = listOf(
-        BottomNavItem("Home", Routes.Home.routes, R.drawable.home), // Replace with your actual drawable resources
-        BottomNavItem("Medications", Routes.Medications.routes, R.drawable.capsule),
-        BottomNavItem("Records", Routes.Records.routes, R.drawable.records),
-        BottomNavItem("Reports", Routes.Reports.routes, R.drawable.reports),
-        BottomNavItem("Settings", Routes.Settings.routes, R.drawable.settings)
-    )
-
-    BottomAppBar(modifier = Modifier.height(64.dp),
-        containerColor = Color(color = 0XFF3872D3) ) {
-        items.forEach { item ->
-            NavigationBarItem(
-                selected = currentRoute == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                icon = {
-                    Image(
-                        painter = painterResource(id = item.iconResId),
-                        contentDescription = item.title,
-                        modifier = Modifier.size(32.dp )
-                    )
-                }
-            )
-        }
+fun BottomNavBarItem(
+    item: BottomNavItem,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .clickable { onClick() }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = item.icon),
+            contentDescription = item.label,
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(if (isSelected) Color.LightGray else Color.Transparent)
+        )
+        Text(
+            text = item.label,
+            color = if (isSelected) Color.Black else Color.White,
+            fontSize = 12.sp
+        )
     }
 }

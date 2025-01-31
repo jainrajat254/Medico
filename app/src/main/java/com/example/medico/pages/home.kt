@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.medico.R
-import com.example.medico.controllers.MyBottomBar
+import com.example.medico.controllers.BottomNavBar
 import com.example.medico.data.Medicines
 
 
@@ -55,7 +55,7 @@ val medicines = listOf(
 fun HomePage(navController: NavHostController) {
     Scaffold(
         bottomBar = {
-            MyBottomBar(navController)
+            BottomNavBar(modifier = Modifier, navController = navController)
         }
     ) { innerPadding ->
         Box(
@@ -174,8 +174,9 @@ fun TaglineAndProfilePicture() {
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(end = 60.dp,top = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 60.dp, top = 12.dp)
             ) {
                 Text(
                     text = "Your Health, Your History",

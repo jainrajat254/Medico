@@ -1,100 +1,53 @@
 package com.example.medico.models
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.medico.data.User
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import androidx.lifecycle.viewModelScope
+import coil.network.HttpException
+import com.example.medico.data.LoginCredentials
+import com.example.medico.data.LoginResponse
+import com.example.medico.data.UserData
+import com.example.medico.koin.ApiService
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(private val apiService: ApiService) : ViewModel() {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
-    private val _authState = MutableLiveData<AuthState>()
-    val authState: LiveData<AuthState> = _authState
-
-    private val database = FirebaseDatabase.getInstance()
-    private val usersRef = database.getReference("users")
-    private val _userData = MutableLiveData<User>()
-    val userData: LiveData<User> = _userData
-
-    init {
-        checkAuthStatus()
-    }
-
-    private fun checkAuthStatus() {
-        if (auth.currentUser == null) {
-            _authState.value = AuthState.UnAuthenticated
-        } else {
-            _authState.value = AuthState.Authenticated
-            fetchUserData() // Fetch user data when authenticated
-        }
-    }
-
-    fun login(email: String, password: String) {
-        if (email.isEmpty() || password.isEmpty()) {
-            _authState.value = AuthState.Error("Email and password cannot be empty")
-        }
-        _authState.value = AuthState.Loading
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _authState.value = AuthState.Authenticated
-                    fetchUserData() // Fetch user data on successful login
-                } else {
-                    _authState.value = AuthState.Error(task.exception?.message ?: "Unknown error")
-                }
+    fun login(
+        user: LoginCredentials,
+        onSuccess: (LoginResponse) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                val userResponse = apiService.login(user)
+                onSuccess(userResponse)
+            } catch (e: HttpException) {
+                Log.d("ViewModel", e.toString())
+                onError("HTTP Error during login: ${e.message}")
+            } catch (e: Exception) {
+                Log.d("ViewModel", e.toString())
+                onError("Unexpected error during login: ${e.message}")
             }
-    }
-
-    fun signup(email: String, password: String) {
-        if (email.isEmpty() || password.isEmpty()) {
-            _authState.value = AuthState.Error("Email and password cannot be empty")
-        }
-        _authState.value = AuthState.Loading
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _authState.value = AuthState.Authenticated
-                    fetchUserData() // Fetch user data on successful signup
-                } else {
-                    _authState.value = AuthState.Error(task.exception?.message ?: "Unknown error")
-                }
-            }
-    }
-
-    fun signout() {
-        auth.signOut()
-        _authState.value = AuthState.UnAuthenticated
-    }
-
-    private fun fetchUserData() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            usersRef.child(userId).get().addOnSuccessListener { snapshot ->
-                val user = snapshot.getValue(User::class.java)
-                user?.let {
-                    // Only update LiveData if user is non-null
-                    _userData.value = it
-                } ?: run {
-                    // Handle the case when user data is null
-                    _userData.value = User() // Set to a default empty User object
-                    _authState.value = AuthState.Error("User data not found")
-                }
-            }.addOnFailureListener { e ->
-                // Handle failure
-                _authState.value = AuthState.Error("Error fetching user data: ${e.message}")
-            }
-        } else {
-            _authState.value = AuthState.Error("User not authenticated")
         }
     }
-}
 
-sealed class AuthState {
-    data object Authenticated : AuthState()
-    data object UnAuthenticated : AuthState()
-    data object Loading : AuthState()
-    data class Error(val message: String) : AuthState()
+    fun register(
+        user: UserData,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                apiService.register(user)
+                onSuccess()
+            } catch (e: HttpException) {
+                Log.d("ViewModel", e.toString())
+                onError("HTTP Error during registration: ${e.message}")
+            } catch (e: Exception) {
+                Log.d("ViewModel", e.toString())
+                onError("Unexpected error during registration: ${e.message}")
+            }
+        }
+    }
 }

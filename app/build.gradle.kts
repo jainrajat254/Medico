@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -61,13 +62,22 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
-    implementation (libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.firebase.database)
     implementation(libs.coil.compose)
+
+    implementation(libs.ktor.client.core) // Core Ktor client
+    implementation(libs.ktor.client.okhttp) // OkHttp Engine (best for Android)
+    implementation(libs.ktor.client.logging) // Logging for debugging
+    implementation(libs.ktor.client.content.negotiation) // Content negotiation
+    implementation(libs.ktor.serialization.kotlinx.json) // JSON Serialization
+
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 
 
     testImplementation(libs.junit)

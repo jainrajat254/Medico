@@ -2,18 +2,38 @@ package com.example.medico.pages
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,42 +43,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.medico.R
-import com.example.medico.controllers.MyBottomBar
-import com.example.medico.data.BloodGroup
-import com.example.medico.data.Gender
-import com.example.medico.models.AuthState
+import com.example.medico.controllers.Routes
+import com.example.medico.data.UserData
 import com.example.medico.models.AuthViewModel
-import com.example.medico.models.RegisterViewModel
 
 @Composable
-fun Register(navController: NavHostController? = null) {
+fun Register(navController: NavController, vm: AuthViewModel) {
+
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("Male") }
+    var bloodGroup by remember { mutableStateOf("AB+") }
+    var password by remember { mutableStateOf("") }
     val context = LocalContext.current
-    val viewModel: RegisterViewModel = viewModel()
-
-    val authViewModel: AuthViewModel = viewModel()
-    val authState = authViewModel.authState.observeAsState()
-
-    LaunchedEffect(authState.value) {
-        when (authState.value) {
-            is AuthState.Authenticated -> navController?.navigate("home")
-            is AuthState.Error -> Toast.makeText(
-                context,
-                (authState.value as AuthState.Error).message,
-                Toast.LENGTH_SHORT
-            ).show()
-
-            else -> Unit
-        }
-    }
+    var error: String? by remember { mutableStateOf(null) }
 
     Scaffold { paddingValues ->
         Box(
@@ -120,14 +126,14 @@ fun Register(navController: NavHostController? = null) {
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         CustomTextField(
-                                            value = viewModel.firstName.value,
-                                            onValueChange = { viewModel.firstName.value = it },
+                                            value = firstName,
+                                            onValueChange = { firstName = it },
                                             label = "First Name",
                                             modifier = Modifier.weight(1f)
                                         )
                                         CustomTextField(
-                                            value = viewModel.lastName.value,
-                                            onValueChange = { viewModel.lastName.value = it },
+                                            value = lastName,
+                                            onValueChange = { lastName = it },
                                             label = "Last Name",
                                             modifier = Modifier.weight(1f)
                                         )
@@ -137,8 +143,8 @@ fun Register(navController: NavHostController? = null) {
 
                                     // Age
                                     CustomTextField(
-                                        value = viewModel.age.value,
-                                        onValueChange = { viewModel.age.value = it },
+                                        value = age,
+                                        onValueChange = { age = it },
                                         label = "Age (in years)",
                                         keyboardType = KeyboardType.Phone,
                                         modifier = Modifier.fillMaxWidth()
@@ -147,42 +153,50 @@ fun Register(navController: NavHostController? = null) {
                                     Spacer(modifier = Modifier.height(16.dp))
 
                                     // Gender Dropdown
-                                    GenderDropdown(viewModel)
-
-                                    Spacer(modifier = Modifier.height(16.dp))
+                                    GenderDropDownMenu(
+                                        gender = gender,
+                                        onGenderSelected = { newGender ->
+                                            gender = newGender
+                                        }
+                                    )
 
                                     // Weight and Height
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        CustomTextField(
-                                            value = viewModel.weight.value,
-                                            onValueChange = { viewModel.weight.value = it },
-                                            label = "Weight (kg)",
-                                            keyboardType = KeyboardType.Number,
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                        CustomTextField(
-                                            value = viewModel.height.value,
-                                            onValueChange = { viewModel.height.value = it },
-                                            label = "Height (cm)",
-                                            keyboardType = KeyboardType.Number,
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                    }
+//                                    Row(
+//                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+//                                        modifier = Modifier.fillMaxWidth()
+//                                    ) {
+//                                        CustomTextField(
+//                                            value = viewModel.weight.value,
+//                                            onValueChange = { viewModel.weight.value = it },
+//                                            label = "Weight (kg)",
+//                                            keyboardType = KeyboardType.Number,
+//                                            modifier = Modifier.weight(1f)
+//                                        )
+//                                        CustomTextField(
+//                                            value = viewModel.height.value,
+//                                            onValueChange = { viewModel.height.value = it },
+//                                            label = "Height (cm)",
+//                                            keyboardType = KeyboardType.Number,
+//                                            modifier = Modifier.weight(1f)
+//                                        )
+//                                    }
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
                                     // Blood Group Dropdown
-                                    BloodGroupDropdown(viewModel)
+                                    BloodGroupDropDownMenu(
+                                        bloodGroup = bloodGroup,
+                                        onBloodGroupSelected = { blood ->
+                                            bloodGroup = blood
+                                        }
+                                    )
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
                                     // Phone and Email
                                     CustomTextField(
-                                        value = viewModel.phone.value,
-                                        onValueChange = { viewModel.phone.value = it },
+                                        value = phone,
+                                        onValueChange = { phone = it },
                                         label = "Phone",
                                         keyboardType = KeyboardType.Phone,
                                         modifier = Modifier.fillMaxWidth()
@@ -191,8 +205,8 @@ fun Register(navController: NavHostController? = null) {
                                     Spacer(modifier = Modifier.height(16.dp))
 
                                     CustomTextField(
-                                        value = viewModel.email.value,
-                                        onValueChange = { viewModel.email.value = it },
+                                        value = email,
+                                        onValueChange = { email = it },
                                         label = "Email",
                                         keyboardType = KeyboardType.Email,
                                         modifier = Modifier.fillMaxWidth()
@@ -200,18 +214,41 @@ fun Register(navController: NavHostController? = null) {
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
-                                    // Password Field
-                                    PasswordField(viewModel)
+                                    CustomTextField(
+                                        value = password,
+                                        onValueChange = { password = it },
+                                        label = "Password",
+                                        keyboardType = KeyboardType.Email,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
 
                                     Spacer(modifier = Modifier.height(24.dp))
 
                                     // Register Button
                                     Button(
                                         onClick = {
-                                            viewModel.onRegisterClicked(
-                                                navController,
-                                                context,
-                                                authViewModel
+                                            val user = UserData(
+                                                firstName,
+                                                lastName,
+                                                age,
+                                                gender,
+                                                bloodGroup,
+                                                phone,
+                                                email,
+                                                password
+                                            )
+                                            vm.register(
+                                                user,
+                                                onSuccess = {
+                                                    Toast.makeText(context,"Registration Successful\nLog in to continue",
+                                                        Toast.LENGTH_SHORT).show()
+                                                    navController.navigate(Routes.Login.routes) {
+                                                        popUpTo(0) {
+                                                            inclusive = true
+                                                        }
+                                                    }
+                                                },
+                                                onError = { error = it }
                                             )
                                         },
                                         modifier = Modifier.fillMaxWidth(),
@@ -234,107 +271,136 @@ fun Register(navController: NavHostController? = null) {
     }
 }
 
-
 @Composable
-fun BloodGroupDropdown(viewModel: RegisterViewModel) {
-    Box(modifier = Modifier.fillMaxWidth()) {
+fun GenderDropDownMenu(
+    modifier: Modifier = Modifier,
+    gender: String,
+    onGenderSelected: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
         OutlinedTextField(
-            value = viewModel.bloodGroup.value?.group ?: "",
+            value = gender,
             onValueChange = { },
-            label = { Text("Blood Group") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = {
-                    viewModel.bloodGroupExpanded.value = !viewModel.bloodGroupExpanded.value
-                }) {
-                    Icon(
-                        imageVector = if (viewModel.bloodGroupExpanded.value) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                        contentDescription = null
-                    )
-                }
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary
-            )
-        )
-        DropdownMenu(
-            expanded = viewModel.bloodGroupExpanded.value,
-            onDismissRequest = { viewModel.bloodGroupExpanded.value = false }
-        ) {
-            BloodGroup.entries.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.group) },
-                    onClick = {
-                        viewModel.bloodGroup.value = option
-                        viewModel.bloodGroupExpanded.value = false
-                    }
+            label = {
+                Text(
+                    text = "Gender",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.W500
+                    ),
+                    color = Color.Gray
                 )
-            }
-        }
-    }
-}
-
-
-@Composable
-fun GenderDropdown(viewModel: RegisterViewModel) {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            value = viewModel.gender.value?.displayName ?: "",
-            onValueChange = { },
-            label = { Text("Gender") },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = { viewModel.expanded.value = !viewModel.expanded.value }) {
-                    Icon(
-                        imageVector = if (viewModel.expanded.value) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                        contentDescription = null
-                    )
-                }
             },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary
-            )
-        )
-        DropdownMenu(
-            expanded = viewModel.expanded.value,
-            onDismissRequest = { viewModel.expanded.value = false }
-        ) {
-            Gender.entries.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.displayName) },
-                    onClick = {
-                        viewModel.gender.value = option
-                        viewModel.expanded.value = false
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun PasswordField(viewModel: RegisterViewModel) {
-    OutlinedTextField(
-        value = viewModel.password.value,
-        onValueChange = { viewModel.password.value = it },
-        label = { Text("Password") },
-        visualTransformation = if (viewModel.isPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = {
-            IconButton(onClick = {
-                viewModel.isPasswordVisible.value = !viewModel.isPasswordVisible.value
-            }) {
+            readOnly = true,
+            shape = RoundedCornerShape(16.dp),
+            modifier = modifier
+                .width(300.dp)
+                .padding(top = 10.dp)
+                .clickable { expanded = true },
+            trailingIcon = {
                 Icon(
-                    imageVector = if (viewModel.isPasswordVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                    contentDescription = null
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown Icon",
+                    modifier = Modifier.clickable { expanded = true }
                 )
             }
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        modifier = Modifier.fillMaxWidth()
-    )
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Male") },
+                onClick = {
+                    onGenderSelected("Male")
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Female") },
+                onClick = {
+                    onGenderSelected("Female")
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Others") },
+                onClick = {
+                    onGenderSelected("Others")
+                    expanded = false
+                }
+            )
+        }
+    }
 }
+
+@Composable
+fun BloodGroupDropDownMenu(
+    modifier: Modifier = Modifier,
+    bloodGroup: String,
+    onBloodGroupSelected: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        OutlinedTextField(
+            value = bloodGroup,
+            onValueChange = { },
+            label = {
+                Text(
+                    text = "Blood Group",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.W500
+                    ),
+                    color = Color.Gray
+                )
+            },
+            readOnly = true,
+            shape = RoundedCornerShape(16.dp),
+            modifier = modifier
+                .width(300.dp)
+                .padding(top = 10.dp)
+                .clickable { expanded = true },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown Icon",
+                    modifier = Modifier.clickable { expanded = true }
+                )
+            }
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("A+") },
+                onClick = {
+                    onBloodGroupSelected("A+")
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("A-") },
+                onClick = {
+                    onBloodGroupSelected("A-")
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("B+") },
+                onClick = {
+                    onBloodGroupSelected("B+")
+                    expanded = false
+                }
+            )
+        }
+    }
+}
+
 
 @Composable
 fun CustomTextField(
@@ -366,8 +432,8 @@ fun CustomTextField(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun RegisterPreview() {
-    Register()
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun RegisterPreview() {
+//    Register(vm = vm)
+//}
