@@ -1,6 +1,7 @@
 package com.example.medico.koin
 
 import com.example.medico.models.AuthViewModel
+import com.example.medico.sharedPreferences.SharedPreferencesManager
 import org.koin.dsl.module
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
@@ -24,5 +25,6 @@ val appModule = module {
         }
     }
     single<ApiService> { ApiServiceImpl(get()) }
+    single { SharedPreferencesManager(get()) }
     viewModel { AuthViewModel(get()) }
 }

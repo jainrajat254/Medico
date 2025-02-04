@@ -1,6 +1,7 @@
-package com.example.medico.controllers
+package com.example.medico.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,6 +10,7 @@ import com.example.medico.models.AuthViewModel
 import com.example.medico.pages.AddMedicationPage
 import com.example.medico.pages.AppThemeScreen
 import com.example.medico.pages.ChangePasswordScreen
+import com.example.medico.pages.DoctorRegister
 import com.example.medico.pages.HealthRecords
 import com.example.medico.pages.HealthReports
 import com.example.medico.pages.HelpSupportScreen
@@ -22,7 +24,9 @@ import com.example.medico.pages.Register
 import com.example.medico.pages.SettingsPage
 import com.example.medico.pages.SplashScreen
 import com.example.medico.pages.TermsOfServiceScreen
+import com.example.medico.sharedPreferences.SharedPreferencesManager
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun App() {
@@ -30,13 +34,18 @@ fun App() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val vm: AuthViewModel = koinViewModel()
+    val sharedPreferencesManager: SharedPreferencesManager = koinInject()
 
-    NavHost(navController = navController, startDestination = Routes.Splash.routes) {
+
+    NavHost(navController = navController, startDestination = Routes.DoctorRegister.routes) {
         composable(Routes.Splash.routes) {
-            SplashScreen(navController = navController)
+            SplashScreen(navController = navController,sharedPreferencesManager)
+        }
+        composable(Routes.BottomNav.routes) {
+            BottomNavBar(modifier = Modifier, navController = navController)
         }
         composable(Routes.Home.routes) {
-            HomePage(navController)
+            HomePage(navController,sharedPreferencesManager)
         }
         composable(Routes.Medications.routes) {
             MedicationPage(navController)
@@ -51,13 +60,17 @@ fun App() {
             HealthReports(navController)
         }
         composable(Routes.Settings.routes) {
-            SettingsPage(navController)
+            SettingsPage(navController ,sharedPreferencesManager)
         }
         composable(Routes.Login.routes) {
-            LoginPage(navController, context, vm)
+            LoginPage(navController, context, vm,sharedPreferencesManager)
         }
         composable(Routes.Register.routes) {
-            Register(navController, vm)
+            Register(navController, vm,sharedPreferencesManager)
+        }
+
+        composable(Routes.DoctorRegister.routes) {
+            DoctorRegister(navController, vm)
         }
 
         composable(Routes.PersonalInfo.routes) { PersonalInfoScreen(navController) }

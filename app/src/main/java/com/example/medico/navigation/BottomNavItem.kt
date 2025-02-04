@@ -1,4 +1,4 @@
-package com.example.medico.controllers
+package com.example.medico.navigation
 
 data class BottomNavItem(
     val route: String,

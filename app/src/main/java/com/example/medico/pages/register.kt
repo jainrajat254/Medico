@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -29,6 +27,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,12 +48,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medico.R
-import com.example.medico.controllers.Routes
 import com.example.medico.data.UserData
 import com.example.medico.models.AuthViewModel
+import com.example.medico.navigation.Routes
+import com.example.medico.sharedPreferences.SharedPreferencesManager
 
 @Composable
-fun Register(navController: NavController, vm: AuthViewModel) {
+fun Register(
+    navController: NavController,
+    vm: AuthViewModel,
+    sharedPreferencesManager: SharedPreferencesManager,
+) {
 
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -129,14 +134,16 @@ fun Register(navController: NavController, vm: AuthViewModel) {
                                             value = firstName,
                                             onValueChange = { firstName = it },
                                             label = "First Name",
-                                            modifier = Modifier.weight(1f)
-                                        )
+                                            modifier = Modifier.weight(1f),
+
+                                            )
                                         CustomTextField(
                                             value = lastName,
                                             onValueChange = { lastName = it },
                                             label = "Last Name",
-                                            modifier = Modifier.weight(1f)
-                                        )
+                                            modifier = Modifier.weight(1f),
+
+                                            )
                                     }
 
                                     Spacer(modifier = Modifier.height(16.dp))
@@ -146,48 +153,28 @@ fun Register(navController: NavController, vm: AuthViewModel) {
                                         value = age,
                                         onValueChange = { age = it },
                                         label = "Age (in years)",
+                                        modifier = Modifier.fillMaxWidth(),
                                         keyboardType = KeyboardType.Phone,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+
+                                        )
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
                                     // Gender Dropdown
-                                    GenderDropDownMenu(
-                                        gender = gender,
+                                    GenderDropdown(
+                                        selectedGender = gender,
                                         onGenderSelected = { newGender ->
                                             gender = newGender
                                         }
                                     )
 
-                                    // Weight and Height
-//                                    Row(
-//                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-//                                        modifier = Modifier.fillMaxWidth()
-//                                    ) {
-//                                        CustomTextField(
-//                                            value = viewModel.weight.value,
-//                                            onValueChange = { viewModel.weight.value = it },
-//                                            label = "Weight (kg)",
-//                                            keyboardType = KeyboardType.Number,
-//                                            modifier = Modifier.weight(1f)
-//                                        )
-//                                        CustomTextField(
-//                                            value = viewModel.height.value,
-//                                            onValueChange = { viewModel.height.value = it },
-//                                            label = "Height (cm)",
-//                                            keyboardType = KeyboardType.Number,
-//                                            modifier = Modifier.weight(1f)
-//                                        )
-//                                    }
-
                                     Spacer(modifier = Modifier.height(16.dp))
 
                                     // Blood Group Dropdown
-                                    BloodGroupDropDownMenu(
-                                        bloodGroup = bloodGroup,
-                                        onBloodGroupSelected = { blood ->
-                                            bloodGroup = blood
+                                    BloodGroupDropdown(
+                                        selectedBloodGroup = bloodGroup,
+                                        onBloodGroupSelected = { newBloodGroup ->
+                                            bloodGroup = newBloodGroup
                                         }
                                     )
 
@@ -198,9 +185,10 @@ fun Register(navController: NavController, vm: AuthViewModel) {
                                         value = phone,
                                         onValueChange = { phone = it },
                                         label = "Phone",
+                                        modifier = Modifier.fillMaxWidth(),
                                         keyboardType = KeyboardType.Phone,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+
+                                        )
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -208,9 +196,10 @@ fun Register(navController: NavController, vm: AuthViewModel) {
                                         value = email,
                                         onValueChange = { email = it },
                                         label = "Email",
+                                        modifier = Modifier.fillMaxWidth(),
                                         keyboardType = KeyboardType.Email,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+
+                                        )
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -218,9 +207,10 @@ fun Register(navController: NavController, vm: AuthViewModel) {
                                         value = password,
                                         onValueChange = { password = it },
                                         label = "Password",
+                                        modifier = Modifier.fillMaxWidth(),
                                         keyboardType = KeyboardType.Email,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+
+                                        )
 
                                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -240,8 +230,11 @@ fun Register(navController: NavController, vm: AuthViewModel) {
                                             vm.register(
                                                 user,
                                                 onSuccess = {
-                                                    Toast.makeText(context,"Registration Successful\nLog in to continue",
-                                                        Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Registration Successful\nLog in to continue",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
                                                     navController.navigate(Routes.Login.routes) {
                                                         popUpTo(0) {
                                                             inclusive = true
@@ -272,134 +265,125 @@ fun Register(navController: NavController, vm: AuthViewModel) {
 }
 
 @Composable
-fun GenderDropDownMenu(
-    modifier: Modifier = Modifier,
-    gender: String,
-    onGenderSelected: (String) -> Unit,
+fun BloodGroupDropdown(
+    selectedBloodGroup: String,
+    onBloodGroupSelected: (String) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box {
-        OutlinedTextField(
-            value = gender,
-            onValueChange = { },
-            label = {
-                Text(
-                    text = "Gender",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.W500
-                    ),
-                    color = Color.Gray
-                )
-            },
-            readOnly = true,
-            shape = RoundedCornerShape(16.dp),
-            modifier = modifier
-                .width(300.dp)
-                .padding(top = 10.dp)
-                .clickable { expanded = true },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Dropdown Icon",
-                    modifier = Modifier.clickable { expanded = true }
-                )
-            }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Male") },
-                onClick = {
-                    onGenderSelected("Male")
-                    expanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Female") },
-                onClick = {
-                    onGenderSelected("Female")
-                    expanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Others") },
-                onClick = {
-                    onGenderSelected("Others")
-                    expanded = false
-                }
-            )
-        }
-    }
+    val bloodGroups = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
+    CommonDropDownMenu(
+        items = bloodGroups,
+        selectedItem = selectedBloodGroup,
+        onItemSelected = { bloodGroup ->
+            onBloodGroupSelected(bloodGroup)
+        },
+        label = "Blood Group"
+    )
 }
 
 @Composable
-fun BloodGroupDropDownMenu(
-    modifier: Modifier = Modifier,
-    bloodGroup: String,
-    onBloodGroupSelected: (String) -> Unit,
+fun GenderDropdown(
+    selectedGender: String,
+    onGenderSelected: (String) -> Unit,
+) {
+    val genderOptions = listOf("Male", "Female", "Other")
+    CommonDropDownMenu(
+        items = genderOptions,
+        selectedItem = selectedGender,
+        onItemSelected = { gender ->
+            onGenderSelected(gender)  // Notify the parent composable to update the ViewModel
+        },
+        label = "Gender"
+    )
+}
+
+@Composable
+fun CommonDropDownMenu(
+    items: List<String>,
+    selectedItem: String,
+    onItemSelected: (String) -> Unit,
+    label: String,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+    var isTextFieldEditable by remember { mutableStateOf(false) } // Track if the TextField is editable
+
+    // Filter items based on searchText
+    val filteredItems = if (searchText.isEmpty()) {
+        items
+    } else {
+        items.filter { it.contains(searchText, ignoreCase = true) }
+    }
 
     Box {
-        OutlinedTextField(
-            value = bloodGroup,
-            onValueChange = { },
-            label = {
-                Text(
-                    text = "Blood Group",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.W500
-                    ),
-                    color = Color.Gray
-                )
-            },
-            readOnly = true,
-            shape = RoundedCornerShape(16.dp),
-            modifier = modifier
-                .width(300.dp)
-                .padding(top = 10.dp)
-                .clickable { expanded = true },
+        CustomTextField(
+            value = selectedItem,
+            onValueChange = {}, // Don't allow typing, only selecting
+            label = label,
+            readOnly = !isTextFieldEditable, // Make it editable only when the dropdown is open
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true; isTextFieldEditable = true }, // Open dropdown and enable typing
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Dropdown Icon",
-                    modifier = Modifier.clickable { expanded = true }
+                    tint = Color.Black,
+                    modifier = Modifier.clickable { expanded = true; isTextFieldEditable = true }
                 )
             }
         )
+
+        // Dropdown menu
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = {
+                expanded = false
+                isTextFieldEditable = false // Disable editing after dropdown closes
+            }
         ) {
+            // Add a TextField for search input
             DropdownMenuItem(
-                text = { Text("A+") },
-                onClick = {
-                    onBloodGroupSelected("A+")
-                    expanded = false
-                }
+                text = {
+                    TextField(
+                        value = searchText,
+                        onValueChange = { searchText = it },
+                        placeholder = { Text(text = "Search...", color = Color.White) },
+                        textStyle = TextStyle(color = Color.White),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color.White,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent
+                        )
+                    )
+
+                },
+                onClick = {} // No action when clicking on the search field
             )
-            DropdownMenuItem(
-                text = { Text("A-") },
-                onClick = {
-                    onBloodGroupSelected("A-")
-                    expanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("B+") },
-                onClick = {
-                    onBloodGroupSelected("B+")
-                    expanded = false
-                }
-            )
+
+            // Display filtered items
+            filteredItems.forEach { item ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = item,
+                            style = TextStyle(color = Color.White)
+                        )
+                    },
+                    onClick = {
+                        onItemSelected(item)
+                        searchText = "" // Clear search text after selection
+                        expanded = false
+                        isTextFieldEditable = false // Disable editing once an item is selected
+                    }
+                )
+            }
         }
     }
 }
+
 
 
 @Composable
@@ -409,7 +393,7 @@ fun CustomTextField(
     label: String,
     modifier: Modifier = Modifier,
     readOnly: Boolean = false,
-    trailingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable() (() -> Unit)? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     singleLine: Boolean = true,
 ) {
@@ -427,13 +411,8 @@ fun CustomTextField(
         textStyle = TextStyle(
             color = Color.Black,
             fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+            fontWeight = FontWeight.W500
+        ),
     )
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun RegisterPreview() {
-//    Register(vm = vm)
-//}

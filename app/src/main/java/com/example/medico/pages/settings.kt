@@ -29,16 +29,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.medico.R
-import com.example.medico.controllers.BottomNavBar
+import com.example.medico.models.DoctorRegisterViewModel
+import com.example.medico.navigation.BottomNavBar
+import com.example.medico.sharedPreferences.SharedPreferencesManager
 
 @Composable
-fun SettingsPage(navController: NavHostController) {
+fun SettingsPage(
+    navController: NavHostController,
+    sharedPreferencesManager: SharedPreferencesManager
+) {
 
     val context = LocalContext.current
 
@@ -105,7 +109,7 @@ fun SettingsPage(navController: NavHostController) {
                                 textColor = if (option == "Sign Out") Color.Red else Color.Black
                             ) {
                                 when (option) {
-                                    //"Sign Out" -> handleSignOut(context, navController, authViewModel)
+                                    "Sign Out" -> sharedPreferencesManager.logOut(navController)
                                     "Personal Info" -> navController.navigate("personal_info")
                                     "Change Password" -> navController.navigate("change_password")
                                     "App Theme" -> navController.navigate("app_theme")
@@ -160,7 +164,7 @@ fun SettingsOption(title: String, textColor: Color = Color.Black, onClick: () ->
 }
 
 @Composable
-fun PersonalInfoScreen(navController: NavHostController) {
+fun PersonalInfoScreen(navController: NavController) {
     // Content for Personal Info screen
 }
 
@@ -194,10 +198,3 @@ fun TermsOfServiceScreen(navController: NavHostController) {
     // Content for Terms of Service screen
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun SettingsPagePreview() {
-    val navController = rememberNavController()
-    SettingsPage(navController = navController)
-}

@@ -46,13 +46,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medico.R
-import com.example.medico.controllers.Routes
+import com.example.medico.navigation.Routes
 import com.example.medico.data.LoginCredentials
 import com.example.medico.models.AuthViewModel
-import com.example.medico.sharedPreferences.SharedPreferencesManager.saveUserToPreferences
+import com.example.medico.sharedPreferences.SharedPreferencesManager
 
 @Composable
-fun LoginPage(navController: NavController, context: Context, vm: AuthViewModel) {
+fun LoginPage(
+    navController: NavController,
+    context: Context,
+    vm: AuthViewModel,
+    sharedPreferencesManager: SharedPreferencesManager
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -176,7 +181,7 @@ fun LoginPage(navController: NavController, context: Context, vm: AuthViewModel)
                                     vm.login(
                                         user,
                                         onSuccess = { userResponse ->
-                                            saveUserToPreferences(context, userResponse)
+                                            sharedPreferencesManager.saveUserToPreferences(userResponse)
                                             navController.navigate(Routes.Home.routes) {
                                                 popUpTo(0) {
                                                     inclusive = true

@@ -3,7 +3,10 @@ package com.example.medico.models
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.network.HttpException
+import com.example.medico.data.DoctorData
+import com.example.medico.data.DoctorRegister
 import com.example.medico.data.LoginCredentials
 import com.example.medico.data.LoginResponse
 import com.example.medico.data.UserData
@@ -40,6 +43,25 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
         viewModelScope.launch {
             try {
                 apiService.register(user)
+                onSuccess()
+            } catch (e: HttpException) {
+                Log.d("ViewModel", e.toString())
+                onError("HTTP Error during registration: ${e.message}")
+            } catch (e: Exception) {
+                Log.d("ViewModel", e.toString())
+                onError("Unexpected error during registration: ${e.message}")
+            }
+        }
+    }
+
+    fun register(
+        doctorRegister: DoctorRegister,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                apiService.register(doctorRegister)
                 onSuccess()
             } catch (e: HttpException) {
                 Log.d("ViewModel", e.toString())

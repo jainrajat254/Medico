@@ -79,6 +79,10 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
+    implementation(libs.accompanist.pager)
+
+    implementation (libs.androidx.material)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

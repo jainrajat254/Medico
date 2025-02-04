@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.medico.R
-import com.example.medico.controllers.BottomNavBar
+import com.example.medico.navigation.BottomNavBar
 import com.example.medico.data.Frequency
 import com.example.medico.models.AddMedications
 
@@ -91,7 +91,8 @@ fun AddMedicationPage(navController: NavHostController) {
                     value = viewModel.dosage.value,
                     onValueChange = { viewModel.dosage.value = it },
                     label = "Dosage",
-                    keyboardType = KeyboardType.Text
+                    keyboardType = KeyboardType.Text,
+                    
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -100,7 +101,8 @@ fun AddMedicationPage(navController: NavHostController) {
                     value = viewModel.time.value,
                     onValueChange = { viewModel.time.value = it },
                     label = "Time",
-                    keyboardType = KeyboardType.Number
+                    keyboardType = KeyboardType.Number,
+                    
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -135,6 +137,7 @@ fun FrequencyDropdown(viewModel: AddMedications) {
             value = viewModel.frequency.value?.fre ?: "",
             onValueChange = { },
             label = "Frequency",
+            modifier = Modifier.padding(start = 32.dp),
             readOnly = true,
             trailingIcon = {
                 IconButton(onClick = { viewModel.frequencyExpanded.value = !viewModel.frequencyExpanded.value }) {
@@ -144,7 +147,7 @@ fun FrequencyDropdown(viewModel: AddMedications) {
                     )
                 }
             },
-            modifier = Modifier.padding(start = 32.dp)
+            
         )
 
         // Dropdown Menu that appears when the trailing icon is clicked

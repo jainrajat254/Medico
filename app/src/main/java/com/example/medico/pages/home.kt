@@ -36,11 +36,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.medico.R
-import com.example.medico.controllers.BottomNavBar
+import com.example.medico.data.LoginResponse
+import com.example.medico.navigation.BottomNavBar
 import com.example.medico.data.Medicines
+import com.example.medico.sharedPreferences.SharedPreferencesManager
 
 
 val medicines = listOf(
@@ -52,7 +54,8 @@ val medicines = listOf(
 )
 
 @Composable
-fun HomePage(navController: NavHostController) {
+fun HomePage(navController: NavController, sharedPreferencesManager: SharedPreferencesManager) {
+    val user = sharedPreferencesManager.getUserFromSharedPreferences()
     Scaffold(
         bottomBar = {
             BottomNavBar(modifier = Modifier, navController = navController)
@@ -87,7 +90,7 @@ fun HomePage(navController: NavHostController) {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
                     item {
                         Text(
-                            text = "Welcome, Venkatesh",
+                            text = "Welcome, ${user?.firstName ?: "Name"}",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Start,
@@ -463,10 +466,4 @@ fun HealthCard(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    HomePage(navController = rememberNavController())
 }

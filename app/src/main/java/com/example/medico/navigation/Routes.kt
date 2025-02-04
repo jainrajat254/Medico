@@ -1,4 +1,4 @@
-package com.example.medico.controllers
+package com.example.medico.navigation
 
 object Routes {
     val Splash = Route("splash")
@@ -20,6 +20,8 @@ object Routes {
     val HelpSupport = Route("help_support")
     val PrivacyPolicy = Route("privacy_policy")
     val TermsOfService = Route("terms_of_service")
+
+    val DoctorRegister = Route("doctor_register")
 
     data class Route(val routes: String)
 }

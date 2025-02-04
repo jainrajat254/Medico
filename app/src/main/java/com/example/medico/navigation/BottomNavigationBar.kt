@@ -1,9 +1,10 @@
-package com.example.medico.controllers
+package com.example.medico.navigation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +30,6 @@ fun BottomNavBar(
     modifier: Modifier,
     navController: NavController,
 ) {
-
     val items = listOf(
         BottomNavItem(Routes.Home.routes, R.drawable.home, "Home"),
         BottomNavItem(Routes.Medications.routes, R.drawable.capsule, "Medications"),
@@ -40,26 +40,33 @@ fun BottomNavBar(
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    Row(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .background(Color(0xF1AD7118)),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
+            .height(72.dp)
+            .background(Color(color = 0XFF3872D3))
     ) {
-        items.forEach { item ->
-            BottomNavBarItem(
-                item = item,
-                isSelected = currentRoute == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(Routes.Home.routes) {
-                            inclusive = false
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .align(Alignment.BottomCenter), // Align the Row to the bottom of the Box
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            items.forEach { item ->
+                BottomNavBarItem(
+                    item = item,
+                    isSelected = currentRoute == item.route,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo(Routes.Home.routes) {
+                                inclusive = false
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
@@ -80,7 +87,7 @@ fun BottomNavBarItem(
             painter = painterResource(id = item.icon),
             contentDescription = item.label,
             modifier = Modifier
-                .size(28.dp)
+                .size(32.dp)
                 .clip(CircleShape)
                 .background(if (isSelected) Color.LightGray else Color.Transparent)
         )

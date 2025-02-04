@@ -1,5 +1,6 @@
 package com.example.medico.koin
 
+import com.example.medico.data.DoctorRegister
 import com.example.medico.data.LoginCredentials
 import com.example.medico.data.LoginResponse
 import com.example.medico.data.UserData
@@ -12,7 +13,7 @@ import io.ktor.http.contentType
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val url = "https://dda1-2409-40d2-1014-7973-6d86-615c-659e-c3cc.ngrok-free.app"
+    private val url = "https://b461-2409-40d2-101a-70dd-9461-dbce-b007-2e8c.ngrok-free.app"
 
     override suspend fun login(user: LoginCredentials): LoginResponse {
         return try {
@@ -31,6 +32,18 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
             val response: UserData = client.post("$url/register") {
                 contentType(ContentType.Application.Json)
                 setBody(data)
+            }.body()
+            response
+        } catch (e: Exception) {
+            throw Exception("Error during registration: ${e.message}")
+        }
+    }
+
+    override suspend fun register(doctorRegister: DoctorRegister): DoctorRegister {
+        return try {
+            val response: DoctorRegister = client.post("$url/doctor/register") {
+                contentType(ContentType.Application.Json)
+                setBody(doctorRegister)
             }.body()
             response
         } catch (e: Exception) {

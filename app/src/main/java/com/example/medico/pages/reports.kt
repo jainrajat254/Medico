@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.medico.R
-import com.example.medico.controllers.BottomNavBar
+import com.example.medico.navigation.BottomNavBar
 import com.example.medico.data.HealthReport
 
 val reports = listOf(
