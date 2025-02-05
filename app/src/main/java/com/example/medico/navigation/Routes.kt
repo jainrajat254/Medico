@@ -2,7 +2,8 @@ package com.example.medico.navigation
 
 object Routes {
     val Splash = Route("splash")
-    val Login = Route("login")
+    val ContinueAs = Route("continue_as")
+    val UserLogin = Route("user_login")
     val Register = Route("register")
     val Home = Route("home")
     val Medications = Route("medications")
@@ -22,6 +23,7 @@ object Routes {
     val TermsOfService = Route("terms_of_service")
 
     val DoctorRegister = Route("doctor_register")
+    val DocLogin = Route("doc_login")
 
     data class Route(val routes: String)
 }

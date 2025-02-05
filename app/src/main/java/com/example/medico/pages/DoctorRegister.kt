@@ -445,7 +445,7 @@ fun MedicalAddressScreen(
                                     "Registration Successful\nLog in to continue",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                navController.navigate(Routes.Login.routes) {
+                                navController.navigate(Routes.UserLogin.routes) {
                                     popUpTo(0) {
                                         inclusive = true
                                     }
@@ -489,22 +489,6 @@ fun PagerIndicator(pagerState: PagerState) {
             )
         }
     }
-}
-
-@Composable
-fun StateDropdown(
-    selectedState: String,
-    onStateSelected: (String) -> Unit,
-) {
-    val states = listOf("Delhi", "Haryana", "Uttar Pradesh", "Uttarakhand", "Goa")
-    CommonDropDownMenu(
-        items = states,
-        selectedItem = selectedState,
-        onItemSelected = { state ->
-            onStateSelected(state)
-        },
-        label = "State"
-    )
 }
 
 @Composable

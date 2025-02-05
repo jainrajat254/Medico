@@ -39,7 +39,7 @@ fun SplashScreen(
         val isLoggedIn = sharedPreferencesManager.isLoggedIn()
 
         navController.navigate(
-            if (isLoggedIn) Routes.Home.routes else Routes.Login.routes
+            if (isLoggedIn) Routes.Home.routes else Routes.UserLogin.routes
         ) {
             popUpTo(0) { inclusive = true } // Clears all previous routes
         }

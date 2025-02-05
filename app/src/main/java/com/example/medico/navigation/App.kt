@@ -10,11 +10,13 @@ import com.example.medico.models.AuthViewModel
 import com.example.medico.pages.AddMedicationPage
 import com.example.medico.pages.AppThemeScreen
 import com.example.medico.pages.ChangePasswordScreen
+import com.example.medico.pages.ContinueAs
 import com.example.medico.pages.DoctorRegister
 import com.example.medico.pages.HealthRecords
 import com.example.medico.pages.HealthReports
 import com.example.medico.pages.HelpSupportScreen
 import com.example.medico.pages.HomePage
+import com.example.medico.pages.LoginDoc
 import com.example.medico.pages.LoginPage
 import com.example.medico.pages.MedicationPage
 import com.example.medico.pages.NotificationsScreen
@@ -37,9 +39,13 @@ fun App() {
     val sharedPreferencesManager: SharedPreferencesManager = koinInject()
 
 
-    NavHost(navController = navController, startDestination = Routes.DoctorRegister.routes) {
+    NavHost(navController = navController, startDestination = Routes.ContinueAs.routes) {
         composable(Routes.Splash.routes) {
             SplashScreen(navController = navController,sharedPreferencesManager)
+        }
+
+        composable(Routes.ContinueAs.routes) {
+            ContinueAs(navController)
         }
         composable(Routes.BottomNav.routes) {
             BottomNavBar(modifier = Modifier, navController = navController)
@@ -62,7 +68,7 @@ fun App() {
         composable(Routes.Settings.routes) {
             SettingsPage(navController ,sharedPreferencesManager)
         }
-        composable(Routes.Login.routes) {
+        composable(Routes.UserLogin.routes) {
             LoginPage(navController, context, vm,sharedPreferencesManager)
         }
         composable(Routes.Register.routes) {
@@ -71,6 +77,10 @@ fun App() {
 
         composable(Routes.DoctorRegister.routes) {
             DoctorRegister(navController, vm)
+        }
+
+        composable(Routes.DocLogin.routes) {
+            LoginDoc(navController, context, vm, sharedPreferencesManager)
         }
 
         composable(Routes.PersonalInfo.routes) { PersonalInfoScreen(navController) }

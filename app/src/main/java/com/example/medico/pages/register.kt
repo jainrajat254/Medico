@@ -235,7 +235,7 @@ fun Register(
                                                         "Registration Successful\nLog in to continue",
                                                         Toast.LENGTH_SHORT
                                                     ).show()
-                                                    navController.navigate(Routes.Login.routes) {
+                                                    navController.navigate(Routes.UserLogin.routes) {
                                                         popUpTo(0) {
                                                             inclusive = true
                                                         }

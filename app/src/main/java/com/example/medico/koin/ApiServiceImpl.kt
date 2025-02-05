@@ -1,6 +1,7 @@
 package com.example.medico.koin
 
 import com.example.medico.data.DoctorRegister
+import com.example.medico.data.DoctorResponse
 import com.example.medico.data.LoginCredentials
 import com.example.medico.data.LoginResponse
 import com.example.medico.data.UserData
@@ -13,21 +14,23 @@ import io.ktor.http.contentType
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val url = "https://b461-2409-40d2-101a-70dd-9461-dbce-b007-2e8c.ngrok-free.app"
+    private val url = "https://a279-2409-40d2-19-a29c-3d85-beea-3743-4ebc.ngrok-free.app"
 
     override suspend fun login(user: LoginCredentials): LoginResponse {
         return try {
-            val response: LoginResponse = client.post("$url/login") {
+            val response: LoginResponse = client.post("$url/doctor/login") {
                 contentType(ContentType.Application.Json)
-                setBody(LoginCredentials(user.email,user.password)) // Sending LoginCredentials data
+                setBody(LoginCredentials(user.email,user.password, user.role))
+            println(user.role)// Sending LoginCredentials data
             }.body()
             response
+
         } catch (e: Exception) {
             throw Exception("Error during login: ${e.message}") // Clear error message
         }
     }
 
-    override suspend fun register(data: UserData): UserData {
+    override suspend fun registerDoc(data: UserData): UserData {
         return try {
             val response: UserData = client.post("$url/register") {
                 contentType(ContentType.Application.Json)
@@ -39,15 +42,27 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
         }
     }
 
-    override suspend fun register(doctorRegister: DoctorRegister): DoctorRegister {
+    override suspend fun registerDoc(data: DoctorRegister): DoctorRegister {
         return try {
             val response: DoctorRegister = client.post("$url/doctor/register") {
                 contentType(ContentType.Application.Json)
-                setBody(doctorRegister)
+                setBody(data)
             }.body()
             response
         } catch (e: Exception) {
             throw Exception("Error during registration: ${e.message}")
+        }
+    }
+
+    override suspend fun loginDoc(user: LoginCredentials): DoctorResponse {
+        return try {
+            val response: DoctorResponse = client.post("$url/doctor/login") {
+                contentType(ContentType.Application.Json)
+                setBody(LoginCredentials(user.email,user.password,user.role)) // Sending LoginCredentials data
+            }.body()
+            response
+        } catch (e: Exception) {
+            throw Exception("Error during login: ${e.message}") // Clear error message
         }
     }
 }

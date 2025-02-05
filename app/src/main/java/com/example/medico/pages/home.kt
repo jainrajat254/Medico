@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.medico.R
-import com.example.medico.data.LoginResponse
 import com.example.medico.navigation.BottomNavBar
 import com.example.medico.data.Medicines
 import com.example.medico.sharedPreferences.SharedPreferencesManager
@@ -90,7 +89,7 @@ fun HomePage(navController: NavController, sharedPreferencesManager: SharedPrefe
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
                     item {
                         Text(
-                            text = "Welcome, ${user?.firstName ?: "Name"}",
+                            text = "Welcome, ${user?.firstName}",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Start,

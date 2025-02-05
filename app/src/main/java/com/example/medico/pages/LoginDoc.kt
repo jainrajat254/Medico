@@ -12,14 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medico.R
 import com.example.medico.navigation.Routes
@@ -52,7 +47,7 @@ import com.example.medico.models.AuthViewModel
 import com.example.medico.sharedPreferences.SharedPreferencesManager
 
 @Composable
-fun LoginPage(
+fun LoginDoc(
     navController: NavController,
     context: Context,
     vm: AuthViewModel,
@@ -114,7 +109,7 @@ fun LoginPage(
                                 username = it
                                 usernameError = false
                             },
-                            label = { Text(text = stringResource(id = R.string.username)) },
+                            label = { Text(text = "Doctor Id") },
                             isError = usernameError,
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
@@ -127,7 +122,7 @@ fun LoginPage(
                         )
                         if (usernameError) {
                             Text(
-                                text = stringResource(id = R.string.username_error),
+                                text = "Doctor Id cannot be empty",
                                 color = Color.Red,
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -177,11 +172,11 @@ fun LoginPage(
                                 usernameError = username.isEmpty()
                                 passwordError = password.isEmpty()
                                 if (!usernameError && !passwordError) {
-                                    val user = LoginCredentials(username, password)
-                                    vm.login(
-                                        user,
+                                    val doc = LoginCredentials(username, password, "DOCTOR")
+                                    vm.loginDoc(
+                                        doc,
                                         onSuccess = { userResponse ->
-                                            sharedPreferencesManager.saveUserToPreferences(userResponse)
+//                                            sharedPreferencesManager.saveUserToPreferences(userResponse)
                                             navController.navigate(Routes.Home.routes) {
                                                 popUpTo(0) {
                                                     inclusive = true
@@ -189,7 +184,7 @@ fun LoginPage(
                                             }
                                         },
                                         onError = {
-                                            navController.navigate(Routes.Login.routes)
+                                            navController.navigate(Routes.UserLogin.routes)
                                             Toast.makeText(
                                                 context,
                                                 "Invalid username or password. Please try again.",
@@ -225,48 +220,13 @@ fun LoginPage(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             )
-                            TextButton(onClick = { navController?.navigate(Routes.Register.routes) }) {
+                            TextButton(onClick = { navController.navigate(Routes.DoctorRegister.routes) }) {
                                 Text(
                                     text = stringResource(id = R.string.register),
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold
                                     )
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        // Social Login Button
-                        Button(
-                            onClick = { },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .size(343.dp, 56.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F1FA)),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                // Google Icon
-                                Icon(
-                                    painter = painterResource(id = R.drawable.google),
-                                    contentDescription = "Google Icon",
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color.Unspecified
-                                )
-
-                                Spacer(modifier = Modifier.width(5.dp))
-
-                                // Text next to the icon
-                                Text(
-                                    text = stringResource(id = R.string.google),
-                                    fontSize = 18.sp,
-                                    color = Color(0XFF212325)
                                 )
                             }
                         }

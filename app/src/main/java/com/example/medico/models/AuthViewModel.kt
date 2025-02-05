@@ -3,16 +3,14 @@ package com.example.medico.models
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.network.HttpException
-import com.example.medico.data.DoctorData
 import com.example.medico.data.DoctorRegister
+import com.example.medico.data.DoctorResponse
 import com.example.medico.data.LoginCredentials
 import com.example.medico.data.LoginResponse
 import com.example.medico.data.UserData
 import com.example.medico.koin.ApiService
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 
 class AuthViewModel(private val apiService: ApiService) : ViewModel() {
 
@@ -42,7 +40,7 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                apiService.register(user)
+                apiService.registerDoc(user)
                 onSuccess()
             } catch (e: HttpException) {
                 Log.d("ViewModel", e.toString())
@@ -54,6 +52,25 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
         }
     }
 
+    fun loginDoc(
+        user: LoginCredentials,
+        onSuccess: (DoctorResponse) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                val userResponse = apiService.loginDoc(user)
+                onSuccess(userResponse)
+            } catch (e: HttpException) {
+                Log.d("ViewModel", e.toString())
+                onError("HTTP Error during login: ${e.message}")
+            } catch (e: Exception) {
+                Log.d("ViewModel", e.toString())
+                onError("Unexpected error during login: ${e.message}")
+            }
+        }
+    }
+
     fun register(
         doctorRegister: DoctorRegister,
         onSuccess: () -> Unit,
@@ -61,7 +78,7 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                apiService.register(doctorRegister)
+                apiService.registerDoc(doctorRegister)
                 onSuccess()
             } catch (e: HttpException) {
                 Log.d("ViewModel", e.toString())
