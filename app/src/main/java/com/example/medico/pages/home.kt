@@ -54,7 +54,7 @@ val medicines = listOf(
 
 @Composable
 fun HomePage(navController: NavController, sharedPreferencesManager: SharedPreferencesManager) {
-    val user = sharedPreferencesManager.getUserFromSharedPreferences()
+    val user = sharedPreferencesManager.getDocFromSharedPreferences()
     Scaffold(
         bottomBar = {
             BottomNavBar(modifier = Modifier, navController = navController)

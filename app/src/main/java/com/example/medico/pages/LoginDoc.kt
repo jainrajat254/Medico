@@ -1,6 +1,7 @@
 package com.example.medico.pages
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +52,7 @@ fun LoginDoc(
     navController: NavController,
     context: Context,
     vm: AuthViewModel,
-    sharedPreferencesManager: SharedPreferencesManager
+    sharedPreferencesManager: SharedPreferencesManager,
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -176,7 +177,10 @@ fun LoginDoc(
                                     vm.loginDoc(
                                         doc,
                                         onSuccess = { userResponse ->
-//                                            sharedPreferencesManager.saveUserToPreferences(userResponse)
+                                            sharedPreferencesManager.saveDocToPreferences(
+                                                userResponse
+                                            )
+                                            Log.d("DOC","$userResponse")
                                             navController.navigate(Routes.Home.routes) {
                                                 popUpTo(0) {
                                                     inclusive = true

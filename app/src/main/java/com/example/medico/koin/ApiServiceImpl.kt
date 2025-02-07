@@ -14,7 +14,7 @@ import io.ktor.http.contentType
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val url = "https://a279-2409-40d2-19-a29c-3d85-beea-3743-4ebc.ngrok-free.app"
+    private val url = "https://dcbd-2409-40d2-19-ab43-5d90-4c8d-b45c-eed1.ngrok-free.app"
 
     override suspend fun login(user: LoginCredentials): LoginResponse {
         return try {
