@@ -76,7 +76,6 @@ fun HomePage(navController: NavController, sharedPreferencesManager: SharedPrefe
             // Header and Profile Picture Section
             HeaderSection()
 
-            // Main Content
             Column(
                 modifier = Modifier
                     .fillMaxSize()
