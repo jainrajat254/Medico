@@ -1,27 +1,31 @@
 package com.example.medico.koin
 
+import android.util.Log
 import com.example.medico.data.DoctorRegister
 import com.example.medico.data.DoctorResponse
+import com.example.medico.data.EditDocDTO
+import com.example.medico.data.EditUserDTO
 import com.example.medico.data.LoginCredentials
 import com.example.medico.data.LoginResponse
 import com.example.medico.data.UserData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val url = "https://dcbd-2409-40d2-19-ab43-5d90-4c8d-b45c-eed1.ngrok-free.app"
+    private val url = "https://ac94-2409-40d2-5a-e4e-2587-c7ca-8d4-3b23.ngrok-free.app"
 
     override suspend fun login(user: LoginCredentials): LoginResponse {
         return try {
             val response: LoginResponse = client.post("$url/doctor/login") {
                 contentType(ContentType.Application.Json)
-                setBody(LoginCredentials(user.email,user.password, user.role))
-            println(user.role)// Sending LoginCredentials data
+                setBody(LoginCredentials(user.email, user.password, user.role))
+                println(user.role)// Sending LoginCredentials data
             }.body()
             response
 
@@ -58,11 +62,46 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
         return try {
             val response: DoctorResponse = client.post("$url/doctor/login") {
                 contentType(ContentType.Application.Json)
-                setBody(LoginCredentials(user.email,user.password,user.role)) // Sending LoginCredentials data
+                setBody(
+                    LoginCredentials(
+                        user.email,
+                        user.password,
+                        user.role
+                    )
+                )
             }.body()
             response
         } catch (e: Exception) {
-            throw Exception("Error during login: ${e.message}") // Clear error message
+            throw Exception("Error during login: ${e.message}")
+        }
+    }
+
+    override suspend fun editDetails(data: EditUserDTO, id: String): Result<UserData> {
+        return try {
+            val response: UserData = client.put("$url/u/editDetails/$id") {
+                contentType(ContentType.Application.Json)
+                setBody(data)
+            }.body()
+            Log.d("data", "$data  $id")
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun editDocPersonalDetails(
+        data: EditDocDTO,
+        id: String,
+    ): Result<DoctorResponse> {
+        return try {
+            val response: DoctorResponse = client.put("$url/doctor/editDocPersonalDetails/$id") {
+                contentType(ContentType.Application.Json)
+                setBody(data)
+            }.body()
+            Log.d("data", "$data  $id")
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

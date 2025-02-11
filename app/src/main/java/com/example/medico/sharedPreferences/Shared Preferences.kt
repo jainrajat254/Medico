@@ -134,11 +134,7 @@ class SharedPreferencesManager(context: Context) {
         val availableForOnlineConsultation =
             sharedPreferences.getBoolean(DOC_PREFS_AVAILABLE_FOR_ONLINE_CONSULTATION, false)
 
-        return if (
-            userFirstName != null && userLastName != null &&
-            dob != null && gender != null && phone != null &&
-            email != null && token != null && id != null && uid != null
-        ) {
+        return if (userFirstName != null && userLastName != null && dob != null && gender != null && phone != null && email != null && token != null && id != null && uid != null) {
             DoctorResponse(
                 address ?: "",
                 availableForOnlineConsultation,
@@ -179,20 +175,9 @@ class SharedPreferencesManager(context: Context) {
         val token = sharedPreferences.getString(JWT_TOKEN_KEY, null)
         val id = sharedPreferences.getString(PREFS_ID, null)
 
-        return if (userFirstName != null && userLastName != null && age != null &&
-            gender != null && bloodGroup != null && phone != null &&
-            email != null && token != null && id != null
-        ) {
+        return if (userFirstName != null && userLastName != null && age != null && gender != null && bloodGroup != null && phone != null && email != null && token != null && id != null) {
             LoginResponse(
-                token,
-                id,
-                userFirstName,
-                userLastName,
-                age,
-                gender,
-                bloodGroup,
-                phone,
-                email
+                token, id, userFirstName, userLastName, age, gender, bloodGroup, phone, email
             )
         } else {
             null

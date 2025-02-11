@@ -1,8 +1,9 @@
 package com.example.medico.koin
 
 import com.example.medico.models.AuthViewModel
+import com.example.medico.models.DocAccountViewModel
+import com.example.medico.models.UserAccountViewModel
 import com.example.medico.sharedPreferences.SharedPreferencesManager
-import org.koin.dsl.module
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -10,6 +11,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.module
 
 val appModule = module {
     single {
@@ -26,5 +28,7 @@ val appModule = module {
     }
     single<ApiService> { ApiServiceImpl(get()) }
     single { SharedPreferencesManager(get()) }
+    viewModel { DocAccountViewModel(get()) }
+    viewModel { UserAccountViewModel(get()) }
     viewModel { AuthViewModel(get()) }
 }

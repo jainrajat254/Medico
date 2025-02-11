@@ -36,6 +36,7 @@ import androidx.navigation.NavHostController
 import com.example.medico.R
 import com.example.medico.models.DoctorRegisterViewModel
 import com.example.medico.navigation.BottomNavBar
+import com.example.medico.navigation.Routes
 import com.example.medico.sharedPreferences.SharedPreferencesManager
 
 @Composable
@@ -165,7 +166,9 @@ fun SettingsOption(title: String, textColor: Color = Color.Black, onClick: () ->
 
 @Composable
 fun PersonalInfoScreen(navController: NavController) {
-    // Content for Personal Info screen
+    navController.navigate(Routes.UserAccount.routes) {
+        popUpTo(Routes.Settings.routes)
+    }
 }
 
 @Composable

@@ -4,6 +4,7 @@ object Routes {
     val Splash = Route("splash")
     val ContinueAs = Route("continue_as")
     val UserLogin = Route("user_login")
+    val UserAccount = Route("user_account")
     val Register = Route("register")
     val Home = Route("home")
     val Medications = Route("medications")

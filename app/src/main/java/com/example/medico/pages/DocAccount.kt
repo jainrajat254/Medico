@@ -1,13 +1,9 @@
 package com.example.medico.pages
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,60 +12,51 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.medico.R
+import com.example.medico.data.EditDocDTO
 import com.example.medico.data.EditUserDTO
 import com.example.medico.models.AuthViewModel
-import com.example.medico.models.UserAccountViewModel
+import com.example.medico.models.DocAccountViewModel
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun UserAccount(vm: AuthViewModel) {
-    val userAccountViewModel: UserAccountViewModel = getViewModel()
+fun DocAccount(vm: AuthViewModel) {
+    val docAccountViewModel: DocAccountViewModel = getViewModel()
 
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
 
-    val PREFS_AGE = "age"
-    val PREFS_BLOOD_GROUP = "bloodGroup"
-    val PREFS_EMAIL = "email"
-    val PREFS_PHONE = "phone"
+    val DOC_PREFS_UID = "uid"
+    val DOC_PREFS_DOB = "dob"
+    val DOC_PREFS_EMAIL = "email"
+    val DOC_PREFS_PHONE = "phone"
 
 
-
-    val isEditing by userAccountViewModel.isEditing.collectAsState()
-    val id by userAccountViewModel.id.collectAsState()
-    val name by userAccountViewModel.name.collectAsState()
-    val age by userAccountViewModel.age.collectAsState()
-    val gender by userAccountViewModel.gender.collectAsState()
-    val bloodGroup by userAccountViewModel.bloodGroup.collectAsState()
-    val phone by userAccountViewModel.phone.collectAsState()
-    val email by userAccountViewModel.email.collectAsState()
-    val selectedImageUri by userAccountViewModel.selectedImageUri.collectAsState()
+    val isEditing by docAccountViewModel.isEditing.collectAsState()
+    val id by docAccountViewModel.id.collectAsState()
+    val name by docAccountViewModel.name.collectAsState()
+    val uid by docAccountViewModel.uid.collectAsState()
+    val gender by docAccountViewModel.gender.collectAsState()
+    val dob by docAccountViewModel.dob.collectAsState()
+    val phone by docAccountViewModel.phone.collectAsState()
+    val email by docAccountViewModel.email.collectAsState()
+    val selectedImageUri by docAccountViewModel.selectedImageUri.collectAsState()
 
     Scaffold { paddingValues ->
         Box(
@@ -107,7 +94,7 @@ fun UserAccount(vm: AuthViewModel) {
                         ProfileImage(
                             isEditing = isEditing,
                             selectedImageUri = selectedImageUri,
-                            onImageSelect = { uri -> userAccountViewModel.updateSelectedImageUri(uri) }
+                            onImageSelect = { uri -> docAccountViewModel.updateSelectedImageUri(uri) }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -125,30 +112,30 @@ fun UserAccount(vm: AuthViewModel) {
                             onValueChange = {}
                         )
                         UserInfoField(
-                            label = "Age",
-                            value = age,
+                            label = "UID",
+                            value = uid,
                             isEditing = isEditing,
-                            onValueChange = userAccountViewModel::updateAge,
+                            onValueChange = docAccountViewModel::updateUid,
                             keyboardType = KeyboardType.Number
                         )
                         UserInfoField(
-                            label = "Blood Group",
-                            value = bloodGroup,
+                            label = "DOB (DD/MM/YYYY)",
+                            value = dob,
                             isEditing = isEditing,
-                            onValueChange = userAccountViewModel::updateBloodGroup
+                            onValueChange = docAccountViewModel::updateDOB
                         )
                         UserInfoField(
                             label = "Phone",
                             value = phone,
                             isEditing = isEditing,
-                            onValueChange = userAccountViewModel::updatePhone,
+                            onValueChange = docAccountViewModel::updatePhone,
                             keyboardType = KeyboardType.Phone
                         )
                         UserInfoField(
                             label = "Email",
                             value = email,
                             isEditing = isEditing,
-                            onValueChange = userAccountViewModel::updateEmail,
+                            onValueChange = docAccountViewModel::updateEmail,
                             keyboardType = KeyboardType.Email
                         )
                     }
@@ -158,10 +145,10 @@ fun UserAccount(vm: AuthViewModel) {
                         Button(
                             onClick = {
                                 if (isEditing) {
-                                    val formError = userAccountViewModel.isFormValid()
+                                    val formError = docAccountViewModel.isPersonalDetailsFormValid()
                                     if (formError == null) {
-                                        val data = EditUserDTO(age, bloodGroup, phone, email)
-                                        vm.editDetails(
+                                        val data = EditDocDTO(uid, dob, phone, email)
+                                        vm.editDocPersonalDetails(
                                             data,
                                             id,
                                             onSuccess = {
@@ -171,10 +158,10 @@ fun UserAccount(vm: AuthViewModel) {
                                                     Toast.LENGTH_SHORT
                                                 ).show()
                                                 sharedPreferences.edit().apply {
-                                                    putString(PREFS_AGE, age)
-                                                    putString(PREFS_BLOOD_GROUP, bloodGroup)
-                                                    putString(PREFS_PHONE, phone)
-                                                    putString(PREFS_EMAIL, email)
+                                                    putString(DOC_PREFS_DOB, dob)
+                                                    putString(DOC_PREFS_UID, uid)
+                                                    putString(DOC_PREFS_PHONE, phone)
+                                                    putString(DOC_PREFS_EMAIL, email)
                                                     apply()
                                                 }
                                                 Log.d("data", "$data  $id")
@@ -188,14 +175,13 @@ fun UserAccount(vm: AuthViewModel) {
                                                 ).show()
                                             }
                                         )
-                                        userAccountViewModel.toggleEditing()
+                                        docAccountViewModel.toggleEditing()
                                     } else {
                                         Toast.makeText(context, formError, Toast.LENGTH_SHORT)
                                             .show()
                                     }
                                 } else {
-                                    // Start editing
-                                    userAccountViewModel.toggleEditing()
+                                    docAccountViewModel.toggleEditing()
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -211,89 +197,3 @@ fun UserAccount(vm: AuthViewModel) {
         }
     }
 }
-
-
-@Composable
-fun ProfileImage(
-    isEditing: Boolean,
-    selectedImageUri: Uri?,
-    onImageSelect: (Uri?) -> Unit,
-) {
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            onImageSelect(uri)
-        }
-    )
-
-    Box(
-        modifier = Modifier
-            .size(180.dp)
-            .clip(CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        AsyncImage(
-            model = selectedImageUri ?: R.drawable.home,
-            contentDescription = "Profile Image",
-            modifier = Modifier
-                .size(180.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-
-        if (isEditing) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .align(Alignment.BottomEnd)
-                    .clip(CircleShape)
-                    .padding(4.dp)
-//                    .offset(x = (12).dp, y = (-14).dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
-                    contentDescription = "Add",
-                    tint = Color.LightGray,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .align(Alignment.Center)
-                        .clickable {
-                            launcher.launch("image/*")
-                        }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun UserInfoField(
-    label: String,
-    value: String,
-    isEditing: Boolean,
-    onValueChange: (String) -> Unit,
-    singleLine: Boolean = true,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    shape: RoundedCornerShape = RoundedCornerShape(12.dp),
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.Gray,
-            modifier = Modifier.padding(start = 4.dp)
-        )
-        TextField(
-            value = value,
-            onValueChange = { if (isEditing) onValueChange(it) },
-            enabled = isEditing,
-            readOnly = !isEditing,
-            singleLine = singleLine,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType),
-            modifier = Modifier.fillMaxWidth(),
-            shape = shape
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-    }
-}
-

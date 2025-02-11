@@ -1,5 +1,6 @@
 package com.example.medico.pages
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +55,8 @@ val medicines = listOf(
 
 @Composable
 fun HomePage(navController: NavController, sharedPreferencesManager: SharedPreferencesManager) {
-    val user = sharedPreferencesManager.getDocFromSharedPreferences()
+    val user = sharedPreferencesManager.getUserFromSharedPreferences()
+    Log.d("User Details", "$user")
     Scaffold(
         bottomBar = {
             BottomNavBar(modifier = Modifier, navController = navController)

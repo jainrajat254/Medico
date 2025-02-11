@@ -26,6 +26,7 @@ import com.example.medico.pages.Register
 import com.example.medico.pages.SettingsPage
 import com.example.medico.pages.SplashScreen
 import com.example.medico.pages.TermsOfServiceScreen
+import com.example.medico.pages.UserAccount
 import com.example.medico.sharedPreferences.SharedPreferencesManager
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -81,6 +82,10 @@ fun App() {
 
         composable(Routes.DocLogin.routes) {
             LoginDoc(navController, context, vm, sharedPreferencesManager)
+        }
+
+        composable(Routes.UserAccount.routes) {
+            UserAccount(vm)
         }
 
         composable(Routes.PersonalInfo.routes) { PersonalInfoScreen(navController) }

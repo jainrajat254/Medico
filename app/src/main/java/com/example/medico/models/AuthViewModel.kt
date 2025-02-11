@@ -3,9 +3,12 @@ package com.example.medico.models
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.network.HttpException
 import com.example.medico.data.DoctorRegister
 import com.example.medico.data.DoctorResponse
+import com.example.medico.data.EditDocDTO
+import com.example.medico.data.EditUserDTO
 import com.example.medico.data.LoginCredentials
 import com.example.medico.data.LoginResponse
 import com.example.medico.data.UserData
@@ -89,4 +92,39 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
             }
         }
     }
+
+    fun editDetails(
+        data: EditUserDTO,
+        userId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                val response: Result<UserData> = apiService.editDetails(data, userId)
+                onSuccess()
+                Log.d("data", "$data  $userId")
+            } catch (e: Exception) {
+                onError("Error during edit: ${e.message}")
+            }
+        }
+    }
+
+    fun editDocPersonalDetails(
+        data: EditDocDTO,
+        userId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                val response: Result<DoctorResponse> = apiService.editDocPersonalDetails(data, userId)
+                onSuccess()
+                Log.d("data", "$data  $userId")
+            } catch (e: Exception) {
+                onError("Error during edit: ${e.message}")
+            }
+        }
+    }
+
 }
