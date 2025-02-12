@@ -1,7 +1,7 @@
 package com.example.medico
 
 import android.app.Application
-import com.example.medico.koin.appModule
+import com.example.medico.common.koin.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
