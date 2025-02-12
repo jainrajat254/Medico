@@ -13,6 +13,9 @@ object Routes {
     val Reports = Route("reports")
     val Settings = Route("settings")
     val BottomNav = Route("bottom_nav")
+    val DocAddressDetails = Route("doc_address_details")
+    val DocMedicalDetails = Route("doc_medical_details")
+
 
     // New routes for settings options
     val PersonalInfo = Route("personal_info")

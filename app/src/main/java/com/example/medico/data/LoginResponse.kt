@@ -12,5 +12,6 @@ data class LoginResponse(
     val gender: String,
     val bloodGroup: String,
     val phone: String,
-    val email: String
+    val email: String,
+    val password: String
 )

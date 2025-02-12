@@ -9,8 +9,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.medico.models.AuthViewModel
 import com.example.medico.pages.AddMedicationPage
 import com.example.medico.pages.AppThemeScreen
-import com.example.medico.pages.ChangePasswordScreen
+import com.example.medico.pages.ChangePassword
 import com.example.medico.pages.ContinueAs
+import com.example.medico.pages.DocAddressDetails
+import com.example.medico.pages.DocMedicalDetails
 import com.example.medico.pages.DoctorRegister
 import com.example.medico.pages.HealthRecords
 import com.example.medico.pages.HealthReports
@@ -42,7 +44,7 @@ fun App() {
 
     NavHost(navController = navController, startDestination = Routes.ContinueAs.routes) {
         composable(Routes.Splash.routes) {
-            SplashScreen(navController = navController,sharedPreferencesManager)
+            SplashScreen(navController = navController, sharedPreferencesManager)
         }
 
         composable(Routes.ContinueAs.routes) {
@@ -52,7 +54,7 @@ fun App() {
             BottomNavBar(modifier = Modifier, navController = navController)
         }
         composable(Routes.Home.routes) {
-            HomePage(navController,sharedPreferencesManager)
+            HomePage(navController, sharedPreferencesManager)
         }
         composable(Routes.Medications.routes) {
             MedicationPage(navController)
@@ -67,13 +69,13 @@ fun App() {
             HealthReports(navController)
         }
         composable(Routes.Settings.routes) {
-            SettingsPage(navController ,sharedPreferencesManager)
+            SettingsPage(navController, sharedPreferencesManager)
         }
         composable(Routes.UserLogin.routes) {
-            LoginPage(navController, context, vm,sharedPreferencesManager)
+            LoginPage(navController, context, vm, sharedPreferencesManager)
         }
         composable(Routes.Register.routes) {
-            Register(navController, vm,sharedPreferencesManager)
+            Register(navController, vm, sharedPreferencesManager)
         }
 
         composable(Routes.DoctorRegister.routes) {
@@ -85,11 +87,29 @@ fun App() {
         }
 
         composable(Routes.UserAccount.routes) {
-            UserAccount(vm)
+            UserAccount(vm, sharedPreferencesManager)
+        }
+
+        composable(Routes.DocAddressDetails.routes) {
+            DocAddressDetails(sharedPreferencesManager, vm)
+        }
+
+        composable(Routes.DocMedicalDetails.routes) {
+            DocMedicalDetails(
+                sharedPreferencesManager = sharedPreferencesManager,
+                vm = vm,
+                navController = navController
+            )
         }
 
         composable(Routes.PersonalInfo.routes) { PersonalInfoScreen(navController) }
-        composable(Routes.ChangePassword.routes) { ChangePasswordScreen(navController) }
+        composable(Routes.ChangePassword.routes) {
+            ChangePassword(
+                sharedPreferencesManager = sharedPreferencesManager,
+                vm = vm,
+                navController = navController
+            )
+        }
         composable(Routes.AppTheme.routes) { AppThemeScreen(navController) }
         composable(Routes.Notifications.routes) { NotificationsScreen(navController) }
         composable(Routes.HelpSupport.routes) { HelpSupportScreen(navController) }

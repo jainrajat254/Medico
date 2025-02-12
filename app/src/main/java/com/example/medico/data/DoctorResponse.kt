@@ -24,5 +24,6 @@ data class DoctorResponse(
     val uid: String,
     val workingTime: List<String>,
     val workspaceName: String,
-    val zipCode: String
+    val zipCode: String,
+    val password: String
 )

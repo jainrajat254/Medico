@@ -25,33 +25,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.medico.R
-import com.example.medico.data.EditDocDTO
+import com.example.medico.data.DocMedicalDetailsDTO
 import com.example.medico.models.AuthViewModel
 import com.example.medico.models.DocAccountViewModel
 import com.example.medico.sharedPreferences.SharedPreferencesManager
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun DocAccount(
+fun DocMedicalDetails(
+    sharedPreferencesManager: SharedPreferencesManager,
     vm: AuthViewModel,
-    sharedPreferencesManager: SharedPreferencesManager
+    navController: NavController,
 ) {
     val docAccountViewModel: DocAccountViewModel = getViewModel()
-
     val context = LocalContext.current
 
     val isEditing by docAccountViewModel.isEditing.collectAsState()
     val id by docAccountViewModel.id.collectAsState()
-    val name by docAccountViewModel.name.collectAsState()
-    val uid by docAccountViewModel.uid.collectAsState()
-    val gender by docAccountViewModel.gender.collectAsState()
-    val dob by docAccountViewModel.dob.collectAsState()
-    val phone by docAccountViewModel.phone.collectAsState()
-    val email by docAccountViewModel.email.collectAsState()
-    val selectedImageUri by docAccountViewModel.selectedImageUri.collectAsState()
+    val medicalRegNo by docAccountViewModel.medicalRegNo.collectAsState()
+    val specialization by docAccountViewModel.specialization.collectAsState()
+    val qualification by docAccountViewModel.qualification.collectAsState()
+    val fee by docAccountViewModel.fee.collectAsState()
+    val experience by docAccountViewModel.experience.collectAsState()
+    val availableForOnlineConsultation by docAccountViewModel.availableForOnlineConsultation.collectAsState()
 
     Scaffold { paddingValues ->
         Box(
@@ -78,63 +77,61 @@ fun DocAccount(
                 Tagline()
                 Spacer(modifier = Modifier.height(32.dp))
 
+                // Lazy Column for User Info Fields
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top
+                    verticalArrangement = Arrangement.Center
                 ) {
                     item {
-                        ProfileImage(
+                        UserInfoField(
+                            label = "Medical Registration Number",
+                            value = medicalRegNo,
                             isEditing = isEditing,
-                            selectedImageUri = selectedImageUri,
-                            onImageSelect = { uri -> docAccountViewModel.updateSelectedImageUri(uri) }
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        UserInfoField(
-                            label = "Name",
-                            value = name,
-                            isEditing = false,
-                            onValueChange = {}
+                            onValueChange = docAccountViewModel::updateMedicalRegNo,
                         )
                         UserInfoField(
-                            label = "Gender",
-                            value = gender,
-                            isEditing = false,
-                            onValueChange = {}
-                        )
-                        UserInfoField(
-                            label = "UID",
-                            value = uid,
+                            label = "Qualification",
+                            value = qualification,
                             isEditing = isEditing,
-                            onValueChange = docAccountViewModel::updateUid,
-                            keyboardType = KeyboardType.Number
+                            onValueChange = docAccountViewModel::updateQualification,
                         )
                         UserInfoField(
-                            label = "DOB (DD/MM/YYYY)",
-                            value = dob,
+                            label = "Specialization",
+                            value = specialization,
                             isEditing = isEditing,
-                            onValueChange = docAccountViewModel::updateDOB
+                            onValueChange = docAccountViewModel::updateSpecialization
                         )
                         UserInfoField(
-                            label = "Phone",
-                            value = phone,
+                            label = "Experience",
+                            value = experience.toString(),
                             isEditing = isEditing,
-                            onValueChange = docAccountViewModel::updatePhone,
-                            keyboardType = KeyboardType.Phone
+                            onValueChange = { newValue ->
+                                val intValue = newValue.toIntOrNull() ?: experience
+                                docAccountViewModel.updateExperience(intValue)
+                            }
                         )
                         UserInfoField(
-                            label = "Email",
-                            value = email,
+                            label = "Fee",
+                            value = fee.toString(),
                             isEditing = isEditing,
-                            onValueChange = docAccountViewModel::updateEmail,
-                            keyboardType = KeyboardType.Email
+                            onValueChange = { newValue ->
+                                val intValue = newValue.toIntOrNull() ?: fee
+                                docAccountViewModel.updateFee(intValue)
+                            }
+                        )
+                        UserInfoField(
+                            label = "Available For Online Consultation",
+                            value = availableForOnlineConsultation.toString(),
+                            isEditing = isEditing,
+                            onValueChange = { newValue ->
+                                val booleanValue = newValue.toBooleanStrictOrNull() ?: availableForOnlineConsultation
+                                docAccountViewModel.updateAvailableForOnlineConsultation(booleanValue)
+                            }
                         )
                     }
-
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
@@ -142,8 +139,15 @@ fun DocAccount(
                                 if (isEditing) {
                                     val formError = docAccountViewModel.isPersonalDetailsFormValid()
                                     if (formError == null) {
-                                        val data = EditDocDTO(uid, dob, phone, email)
-                                        vm.editDocPersonalDetails(
+                                        val data = DocMedicalDetailsDTO(
+                                            medicalRegNo,
+                                            qualification,
+                                            specialization,
+                                            experience,
+                                            fee,
+                                            availableForOnlineConsultation
+                                        )
+                                        vm.editDocMedicalDetails(
                                             data,
                                             id,
                                             onSuccess = {
@@ -152,7 +156,14 @@ fun DocAccount(
                                                     "Details Updated",
                                                     Toast.LENGTH_SHORT
                                                 ).show()
-                                                sharedPreferencesManager.editDocPersonalDetails(dob, uid, phone, email)
+                                                sharedPreferencesManager.editDocMedicalDetails(
+                                                    medicalRegNo,
+                                                    qualification,
+                                                    specialization,
+                                                    experience,
+                                                    fee,
+                                                    availableForOnlineConsultation
+                                                )
                                                 Log.d("data", "$data  $id")
                                             },
                                             onError = { errorMessage ->

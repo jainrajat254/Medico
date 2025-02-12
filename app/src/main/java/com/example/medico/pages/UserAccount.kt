@@ -45,21 +45,14 @@ import com.example.medico.R
 import com.example.medico.data.EditUserDTO
 import com.example.medico.models.AuthViewModel
 import com.example.medico.models.UserAccountViewModel
+import com.example.medico.sharedPreferences.SharedPreferencesManager
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun UserAccount(vm: AuthViewModel) {
+fun UserAccount(vm: AuthViewModel, sharedPreferencesManager: SharedPreferencesManager) {
     val userAccountViewModel: UserAccountViewModel = getViewModel()
 
     val context = LocalContext.current
-    val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-
-    val PREFS_AGE = "age"
-    val PREFS_BLOOD_GROUP = "bloodGroup"
-    val PREFS_EMAIL = "email"
-    val PREFS_PHONE = "phone"
-
-
 
     val isEditing by userAccountViewModel.isEditing.collectAsState()
     val id by userAccountViewModel.id.collectAsState()
@@ -170,13 +163,7 @@ fun UserAccount(vm: AuthViewModel) {
                                                     "Details Updated",
                                                     Toast.LENGTH_SHORT
                                                 ).show()
-                                                sharedPreferences.edit().apply {
-                                                    putString(PREFS_AGE, age)
-                                                    putString(PREFS_BLOOD_GROUP, bloodGroup)
-                                                    putString(PREFS_PHONE, phone)
-                                                    putString(PREFS_EMAIL, email)
-                                                    apply()
-                                                }
+                                                sharedPreferencesManager.editUserDetails(age,bloodGroup,phone,email)
                                                 Log.d("data", "$data  $id")
                                             },
                                             onError = { errorMessage ->
@@ -272,7 +259,6 @@ fun UserInfoField(
     value: String,
     isEditing: Boolean,
     onValueChange: (String) -> Unit,
-    singleLine: Boolean = true,
     keyboardType: KeyboardType = KeyboardType.Text,
     shape: RoundedCornerShape = RoundedCornerShape(12.dp),
 ) {
@@ -288,7 +274,7 @@ fun UserInfoField(
             onValueChange = { if (isEditing) onValueChange(it) },
             enabled = isEditing,
             readOnly = !isEditing,
-            singleLine = singleLine,
+            singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType),
             modifier = Modifier.fillMaxWidth(),
             shape = shape

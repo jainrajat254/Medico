@@ -23,6 +23,7 @@ class SharedPreferencesManager(context: Context) {
         private const val PREFS_GENDER = "gender"
         private const val PREFS_BLOOD_GROUP = "bloodGroup"
         private const val PREFS_PHONE = "phone"
+        private const val PREFS_PASSWORD = "password"
 
         private const val DOC_PREFS_ID = "id"
         private const val DOC_PREFS_ADDRESS = "address"
@@ -45,6 +46,7 @@ class SharedPreferencesManager(context: Context) {
         private const val DOC_PREFS_WORKING_TIME = "workingTime"
         private const val DOC_PREFS_WORKSPACE_NAME = "workspaceName"
         private const val DOC_PREFS_ZIP_CODE = "zipCode"
+        private const val DOC_PREFS_PASSWORD = "password"
 
     }
 
@@ -76,6 +78,7 @@ class SharedPreferencesManager(context: Context) {
             putString(DOC_PREFS_WORKSPACE_NAME, userResponse.workspaceName)
             putString(DOC_PREFS_ZIP_CODE, userResponse.zipCode)
             putString(DOC_PREFS_WORKING_TIME, userResponse.workingTime.toString())
+            putString(DOC_PREFS_PASSWORD, userResponse.password)
             putInt(DOC_PREFS_EXPERIENCE, userResponse.experience)
             putInt(DOC_PREFS_FEE, userResponse.fee)
             apply()
@@ -93,7 +96,8 @@ class SharedPreferencesManager(context: Context) {
             putString(PREFS_EMAIL, userResponse.email)
             putBoolean(IS_LOGGED_IN_KEY, true)
             putString(JWT_TOKEN_KEY, userResponse.token)
-            putString(PREFS_ID, userResponse.id) // Save UUID
+            putString(PREFS_ID, userResponse.id)
+            putString(PREFS_PASSWORD, userResponse.password)
             apply()
         }
     }
@@ -124,8 +128,8 @@ class SharedPreferencesManager(context: Context) {
         val specialization = sharedPreferences.getString(DOC_PREFS_SPECIALIZATION, null)
         val medicalRegNo = sharedPreferences.getString(DOC_PREFS_MEDICAL_REG_NO, null)
         val workspaceName = sharedPreferences.getString(DOC_PREFS_WORKSPACE_NAME, null)
+        val password = sharedPreferences.getString(DOC_PREFS_PASSWORD, null)
 
-        // Convert stored comma-separated string into a List<String> for workingTime
         val workingTimeString = sharedPreferences.getString(DOC_PREFS_WORKING_TIME, null)
         val workingTime = workingTimeString?.split(",") ?: emptyList()
 
@@ -134,7 +138,7 @@ class SharedPreferencesManager(context: Context) {
         val availableForOnlineConsultation =
             sharedPreferences.getBoolean(DOC_PREFS_AVAILABLE_FOR_ONLINE_CONSULTATION, false)
 
-        return if (userFirstName != null && userLastName != null && dob != null && gender != null && phone != null && email != null && token != null && id != null && uid != null) {
+        return if (userFirstName != null && userLastName != null && dob != null && gender != null && phone != null && email != null && token != null && id != null && uid != null && password != null) {
             DoctorResponse(
                 address ?: "",
                 availableForOnlineConsultation,
@@ -156,7 +160,8 @@ class SharedPreferencesManager(context: Context) {
                 uid,
                 workingTime,
                 workspaceName ?: "",
-                zipCode ?: ""
+                zipCode ?: "",
+                password
             )
         } else {
             null
@@ -174,13 +179,83 @@ class SharedPreferencesManager(context: Context) {
         val email = sharedPreferences.getString(PREFS_EMAIL, null)
         val token = sharedPreferences.getString(JWT_TOKEN_KEY, null)
         val id = sharedPreferences.getString(PREFS_ID, null)
+        val password = sharedPreferences.getString(PREFS_PASSWORD, null)
 
-        return if (userFirstName != null && userLastName != null && age != null && gender != null && bloodGroup != null && phone != null && email != null && token != null && id != null) {
+        return if (userFirstName != null && userLastName != null && age != null && gender != null && bloodGroup != null && phone != null && email != null && token != null && id != null && password != null) {
             LoginResponse(
-                token, id, userFirstName, userLastName, age, gender, bloodGroup, phone, email
+                token,
+                id,
+                userFirstName,
+                userLastName,
+                age,
+                gender,
+                bloodGroup,
+                phone,
+                email,
+                password
             )
         } else {
             null
+        }
+    }
+
+
+    fun saveUserPassword(password: String) {
+        sharedPreferences.edit().apply {
+            putString(PREFS_PASSWORD, password)
+            apply()
+        }
+    }
+
+    fun editUserDetails(age: String, bloodGroup: String, phone: String, email: String) {
+        sharedPreferences.edit().apply {
+            putString(PREFS_AGE, age)
+            putString(PREFS_BLOOD_GROUP, bloodGroup)
+            putString(DOC_PREFS_PHONE, phone)
+            putString(DOC_PREFS_EMAIL, email)
+        }
+    }
+
+    fun editDocPersonalDetails(dob: String, uid: String, phone: String, email: String) {
+        sharedPreferences.edit().apply {
+            putString(DOC_PREFS_DOB, dob)
+            putString(DOC_PREFS_UID, uid)
+            putString(DOC_PREFS_PHONE, phone)
+            putString(DOC_PREFS_EMAIL, email)
+        }
+    }
+
+    fun editDocMedicalDetails(
+        medicalRegNo: String,
+        qualification: String,
+        specialization: String,
+        experience: Int,
+        fee: Int,
+        availableForOnlineConsultation: Boolean,
+    ) {
+        sharedPreferences.edit().apply {
+            putString(DOC_PREFS_MEDICAL_REG_NO, medicalRegNo)
+            putString(DOC_PREFS_QUALIFICATION, qualification)
+            putString(DOC_PREFS_SPECIALIZATION, specialization)
+            putInt(DOC_PREFS_EXPERIENCE, experience)
+            putInt(DOC_PREFS_FEE, fee)
+            putBoolean(DOC_PREFS_AVAILABLE_FOR_ONLINE_CONSULTATION, availableForOnlineConsultation)
+        }
+    }
+
+    fun editDocAddressDetails(
+        workspaceName: String,
+        address: String,
+        state: String,
+        district: String,
+        zipCode: String,
+    ) {
+        sharedPreferences.edit().apply {
+            putString(DOC_PREFS_WORKSPACE_NAME, workspaceName)
+            putString(DOC_PREFS_ADDRESS, address)
+            putString(DOC_PREFS_STATE, state)
+            putString(DOC_PREFS_DISTRICT, district)
+            putString(DOC_PREFS_ZIP_CODE, zipCode)
         }
     }
 

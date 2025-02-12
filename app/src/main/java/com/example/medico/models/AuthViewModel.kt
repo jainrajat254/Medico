@@ -5,12 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.network.HttpException
+import com.example.medico.data.DocAddressDetailsDTO
+import com.example.medico.data.DocMedicalDetailsDTO
 import com.example.medico.data.DoctorRegister
 import com.example.medico.data.DoctorResponse
 import com.example.medico.data.EditDocDTO
 import com.example.medico.data.EditUserDTO
 import com.example.medico.data.LoginCredentials
 import com.example.medico.data.LoginResponse
+import com.example.medico.data.PasswordUpdateRequest
 import com.example.medico.data.UserData
 import com.example.medico.koin.ApiService
 import kotlinx.coroutines.launch
@@ -118,7 +121,65 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                val response: Result<DoctorResponse> = apiService.editDocPersonalDetails(data, userId)
+                val response: Result<DoctorResponse> =
+                    apiService.editDocPersonalDetails(data, userId)
+                onSuccess()
+                Log.d("data", "$data  $userId")
+            } catch (e: Exception) {
+                onError("Error during edit: ${e.message}")
+            }
+        }
+    }
+
+    fun editPassword(
+        data: PasswordUpdateRequest,
+        userId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                val response: Result<UserData> = apiService.editPassword(data, userId)
+                response.onSuccess {
+                    onSuccess()
+                }.onFailure {
+                    onError("Error during edit: ${it.message}")
+                }
+                Log.d("data", "$data  $userId")
+            } catch (e: Exception) {
+                onError("Error during edit: ${e.message}")
+            }
+        }
+    }
+
+    fun editDocAddressDetails(
+        data: DocAddressDetailsDTO,
+        userId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                val response: Result<DoctorResponse> =
+                    apiService.editDocAddressDetails(data, userId)
+                onSuccess()
+                Log.d("data", "$data  $userId")
+            } catch (e: Exception) {
+                onError("Error during edit: ${e.message}")
+            }
+        }
+    }
+
+    fun editDocMedicalDetails(
+        data: DocMedicalDetailsDTO,
+        userId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                val response: Result<DoctorResponse> =
+                    apiService.editDocMedicalDetails(data, userId)
                 onSuccess()
                 Log.d("data", "$data  $userId")
             } catch (e: Exception) {

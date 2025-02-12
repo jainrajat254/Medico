@@ -172,8 +172,10 @@ fun PersonalInfoScreen(navController: NavController) {
 }
 
 @Composable
-fun ChangePasswordScreen(navController: NavHostController) {
-    // Content for Change Password screen
+fun ChangePasswordScreen(navController: NavController) {
+    navController.navigate(Routes.ChangePassword.routes) {
+        popUpTo(Routes.Settings.routes)
+    }
 }
 
 @Composable
