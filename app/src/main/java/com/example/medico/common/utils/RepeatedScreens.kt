@@ -336,6 +336,36 @@ fun BackgroundContent(paddingValues: PaddingValues, content: @Composable () -> U
 }
 
 @Composable
+fun BackgroundContentHome(paddingValues: PaddingValues, content: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
+        // Background Image
+        Image(
+            painter = painterResource(id = R.drawable.background_app),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Header and Profile Picture Section
+        HeaderSection()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .padding(start = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
 fun LoginForm(
     username: String,
     password: String,

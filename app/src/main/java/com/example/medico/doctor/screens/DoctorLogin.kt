@@ -52,7 +52,7 @@ fun LoginDoc(
                             user,
                             onSuccess = { userResponse ->
                                 sharedPreferencesManager.saveDocToPreferences(userResponse)
-                                navController.navigate(Routes.Home.routes) {
+                                navController.navigate(Routes.UserHome.routes) {
                                     popUpTo(0) { inclusive = true }
                                 }
                             },

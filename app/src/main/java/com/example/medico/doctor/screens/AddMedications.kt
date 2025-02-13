@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.medico.R
-import com.example.medico.common.navigation.BottomNavBar
+import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.model.Frequency
 import com.example.medico.common.utils.CustomTextField
 import com.example.medico.common.utils.HeaderSection
@@ -43,7 +43,7 @@ fun AddMedicationPage(navController: NavHostController) {
     val viewModel: AddMedications = viewModel()
 
     Scaffold(
-        bottomBar = { BottomNavBar(modifier = Modifier, navController = navController) }
+        bottomBar = { UserBottomNavBar(modifier = Modifier, navController = navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

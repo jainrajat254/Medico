@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.medico.common.model.HealthRecord
-import com.example.medico.common.navigation.BottomNavBar
+import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.utils.BackgroundContent
 
 val records = listOf(
@@ -52,7 +52,7 @@ fun HealthRecords(navController: NavHostController) {
 
     Scaffold(
         bottomBar = {
-            BottomNavBar(modifier = Modifier, navController = navController)
+            UserBottomNavBar(modifier = Modifier, navController = navController)
         }
     ) { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {

@@ -63,7 +63,7 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
     override suspend fun loginDoc(user: LoginCredentials): DoctorLoginResponse {
         return try {
-            val response: DoctorLoginResponse = client.post("$url/doctor/login") {
+            val response: DoctorLoginResponse = client.post("$url/login") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     LoginCredentials(

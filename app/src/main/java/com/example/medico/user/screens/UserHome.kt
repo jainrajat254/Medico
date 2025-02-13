@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,11 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,10 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medico.R
-import com.example.medico.common.navigation.BottomNavBar
+import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.model.Medicines
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
-import com.example.medico.common.utils.HeaderSection
+import com.example.medico.common.utils.BackgroundContentHome
 import com.example.medico.common.utils.TaglineAndProfilePicture
 
 
@@ -59,71 +56,47 @@ fun HomePage(navController: NavController, sharedPreferencesManager: SharedPrefe
     Log.d("User Details", "$user")
     Scaffold(
         bottomBar = {
-            BottomNavBar(modifier = Modifier, navController = navController)
+            UserBottomNavBar(modifier = Modifier, navController = navController)
         }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            // Background Image
-            Image(
-                painter = painterResource(id = R.drawable.background_app),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+    ) { paddingValues ->
+        BackgroundContentHome(paddingValues = paddingValues) {
 
-            // Header and Profile Picture Section
-            HeaderSection()
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                item {
+                    Text(
+                        text = "Welcome, ${user?.firstName}",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Start,
+                        color = Color.White,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, top = 64.dp)
+                    )
+                }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-                    .padding(start = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+                item {
+                    TaglineAndProfilePicture()
+                }
 
-                // Profile Content and LazyColumn for scrollable content
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    item {
-                        Text(
-                            text = "Welcome, ${user?.firstName}",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Start,
-                            color = Color.White,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, top = 64.dp)
-                        )
-                    }
+                item {
+                    MedicationCard()
+                }
 
-                    item {
-                        TaglineAndProfilePicture()
-                    }
+                item {
+                    HorizontalDivider(
+                        color = Color.Black,
+                        thickness = 2.dp,
+                        modifier = Modifier.padding(top = 30.dp)
+                    )
+                }
 
-                    item {
-                        MedicationCard()
-                    }
+                item {
+                    AppointmentsCard()
+                }
 
-                    item {
-                        HorizontalDivider(
-                            color = Color.Black,
-                            thickness = 2.dp,
-                            modifier = Modifier.padding(top = 30.dp)
-                        )
-                    }
-
-                    item {
-                        AppointmentsCard()
-                    }
-
-                    item {
-                        HealthCardsRow()
-                    }
+                item {
+                    HealthCardsRow()
                 }
             }
         }

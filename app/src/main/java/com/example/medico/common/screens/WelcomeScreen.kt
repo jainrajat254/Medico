@@ -35,7 +35,7 @@ fun ContinueAs(navController: NavController) {
                 Button(
                     onClick = {
 
-                        navController.navigate(Routes.DocLogin.routes)
+                        navController.navigate(Routes.DoctorLogin.routes)
                     },
                     modifier = Modifier
                         .fillMaxWidth()

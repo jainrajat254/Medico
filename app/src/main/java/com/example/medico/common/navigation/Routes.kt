@@ -2,22 +2,23 @@ package com.example.medico.common.navigation
 
 object Routes {
     val Splash = Route("splash")
-    val ContinueAs = Route("continue_as")
+    val Welcome = Route("welcome")
     val UserLogin = Route("user_login")
     val UserAccount = Route("user_account")
-    val Register = Route("register")
-    val Home = Route("home")
+    val UserRegister = Route("user_register")
+    val UserHome = Route("user_home")
+    val DoctorHome = Route("doctor_home")
     val Medications = Route("medications")
     val MedAdd = Route("add_medications")
     val Records = Route("records")
     val Reports = Route("reports")
     val Settings = Route("settings")
-    val BottomNav = Route("bottom_nav")
+    val History = Route("history")
+    val Schedule = Route("schedule")
+    val UserBottomNav = Route("user_bottom_nav")
     val DocAddressDetails = Route("doc_address_details")
     val DocMedicalDetails = Route("doc_medical_details")
 
-
-    // New routes for settings options
     val PersonalInfo = Route("personal_info")
     val ChangePassword = Route("change_password")
     val AppTheme = Route("app_theme")
@@ -27,7 +28,7 @@ object Routes {
     val TermsOfService = Route("terms_of_service")
 
     val DoctorRegister = Route("doctor_register")
-    val DocLogin = Route("doc_login")
+    val DoctorLogin = Route("doctor_login")
 
     data class Route(val routes: String)
 }
