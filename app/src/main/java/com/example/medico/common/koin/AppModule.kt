@@ -4,6 +4,7 @@ import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.doctor.viewModel.DoctorDetails
 import com.example.medico.user.model.UserDetails
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
+import com.example.medico.doctor.viewModel.DoctorRegister
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -30,5 +31,6 @@ val appModule = module {
     single { SharedPreferencesManager(get()) }
     viewModel { DoctorDetails(get()) }
     viewModel { UserDetails(get()) }
+    viewModel { DoctorRegister(get()) }  // Ensure this is correctly added
     viewModel { AuthViewModel(get()) }
 }

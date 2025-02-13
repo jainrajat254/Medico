@@ -32,6 +32,7 @@ import com.example.medico.doctor.dto.EditDocMedicalDetails
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.doctor.viewModel.DoctorDetails
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
+import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.HeaderSection
 import com.example.medico.common.utils.Tagline
 import com.example.medico.common.utils.UserInfoField
@@ -56,144 +57,120 @@ fun DocMedicalDetails(
     val availableForOnlineConsultation by doctorDetails.availableForOnlineConsultation.collectAsState()
 
     Scaffold { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.background_app),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-
-            Column(
+        BackgroundContent(paddingValues = paddingValues) {
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.Center
             ) {
-                HeaderSection()
-                Spacer(modifier = Modifier.height(16.dp))
-                Tagline()
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Lazy Column for User Info Fields
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    item {
-                        UserInfoField(
-                            label = "Medical Registration Number",
-                            value = medicalRegNo,
-                            isEditing = isEditing,
-                            onValueChange = doctorDetails::updateMedicalRegNo,
-                        )
-                        UserInfoField(
-                            label = "Qualification",
-                            value = qualification,
-                            isEditing = isEditing,
-                            onValueChange = doctorDetails::updateQualification,
-                        )
-                        UserInfoField(
-                            label = "Specialization",
-                            value = specialization,
-                            isEditing = isEditing,
-                            onValueChange = doctorDetails::updateSpecialization
-                        )
-                        UserInfoField(
-                            label = "Experience",
-                            value = experience.toString(),
-                            isEditing = isEditing,
-                            onValueChange = { newValue ->
-                                val intValue = newValue.toIntOrNull() ?: experience
-                                doctorDetails.updateExperience(intValue)
-                            }
-                        )
-                        UserInfoField(
-                            label = "Fee",
-                            value = fee.toString(),
-                            isEditing = isEditing,
-                            onValueChange = { newValue ->
-                                val intValue = newValue.toIntOrNull() ?: fee
-                                doctorDetails.updateFee(intValue)
-                            }
-                        )
-                        UserInfoField(
-                            label = "Available For Online Consultation",
-                            value = availableForOnlineConsultation.toString(),
-                            isEditing = isEditing,
-                            onValueChange = { newValue ->
-                                val booleanValue = newValue.toBooleanStrictOrNull() ?: availableForOnlineConsultation
-                                doctorDetails.updateAvailableForOnlineConsultation(booleanValue)
-                            }
-                        )
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = {
-                                if (isEditing) {
-                                    val formError = doctorDetails.isPersonalDetailsFormValid()
-                                    if (formError == null) {
-                                        val data = EditDocMedicalDetails(
-                                            medicalRegNo,
-                                            qualification,
-                                            specialization,
-                                            experience,
-                                            fee,
-                                            availableForOnlineConsultation
-                                        )
-                                        vm.editDocMedicalDetails(
-                                            data,
-                                            id,
-                                            onSuccess = {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Details Updated",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                                sharedPreferencesManager.editDocMedicalDetails(
-                                                    medicalRegNo,
-                                                    qualification,
-                                                    specialization,
-                                                    experience,
-                                                    fee,
-                                                    availableForOnlineConsultation
-                                                )
-                                                Log.d("data", "$data  $id")
-                                            },
-                                            onError = { errorMessage ->
-                                                Log.e("EditDetails", errorMessage)
-                                                Toast.makeText(
-                                                    context,
-                                                    "Error: $errorMessage. Please try again.",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            }
-                                        )
-                                        doctorDetails.toggleEditing()
-                                    } else {
-                                        Toast.makeText(context, formError, Toast.LENGTH_SHORT)
-                                            .show()
-                                    }
-                                } else {
-                                    doctorDetails.toggleEditing()
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isEditing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(text = if (isEditing) "Save Changes" else "Edit Profile")
+                item {
+                    UserInfoField(
+                        label = "Medical Registration Number",
+                        value = medicalRegNo,
+                        isEditing = isEditing,
+                        onValueChange = doctorDetails::updateMedicalRegNo,
+                    )
+                    UserInfoField(
+                        label = "Qualification",
+                        value = qualification,
+                        isEditing = isEditing,
+                        onValueChange = doctorDetails::updateQualification,
+                    )
+                    UserInfoField(
+                        label = "Specialization",
+                        value = specialization,
+                        isEditing = isEditing,
+                        onValueChange = doctorDetails::updateSpecialization
+                    )
+                    UserInfoField(
+                        label = "Experience",
+                        value = experience.toString(),
+                        isEditing = isEditing,
+                        onValueChange = { newValue ->
+                            val intValue = newValue.toIntOrNull() ?: experience
+                            doctorDetails.updateExperience(intValue)
                         }
+                    )
+                    UserInfoField(
+                        label = "Fee",
+                        value = fee.toString(),
+                        isEditing = isEditing,
+                        onValueChange = { newValue ->
+                            val intValue = newValue.toIntOrNull() ?: fee
+                            doctorDetails.updateFee(intValue)
+                        }
+                    )
+                    UserInfoField(
+                        label = "Available For Online Consultation",
+                        value = availableForOnlineConsultation.toString(),
+                        isEditing = isEditing,
+                        onValueChange = { newValue ->
+                            val booleanValue = newValue.toBooleanStrictOrNull()
+                                ?: availableForOnlineConsultation
+                            doctorDetails.updateAvailableForOnlineConsultation(booleanValue)
+                        }
+                    )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            if (isEditing) {
+                                val formError = doctorDetails.isPersonalDetailsFormValid()
+                                if (formError == null) {
+                                    val data = EditDocMedicalDetails(
+                                        medicalRegNo,
+                                        qualification,
+                                        specialization,
+                                        experience,
+                                        fee,
+                                        availableForOnlineConsultation
+                                    )
+                                    vm.editDocMedicalDetails(
+                                        data,
+                                        id,
+                                        onSuccess = {
+                                            Toast.makeText(
+                                                context,
+                                                "Details Updated",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            sharedPreferencesManager.editDocMedicalDetails(
+                                                medicalRegNo,
+                                                qualification,
+                                                specialization,
+                                                experience,
+                                                fee,
+                                                availableForOnlineConsultation
+                                            )
+                                            Log.d("data", "$data  $id")
+                                        },
+                                        onError = { errorMessage ->
+                                            Log.e("EditDetails", errorMessage)
+                                            Toast.makeText(
+                                                context,
+                                                "Error: $errorMessage. Please try again.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    )
+                                    doctorDetails.toggleEditing()
+                                } else {
+                                    Toast.makeText(context, formError, Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            } else {
+                                doctorDetails.toggleEditing()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isEditing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = if (isEditing) "Save Changes" else "Edit Profile")
                     }
                 }
             }

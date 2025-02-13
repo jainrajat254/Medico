@@ -33,10 +33,10 @@ import androidx.navigation.NavHostController
 import com.example.medico.R
 import com.example.medico.common.navigation.BottomNavBar
 import com.example.medico.common.model.Frequency
+import com.example.medico.common.utils.CustomTextField
 import com.example.medico.common.utils.HeaderSection
 import com.example.medico.common.utils.Tagline
 import com.example.medico.doctor.model.AddMedications
-import com.example.medico.user.screens.CustomTextField
 
 @Composable
 fun AddMedicationPage(navController: NavHostController) {
@@ -153,7 +153,6 @@ fun FrequencyDropdown(viewModel: AddMedications) {
             
         )
 
-        // Dropdown Menu that appears when the trailing icon is clicked
         DropdownMenu(
             expanded = viewModel.frequencyExpanded.value,
             onDismissRequest = { viewModel.frequencyExpanded.value = false },

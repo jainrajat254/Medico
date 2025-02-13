@@ -1,10 +1,11 @@
 package com.example.medico.doctor.viewModel
 
 import androidx.lifecycle.ViewModel
+import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class DoctorRegister : ViewModel() {
+class DoctorRegister(private val sharedPreferencesManager: SharedPreferencesManager) : ViewModel() {
 
     private val _firstName = MutableStateFlow("")
     val firstName: StateFlow<String> = _firstName

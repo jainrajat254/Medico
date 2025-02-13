@@ -1,7 +1,6 @@
 package com.example.medico.doctor.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,98 +27,90 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.medico.R
-import com.example.medico.doctor.model.DoctorDetails
-import com.example.medico.common.viewModel.AuthViewModel
-import com.example.medico.doctor.viewModel.DoctorRegister
 import com.example.medico.common.navigation.Routes
-import com.example.medico.common.utils.HeaderSection
-import com.example.medico.common.utils.Tagline
-import com.example.medico.user.screens.CommonDropDownMenu
-import com.example.medico.user.screens.CustomTextField
-import com.example.medico.user.screens.GenderDropdown
+import com.example.medico.common.utils.BackgroundContent
+import com.example.medico.common.utils.CustomTextField
+import com.example.medico.common.utils.GenderDropdown
+import com.example.medico.common.utils.StateDistrictDropdown
+import com.example.medico.common.viewModel.AuthViewModel
+import com.example.medico.doctor.model.DoctorDetails
+import com.example.medico.doctor.viewModel.DoctorRegister
+import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun DoctorRegister(navController: NavController, vm: AuthViewModel) {
-
-    val viewModel: DoctorRegister = viewModel()
-
+    val viewModel: DoctorRegister = getViewModel()
     val pagerState = rememberPagerState(pageCount = { 4 })
 
     Scaffold { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.background_app),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-
+        BackgroundContent(paddingValues = paddingValues) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+                    .padding(paddingValues),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                HeaderSection()
-
-                Column(
+                // ✅ "Register" text is now OUTSIDE LazyColumn
+                Text(
+                    text = "Register",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    ),
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(top = 16.dp)
+                        .fillMaxWidth()
+                        .padding(
+                            top = 16.dp,
+                            bottom = 32.dp
+                        ) // Top padding to separate it from status bar
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Tagline()
-
-                    Text(
-                        text = "Register",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 32.dp)
-                    )
-
-                    // Horizontal Pager for Registration Steps
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                    ) { page ->
-                        when (page) {
-                            0 -> PersonalInfo(viewModel)
-                            1 -> MedicalInfoScreen(viewModel)
-                            2 -> AddressScreen(viewModel)
-                            3 -> MedicalAddressScreen(viewModel, vm, navController)
+                    item {
+                        // ✅ Wrap the Pager in a Box with a Fixed Height
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(500.dp)  // Adjust height as needed
+                        ) {
+                            HorizontalPager(
+                                state = pagerState,
+                                modifier = Modifier.fillMaxSize()
+                            ) { page ->
+                                when (page) {
+                                    0 -> PersonalInfo(viewModel)
+                                    1 -> MedicalInfoScreen(viewModel)
+                                    2 -> AddressScreen(viewModel)
+                                    3 -> MedicalAddressScreen(viewModel, vm, navController)
+                                }
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Bottom Pager Indicator
-                    PagerIndicator(pagerState)
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        PagerIndicator(pagerState) // ✅ Now it will be visible
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun PersonalInfo(viewModel: DoctorRegister) {
@@ -495,173 +486,3 @@ fun PagerIndicator(pagerState: PagerState) {
         }
     }
 }
-
-@Composable
-fun StateDistrictDropdown(
-    viewModel: DoctorRegister,
-    onDistrictSelected: (String) -> Unit,
-) {
-    val selectedState = viewModel.state.collectAsState().value
-    val selectedDistrict = viewModel.district.collectAsState().value
-
-    val districts = mapOf(
-        "Delhi" to listOf(
-            "Central Delhi",
-            "East Delhi",
-            "New Delhi",
-            "North Delhi",
-            "North East Delhi",
-            "North West Delhi",
-            "Shahdara",
-            "South Delhi",
-            "South East Delhi",
-            "South West Delhi",
-            "West Delhi"
-        ),
-        "Haryana" to listOf(
-            "Ambala",
-            "Bhiwani",
-            "Charkhi Dadri",
-            "Faridabad",
-            "Fatehabad",
-            "Gurugram",
-            "Hisar",
-            "Jhajjar",
-            "Jind",
-            "Kaithal",
-            "Karnal",
-            "Kurukshetra",
-            "Mahendragarh",
-            "Nuh",
-            "Palwal",
-            "Panchkula",
-            "Panipat",
-            "Rewari",
-            "Rohtak",
-            "Sirsa",
-            "Sonipat",
-            "Yamunanagar"
-        ),
-        "Uttar Pradesh" to listOf(
-            "Agra",
-            "Aligarh",
-            "Ambedkar Nagar",
-            "Amethi",
-            "Amroha",
-            "Auraiya",
-            "Ayodhya",
-            "Azamgarh",
-            "Baghpat",
-            "Bahraich",
-            "Ballia",
-            "Balrampur",
-            "Banda",
-            "Barabanki",
-            "Bareilly",
-            "Basti",
-            "Bhadohi",
-            "Bijnor",
-            "Budaun",
-            "Bulandshahr",
-            "Chandauli",
-            "Chitrakoot",
-            "Deoria",
-            "Etah",
-            "Etawah",
-            "Farrukhabad",
-            "Fatehpur",
-            "Firozabad",
-            "Gautam Buddha Nagar",
-            "Ghaziabad",
-            "Ghazipur",
-            "Gonda",
-            "Gorakhpur",
-            "Hamirpur",
-            "Hapur",
-            "Hardoi",
-            "Hathras",
-            "Jalaun",
-            "Jaunpur",
-            "Jhansi",
-            "Kannauj",
-            "Kanpur Dehat",
-            "Kanpur Nagar",
-            "Kasganj",
-            "Kaushambi",
-            "Kheri",
-            "Kushinagar",
-            "Lalitpur",
-            "Lucknow",
-            "Maharajganj",
-            "Mahoba",
-            "Mainpuri",
-            "Mathura",
-            "Mau",
-            "Meerut",
-            "Mirzapur",
-            "Moradabad",
-            "Muzaffarnagar",
-            "Pilibhit",
-            "Pratapgarh",
-            "Prayagraj",
-            "Raebareli",
-            "Rampur",
-            "Saharanpur",
-            "Sambhal",
-            "Sant Kabir Nagar",
-            "Shahjahanpur",
-            "Shamli",
-            "Shrawasti",
-            "Siddharthnagar",
-            "Sitapur",
-            "Sonbhadra",
-            "Sultanpur",
-            "Unnao",
-            "Varanasi"
-        ),
-        "Uttarakhand" to listOf(
-            "Almora",
-            "Bageshwar",
-            "Chamoli",
-            "Champawat",
-            "Dehradun",
-            "Haridwar",
-            "Nainital",
-            "Pauri Garhwal",
-            "Pithoragarh",
-            "Rudraprayag",
-            "Tehri Garhwal",
-            "Udham Singh Nagar",
-            "Uttarkashi"
-        ),
-        "Goa" to listOf(
-            "North Goa",
-            "South Goa"
-        )
-    )
-
-    Column {
-        // State Dropdown
-        CommonDropDownMenu(
-            items = districts.keys.toList(),
-            selectedItem = selectedState,
-            onItemSelected = {
-                viewModel.updateState(it)
-                viewModel.updateDistrict("") // Reset district when state changes
-            },
-            label = "State"
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (selectedState.isNotEmpty()) {
-            CommonDropDownMenu(
-                items = districts[selectedState] ?: emptyList(),
-                selectedItem = selectedDistrict,
-                onItemSelected = onDistrictSelected,
-                label = "District"
-            )
-        }
-    }
-}
-
