@@ -51,7 +51,7 @@ val medicines = listOf(
 )
 
 @Composable
-fun HomePage(navController: NavController, sharedPreferencesManager: SharedPreferencesManager) {
+fun UserHomePage(navController: NavController, sharedPreferencesManager: SharedPreferencesManager) {
     val user = sharedPreferencesManager.getUserFromSharedPreferences()
     Log.d("User Details", "$user")
     Scaffold(
@@ -104,7 +104,7 @@ fun HomePage(navController: NavController, sharedPreferencesManager: SharedPrefe
 }
 
 @Composable
-fun MedicationCard() {
+private fun MedicationCard() {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)

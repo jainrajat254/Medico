@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,15 +17,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -44,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -58,6 +65,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.medico.R
+import com.example.medico.common.model.HealthReport
+import com.example.medico.common.model.Medication
 import com.example.medico.doctor.viewModel.DoctorRegister
 
 
@@ -377,10 +386,12 @@ fun LoginForm(
     onPasswordChange: (String) -> Unit,
     onPasswordToggle: () -> Unit,
     onLogin: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -720,7 +731,9 @@ fun CommonDropDownMenu(
             readOnly = !isTextFieldEditable, // Make it editable only when the dropdown is open
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true; isTextFieldEditable = true }, // Open dropdown and enable typing
+                .clickable {
+                    expanded = true; isTextFieldEditable = true
+                }, // Open dropdown and enable typing
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
@@ -782,4 +795,286 @@ fun CommonDropDownMenu(
     }
 }
 
+@Composable
+fun MedicationCard(
+    medication: Medication,
+    showActions: Boolean = false,
+    onUpdateClick: (() -> Unit)? = null,
+    onRemoveClick: (() -> Unit)? = null,
+) {
+    var expanded by remember { mutableStateOf(false) }
 
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Placeholder for medication image
+            Image(
+                painter = painterResource(id = R.drawable.capsule),
+                contentDescription = "Medication Icon",
+                modifier = Modifier.size(48.dp)
+            )
+
+            // Medication Info
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = medication.name,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4771CC)
+                )
+                Text(text = medication.dosage, fontSize = 16.sp, color = Color.Gray)
+                Text(text = medication.instructions, fontSize = 14.sp, color = Color.DarkGray)
+            }
+
+            // Show options menu only if showActions is true
+            if (showActions) {
+                Box {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert, // Three-dot menu
+                            contentDescription = "More Options",
+                            tint = Color.Black
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Update") },
+                            onClick = {
+                                expanded = false
+                                onUpdateClick?.invoke()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Remove") },
+                            onClick = {
+                                expanded = false
+                                onRemoveClick?.invoke()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ReportCard(
+    report: HealthReport,
+    showExportButton: Boolean = false,  // Control visibility of Export button
+    onExportClick: (() -> Unit)? = null,
+    onViewFullReportClick: (() -> Unit)? = null,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .border(
+                width = 2.dp,
+                color = Color(0xFF4771CC),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .shadow(8.dp, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+            contentColor = Color.Black
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Report Name
+            Text(
+                text = report.reportName,
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF2D4159)
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Reviewed by: ${report.doctorName}",
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Gray
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Attention Text with conditional color
+            Text(
+                text = report.attention,
+                style = TextStyle(
+                    color = if (report.attention.contains("Attention", ignoreCase = true))
+                        Color.Red
+                    else
+                        Color.Green,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Row for buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (showExportButton) {
+                    Button(
+                        onClick = { onExportClick?.invoke() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Export", color = Color.White, fontSize = 14.sp)
+                    }
+                }
+
+                Button(
+                    onClick = { onViewFullReportClick?.invoke() },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("View Full Report", color = Color.White, fontSize = 14.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CurrentPatientCard(
+    patientName: String,
+    index: Int,
+    appointmentTime: String,
+    showPersonalInfoOnly: Boolean = false,  // Toggle button visibility
+    onRecordsClick: (() -> Unit)? = null,
+    onDoneClick: (() -> Unit)? = null,
+    onAbsentClick: (() -> Unit)? = null,
+    onPersonalInfoClick: (() -> Unit)? = null,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(6.dp, RoundedCornerShape(16.dp))
+            .border(1.dp, Color(0xFF4771CC), RoundedCornerShape(16.dp))
+            .wrapContentHeight(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+            contentColor = Color.Black
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Current Patient",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = appointmentTime,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = patientName,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = "#$index",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (showPersonalInfoOnly) {
+                    // Show only the "Personal Info" button
+                    Button(
+                        onClick = { onPersonalInfoClick?.invoke() },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Personal Info", color = Color.White, fontSize = 12.sp)
+                    }
+                } else {
+                    // Show "Records", "Done", and "Absent" buttons
+                    Button(
+                        onClick = { onRecordsClick?.invoke() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Records", color = Color.White, fontSize = 12.sp)
+                    }
+
+                    Button(
+                        onClick = { onDoneClick?.invoke() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Done", color = Color.White, fontSize = 12.sp)
+                    }
+
+                    Button(
+                        onClick = { onAbsentClick?.invoke() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Absent", color = Color.White, fontSize = 12.sp)
+                    }
+                }
+            }
+        }
+    }
+}

@@ -8,6 +8,8 @@ object Routes {
     val UserRegister = Route("user_register")
     val UserHome = Route("user_home")
     val DoctorHome = Route("doctor_home")
+    val CurrentPatient = Route("current_patient")
+    val CurrentPatientDetails = Route("current_patient_details")
     val Medications = Route("medications")
     val MedAdd = Route("add_medications")
     val Records = Route("records")

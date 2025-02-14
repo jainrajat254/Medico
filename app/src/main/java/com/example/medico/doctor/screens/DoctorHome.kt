@@ -33,12 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medico.common.navigation.DocBottomNavBar
+import com.example.medico.common.navigation.Routes
 import com.example.medico.common.utils.BackgroundContentHome
+import com.example.medico.common.utils.CurrentPatientCard
 import com.example.medico.common.utils.TaglineAndProfilePicture
 
 @Composable
 fun HomeScreen(
-    navController: NavController
+    navController: NavController,
 ) {
     val patients = listOf(
         "Harivansh Rai Bachchan",
@@ -78,105 +80,19 @@ fun HomeScreen(
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
                     CurrentPatientCard(
-                        patientName = patients.first(),
-                        index = 1, // Always first patient
-                        appointmentTime = "10:15 AM"
+                        patientName = "John Doe",
+                        index = 1,
+                        appointmentTime = "10:30 AM",
+                        showPersonalInfoOnly = false,
+                        onRecordsClick = { navController.navigate(Routes.CurrentPatient.routes) },
+                        onDoneClick = { /* Handle Done */ },
+                        onAbsentClick = { /* Handle Absent */ }
                     )
                 }
 
-                // Other Patients (From second onwards)
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
                     OtherPatientsList(patients.drop(1)) // Exclude first patient
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CurrentPatientCard(patientName: String, index: Int, appointmentTime: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(6.dp, RoundedCornerShape(16.dp))
-            .border(1.dp, Color(0xFF4771CC), RoundedCornerShape(16.dp))
-            .wrapContentHeight(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-            contentColor = Color.Black
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Current Patient",
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = appointmentTime,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = patientName,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-                Text(
-                    text = "#$index", // Display index instead of age
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp), // Space between buttons
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Button(
-                    onClick = { /* Handle Export Action */ },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
-                    shape = RoundedCornerShape(8.dp) // Rounded corners for buttons
-                ) {
-                    Text("Records", color = Color.White, fontSize = 12.sp)
-                }
-                // Button for exporting report
-                Button(
-                    onClick = { /* Handle Export Action */ },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
-                    shape = RoundedCornerShape(8.dp) // Rounded corners for buttons
-                ) {
-                    Text("Done", color = Color.White, fontSize = 12.sp)
-                }
-
-                // Button for viewing full report
-                Button(
-                    onClick = { /* Handle View Full Report Action */ },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
-                    shape = RoundedCornerShape(8.dp) // Rounded corners for buttons
-                ) {
-                    Text("Absent", color = Color.White, fontSize = 12.sp)
                 }
             }
         }

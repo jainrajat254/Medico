@@ -79,7 +79,7 @@ fun DocBottomNavBar(
     val doctorItems = listOf(
         BottomNavItem(Routes.DoctorHome.routes, R.drawable.baseline_home_24, "Home"),
         BottomNavItem(Routes.History.routes, R.drawable.baseline_history_24, "History"),
-        BottomNavItem(Routes.Schedule.routes, R.drawable.deadline, "Schedules"),
+        BottomNavItem(Routes.Schedule.routes, R.drawable.records, "Schedules"),
         BottomNavItem(Routes.Settings.routes, R.drawable.settings, "Settings")
     )
 
@@ -124,8 +124,7 @@ fun BottomNavBarItem(
 ) {
     Column(
         modifier = Modifier
-            .clickable { onClick() }
-            .padding(8.dp),
+            .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(

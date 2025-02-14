@@ -17,7 +17,7 @@ import com.example.medico.doctor.screens.DoctorRegister
 import com.example.medico.user.screens.HealthRecords
 import com.example.medico.user.screens.HealthReports
 import com.example.medico.common.screens.HelpSupportScreen
-import com.example.medico.user.screens.HomePage
+import com.example.medico.user.screens.UserHomePage
 import com.example.medico.doctor.screens.LoginDoc
 import com.example.medico.user.screens.LoginPage
 import com.example.medico.user.screens.MedicationPage
@@ -30,7 +30,9 @@ import com.example.medico.common.screens.SplashScreen
 import com.example.medico.common.screens.TermsOfServiceScreen
 import com.example.medico.user.screens.UserAccount
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
+import com.example.medico.doctor.screens.CurrentPatientInfo
 import com.example.medico.doctor.screens.HomeScreen
+import com.example.medico.doctor.screens.PatientPersonalInfo
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -42,8 +44,7 @@ fun App() {
     val vm: AuthViewModel = koinViewModel()
     val sharedPreferencesManager: SharedPreferencesManager = koinInject()
 
-
-    NavHost(navController = navController, startDestination = Routes.DoctorHome.routes) {
+    NavHost(navController = navController, startDestination = Routes.Welcome.routes) {
         composable(Routes.Splash.routes) {
             SplashScreen(navController = navController, sharedPreferencesManager)
         }
@@ -55,7 +56,7 @@ fun App() {
             UserBottomNavBar(modifier = Modifier, navController = navController)
         }
         composable(Routes.UserHome.routes) {
-            HomePage(navController, sharedPreferencesManager)
+            UserHomePage(navController, sharedPreferencesManager)
         }
         composable(Routes.Medications.routes) {
             MedicationPage(navController)
@@ -84,6 +85,18 @@ fun App() {
         }
 
         composable(Routes.DoctorHome.routes) {
+            HomeScreen(navController = navController)
+        }
+
+        composable(Routes.CurrentPatient.routes) {
+            CurrentPatientInfo(navController = navController)
+        }
+
+        composable(Routes.CurrentPatientDetails.routes) {
+            PatientPersonalInfo(navController = navController)
+        }
+
+        composable(Routes.Schedule.routes) {
             HomeScreen(navController = navController)
         }
 
