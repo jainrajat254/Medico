@@ -32,7 +32,7 @@ import com.example.medico.doctor.viewModel.DoctorDetails
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun DocAccount(
+fun DocPersonalDetails(
     vm: AuthViewModel,
     sharedPreferencesManager: SharedPreferencesManager,
 ) {
@@ -52,114 +52,113 @@ fun DocAccount(
 
     Scaffold { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                item {
+                    ProfileImage(
+                        isEditing = isEditing,
+                        selectedImageUri = selectedImageUri,
+                        onImageSelect = { uri -> doctorDetails.updateSelectedImageUri(uri) }
+                    )
 
-        }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            item {
-                ProfileImage(
-                    isEditing = isEditing,
-                    selectedImageUri = selectedImageUri,
-                    onImageSelect = { uri -> doctorDetails.updateSelectedImageUri(uri) }
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    UserInfoField(
+                        label = "Name",
+                        value = name,
+                        isEditing = false,
+                        onValueChange = {}
+                    )
+                    UserInfoField(
+                        label = "Gender",
+                        value = gender,
+                        isEditing = false,
+                        onValueChange = {}
+                    )
+                    UserInfoField(
+                        label = "UID",
+                        value = uid,
+                        isEditing = isEditing,
+                        onValueChange = doctorDetails::updateUid,
+                        keyboardType = KeyboardType.Number
+                    )
+                    UserInfoField(
+                        label = "DOB (DD/MM/YYYY)",
+                        value = dob,
+                        isEditing = isEditing,
+                        onValueChange = doctorDetails::updateDOB
+                    )
+                    UserInfoField(
+                        label = "Phone",
+                        value = phone,
+                        isEditing = isEditing,
+                        onValueChange = doctorDetails::updatePhone,
+                        keyboardType = KeyboardType.Phone
+                    )
+                    UserInfoField(
+                        label = "Email",
+                        value = email,
+                        isEditing = isEditing,
+                        onValueChange = doctorDetails::updateEmail,
+                        keyboardType = KeyboardType.Email
+                    )
+                }
 
-                UserInfoField(
-                    label = "Name",
-                    value = name,
-                    isEditing = false,
-                    onValueChange = {}
-                )
-                UserInfoField(
-                    label = "Gender",
-                    value = gender,
-                    isEditing = false,
-                    onValueChange = {}
-                )
-                UserInfoField(
-                    label = "UID",
-                    value = uid,
-                    isEditing = isEditing,
-                    onValueChange = doctorDetails::updateUid,
-                    keyboardType = KeyboardType.Number
-                )
-                UserInfoField(
-                    label = "DOB (DD/MM/YYYY)",
-                    value = dob,
-                    isEditing = isEditing,
-                    onValueChange = doctorDetails::updateDOB
-                )
-                UserInfoField(
-                    label = "Phone",
-                    value = phone,
-                    isEditing = isEditing,
-                    onValueChange = doctorDetails::updatePhone,
-                    keyboardType = KeyboardType.Phone
-                )
-                UserInfoField(
-                    label = "Email",
-                    value = email,
-                    isEditing = isEditing,
-                    onValueChange = doctorDetails::updateEmail,
-                    keyboardType = KeyboardType.Email
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        if (isEditing) {
-                            val formError = doctorDetails.isPersonalDetailsFormValid()
-                            if (formError == null) {
-                                val data = EditDocPersonalDetails(uid, dob, phone, email)
-                                vm.editDocPersonalDetails(
-                                    data,
-                                    id,
-                                    onSuccess = {
-                                        Toast.makeText(
-                                            context,
-                                            "Details Updated",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        sharedPreferencesManager.editDocPersonalDetails(
-                                            dob,
-                                            uid,
-                                            phone,
-                                            email
-                                        )
-                                        Log.d("data", "$data  $id")
-                                    },
-                                    onError = { errorMessage ->
-                                        Log.e("EditDetails", errorMessage)
-                                        Toast.makeText(
-                                            context,
-                                            "Error: $errorMessage. Please try again.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                )
-                                doctorDetails.toggleEditing()
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            if (isEditing) {
+                                val formError = doctorDetails.isPersonalDetailsFormValid()
+                                if (formError == null) {
+                                    val data = EditDocPersonalDetails(uid, dob, phone, email)
+                                    vm.editDocPersonalDetails(
+                                        data,
+                                        id,
+                                        onSuccess = {
+                                            Toast.makeText(
+                                                context,
+                                                "Details Updated",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            sharedPreferencesManager.editDocPersonalDetails(
+                                                dob,
+                                                uid,
+                                                phone,
+                                                email
+                                            )
+                                            Log.d("data", "$data  $id")
+                                        },
+                                        onError = { errorMessage ->
+                                            Log.e("EditDetails", errorMessage)
+                                            Toast.makeText(
+                                                context,
+                                                "Error: $errorMessage. Please try again.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    )
+                                    doctorDetails.toggleEditing()
+                                } else {
+                                    Toast.makeText(context, formError, Toast.LENGTH_SHORT)
+                                        .show()
+                                }
                             } else {
-                                Toast.makeText(context, formError, Toast.LENGTH_SHORT)
-                                    .show()
+                                doctorDetails.toggleEditing()
                             }
-                        } else {
-                            doctorDetails.toggleEditing()
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isEditing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = if (isEditing) "Save Changes" else "Edit Profile")
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isEditing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = if (isEditing) "Save Changes" else "Edit Profile")
+                    }
                 }
             }
         }

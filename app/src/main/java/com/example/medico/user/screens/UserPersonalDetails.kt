@@ -32,7 +32,7 @@ import com.example.medico.user.model.UserDetails
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun UserAccount(vm: AuthViewModel, sharedPreferencesManager: SharedPreferencesManager) {
+fun UserPersonalDetails(vm: AuthViewModel, sharedPreferencesManager: SharedPreferencesManager) {
     val userDetails: UserDetails = getViewModel()
 
     val context = LocalContext.current
@@ -49,116 +49,115 @@ fun UserAccount(vm: AuthViewModel, sharedPreferencesManager: SharedPreferencesMa
 
     Scaffold { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                item {
+                    ProfileImage(
+                        isEditing = isEditing,
+                        selectedImageUri = selectedImageUri,
+                        onImageSelect = { uri -> userDetails.updateSelectedImageUri(uri) }
+                    )
 
-        }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            item {
-                ProfileImage(
-                    isEditing = isEditing,
-                    selectedImageUri = selectedImageUri,
-                    onImageSelect = { uri -> userDetails.updateSelectedImageUri(uri) }
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    UserInfoField(
+                        label = "Name",
+                        value = name,
+                        isEditing = false,
+                        onValueChange = {}
+                    )
+                    UserInfoField(
+                        label = "Gender",
+                        value = gender,
+                        isEditing = false,
+                        onValueChange = {}
+                    )
+                    UserInfoField(
+                        label = "Age",
+                        value = age,
+                        isEditing = isEditing,
+                        onValueChange = userDetails::updateAge,
+                        keyboardType = KeyboardType.Number
+                    )
+                    UserInfoField(
+                        label = "Blood Group",
+                        value = bloodGroup,
+                        isEditing = isEditing,
+                        onValueChange = userDetails::updateBloodGroup
+                    )
+                    UserInfoField(
+                        label = "Phone",
+                        value = phone,
+                        isEditing = isEditing,
+                        onValueChange = userDetails::updatePhone,
+                        keyboardType = KeyboardType.Phone
+                    )
+                    UserInfoField(
+                        label = "Email",
+                        value = email,
+                        isEditing = isEditing,
+                        onValueChange = userDetails::updateEmail,
+                        keyboardType = KeyboardType.Email
+                    )
+                }
 
-                UserInfoField(
-                    label = "Name",
-                    value = name,
-                    isEditing = false,
-                    onValueChange = {}
-                )
-                UserInfoField(
-                    label = "Gender",
-                    value = gender,
-                    isEditing = false,
-                    onValueChange = {}
-                )
-                UserInfoField(
-                    label = "Age",
-                    value = age,
-                    isEditing = isEditing,
-                    onValueChange = userDetails::updateAge,
-                    keyboardType = KeyboardType.Number
-                )
-                UserInfoField(
-                    label = "Blood Group",
-                    value = bloodGroup,
-                    isEditing = isEditing,
-                    onValueChange = userDetails::updateBloodGroup
-                )
-                UserInfoField(
-                    label = "Phone",
-                    value = phone,
-                    isEditing = isEditing,
-                    onValueChange = userDetails::updatePhone,
-                    keyboardType = KeyboardType.Phone
-                )
-                UserInfoField(
-                    label = "Email",
-                    value = email,
-                    isEditing = isEditing,
-                    onValueChange = userDetails::updateEmail,
-                    keyboardType = KeyboardType.Email
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        if (isEditing) {
-                            val formError = userDetails.isFormValid()
-                            if (formError == null) {
-                                val data =
-                                    EditUserPersonalDetails(age, bloodGroup, phone, email)
-                                vm.editDetails(
-                                    data,
-                                    id,
-                                    onSuccess = {
-                                        Toast.makeText(
-                                            context,
-                                            "Details Updated",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        sharedPreferencesManager.editUserDetails(
-                                            age,
-                                            bloodGroup,
-                                            phone,
-                                            email
-                                        )
-                                        Log.d("data", "$data  $id")
-                                    },
-                                    onError = { errorMessage ->
-                                        Log.e("EditDetails", errorMessage)
-                                        Toast.makeText(
-                                            context,
-                                            "Error: $errorMessage. Please try again.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                )
-                                userDetails.toggleEditing()
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            if (isEditing) {
+                                val formError = userDetails.isFormValid()
+                                if (formError == null) {
+                                    val data =
+                                        EditUserPersonalDetails(age, bloodGroup, phone, email)
+                                    vm.editDetails(
+                                        data,
+                                        id,
+                                        onSuccess = {
+                                            Toast.makeText(
+                                                context,
+                                                "Details Updated",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            sharedPreferencesManager.editUserDetails(
+                                                age,
+                                                bloodGroup,
+                                                phone,
+                                                email
+                                            )
+                                            Log.d("data", "$data  $id")
+                                        },
+                                        onError = { errorMessage ->
+                                            Log.e("EditDetails", errorMessage)
+                                            Toast.makeText(
+                                                context,
+                                                "Error: $errorMessage. Please try again.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    )
+                                    userDetails.toggleEditing()
+                                } else {
+                                    Toast.makeText(context, formError, Toast.LENGTH_SHORT)
+                                        .show()
+                                }
                             } else {
-                                Toast.makeText(context, formError, Toast.LENGTH_SHORT)
-                                    .show()
+                                // Start editing
+                                userDetails.toggleEditing()
                             }
-                        } else {
-                            // Start editing
-                            userDetails.toggleEditing()
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isEditing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = if (isEditing) "Save Changes" else "Edit Profile")
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isEditing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = if (isEditing) "Save Changes" else "Edit Profile")
+                    }
                 }
             }
         }

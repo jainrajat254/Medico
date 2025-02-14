@@ -163,7 +163,7 @@ fun ChangePassword(
                                     ).show()
                                 }
                             )
-                            navController.navigate(Routes.Settings.routes) {
+                            navController.navigate(Routes.ChangePassword.routes) {
                                 popUpTo(Routes.UserHome.routes)
                             }
                         },

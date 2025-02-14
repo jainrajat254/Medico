@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
@@ -35,7 +34,7 @@ fun UserBottomNavBar(
         BottomNavItem(Routes.Medications.routes, R.drawable.capsule, "Medications"),
         BottomNavItem(Routes.Records.routes, R.drawable.records, "Records"),
         BottomNavItem(Routes.Reports.routes, R.drawable.reports, "Reports"),
-        BottomNavItem(Routes.Settings.routes, R.drawable.settings, "Settings")
+        BottomNavItem(Routes.UserSettings.routes, R.drawable.settings, "Settings")
     )
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
@@ -80,7 +79,7 @@ fun DocBottomNavBar(
         BottomNavItem(Routes.DoctorHome.routes, R.drawable.baseline_home_24, "Home"),
         BottomNavItem(Routes.History.routes, R.drawable.baseline_history_24, "History"),
         BottomNavItem(Routes.Schedule.routes, R.drawable.records, "Schedules"),
-        BottomNavItem(Routes.Settings.routes, R.drawable.settings, "Settings")
+        BottomNavItem(Routes.DocSettings.routes, R.drawable.settings, "Settings")
     )
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route

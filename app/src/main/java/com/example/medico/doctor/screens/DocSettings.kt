@@ -1,4 +1,4 @@
-package com.example.medico.common.screens
+package com.example.medico.doctor.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,7 +35,7 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
 
 @Composable
-fun SettingsPage(
+fun DoctorSettingsPage(
     navController: NavHostController,
     sharedPreferencesManager: SharedPreferencesManager,
 ) {
@@ -62,13 +62,13 @@ fun SettingsPage(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 val options = listOf(
-                    "Personal Info",
+                    "Personal Details",
+                    "Medical Details",
+                    "Address Details",
                     "Change Password",
                     "App Theme",
                     "Notifications",
                     "Help & Support",
-                    "Privacy Policy",
-                    "Terms of Service",
                     "Sign Out"
                 )
                 items(options) { option ->
@@ -78,13 +78,13 @@ fun SettingsPage(
                     ) {
                         when (option) {
                             "Sign Out" -> sharedPreferencesManager.logOut(navController)
-                            "Personal Info" -> navController.navigate("personal_info")
-                            "Change Password" -> navController.navigate("change_password")
-                            "App Theme" -> navController.navigate("app_theme")
-                            "Notifications" -> navController.navigate("notifications")
-                            "Help & Support" -> navController.navigate("help_support")
-                            "Privacy Policy" -> navController.navigate("privacy_policy")
-                            "Terms of Service" -> navController.navigate("terms_of_service")
+                            "Personal Details" -> navController.navigate(Routes.DocPersonalDetails.routes)
+                            "Medical Details" -> navController.navigate(Routes.DocMedicalDetails.routes)
+                            "Address Details" -> navController.navigate(Routes.DocAddressDetails.routes)
+                            "Change Password" -> navController.navigate(Routes.ChangePassword.routes)
+                            "App Theme" -> navController.navigate(Routes.AppTheme.routes)
+                            "Notifications" -> navController.navigate(Routes.Notifications.routes)
+                            "Help & Support" -> navController.navigate(Routes.HelpSupport.routes)
                             else -> Unit
                         }
                     }
@@ -126,20 +126,6 @@ fun SettingsOption(title: String, textColor: Color = Color.Black, onClick: () ->
                 modifier = Modifier.size(24.dp)
             )
         }
-    }
-}
-
-@Composable
-fun PersonalInfoScreen(navController: NavController) {
-    navController.navigate(Routes.UserAccount.routes) {
-        popUpTo(Routes.Settings.routes)
-    }
-}
-
-@Composable
-fun ChangePasswordScreen(navController: NavController) {
-    navController.navigate(Routes.ChangePassword.routes) {
-        popUpTo(Routes.Settings.routes)
     }
 }
 
