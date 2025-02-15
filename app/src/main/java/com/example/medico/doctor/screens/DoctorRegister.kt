@@ -435,7 +435,7 @@ fun MedicalAddressScreen(
                                 password = viewModel.password.value,
                                 availableForOnlineConsultation = viewModel.availableForOnlineConsultation.value
                             )
-                            vm.register(doctor, onSuccess = {
+                            vm.registerDoc(doctor, onSuccess = {
                                 Toast.makeText(
                                     context,
                                     "Registration Successful\nLog in to continue",

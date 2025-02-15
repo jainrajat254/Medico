@@ -63,6 +63,9 @@ fun SettingsPage(
             ) {
                 val options = listOf(
                     "Personal Info",
+                    "Address Details",
+                    "FamilyDetails",
+                    "Insurance Details",
                     "Change Password",
                     "App Theme",
                     "Notifications",
@@ -79,6 +82,9 @@ fun SettingsPage(
                         when (option) {
                             "Sign Out" -> sharedPreferencesManager.logOut(navController)
                             "Personal Info" -> navController.navigate(Routes.UserPersonalDetails.routes)
+                            "Insurance Details" -> navController.navigate(Routes.InsuranceDetails.routes)
+                            "FamilyDetails" -> navController.navigate(Routes.FamilyDetails.routes)
+                            "Address Details" -> navController.navigate(Routes.Address.routes)
                             "Change Password" -> navController.navigate("change_password")
                             "App Theme" -> navController.navigate("app_theme")
                             "Notifications" -> navController.navigate("notifications")

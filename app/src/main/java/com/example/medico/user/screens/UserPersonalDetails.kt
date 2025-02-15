@@ -15,8 +15,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +32,8 @@ import com.example.medico.common.utils.ProfileImage
 import com.example.medico.common.utils.UserInfoField
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.user.dto.EditUserPersonalDetails
-import com.example.medico.user.model.UserDetails
+import com.example.medico.user.model.ExtraDetails
+import com.example.medico.user.viewModel.UserDetails
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -42,10 +47,48 @@ fun UserPersonalDetails(vm: AuthViewModel, sharedPreferencesManager: SharedPrefe
     val name by userDetails.name.collectAsState()
     val age by userDetails.age.collectAsState()
     val gender by userDetails.gender.collectAsState()
+    val height by userDetails.height.collectAsState()
+    val weight by userDetails.weight.collectAsState()
+    val dob by userDetails.dob.collectAsState()
     val bloodGroup by userDetails.bloodGroup.collectAsState()
     val phone by userDetails.phone.collectAsState()
     val email by userDetails.email.collectAsState()
     val selectedImageUri by userDetails.selectedImageUri.collectAsState()
+
+    var personalInfoId by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        vm.getExtraDetails(
+            userId = id,
+            onSuccess = { userDetailsResponse ->
+                Log.d("GetExtraDetails", "Fetched details: $userDetailsResponse")
+
+                userDetails.updateHeight(userDetailsResponse.height)
+                userDetails.updateWeight(userDetailsResponse.weight)
+                userDetails.updateDob(userDetailsResponse.dob)
+
+                sharedPreferencesManager.saveUserDetails(userDetailsResponse)
+            },
+            onError = { error ->
+                Log.e("GetExtraDetails", "Error: $error")
+                Toast.makeText(
+                    context,
+                    "Error fetching details. Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        )
+
+        vm.getPersonalInfoId(id,
+            onResult = { uuid ->
+                personalInfoId = uuid
+                Log.d("Id", "Fetched personalInfoId: $personalInfoId")
+            },
+            onError = { error ->
+                Log.e("Error", error)
+            }
+        )
+    }
 
     Scaffold { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
@@ -91,6 +134,26 @@ fun UserPersonalDetails(vm: AuthViewModel, sharedPreferencesManager: SharedPrefe
                         onValueChange = userDetails::updateBloodGroup
                     )
                     UserInfoField(
+                        label = "Height",
+                        value = height,
+                        isEditing = isEditing,
+                        onValueChange = userDetails::updateHeight,
+                        keyboardType = KeyboardType.Phone
+                    )
+                    UserInfoField(
+                        label = "Weight",
+                        value = weight,
+                        isEditing = isEditing,
+                        onValueChange = userDetails::updateWeight,
+                        keyboardType = KeyboardType.Number
+                    )
+                    UserInfoField(
+                        label = "DOB",
+                        value = dob,
+                        isEditing = isEditing,
+                        onValueChange = userDetails::updateDob
+                    )
+                    UserInfoField(
                         label = "Phone",
                         value = phone,
                         isEditing = isEditing,
@@ -115,6 +178,11 @@ fun UserPersonalDetails(vm: AuthViewModel, sharedPreferencesManager: SharedPrefe
                                 if (formError == null) {
                                     val data =
                                         EditUserPersonalDetails(age, bloodGroup, phone, email)
+                                    val extraData = ExtraDetails(
+                                        height = height,
+                                        weight = weight,
+                                        dob = dob
+                                    )
                                     vm.editDetails(
                                         data,
                                         id,
@@ -131,6 +199,32 @@ fun UserPersonalDetails(vm: AuthViewModel, sharedPreferencesManager: SharedPrefe
                                                 email
                                             )
                                             Log.d("data", "$data  $id")
+                                        },
+                                        onError = { errorMessage ->
+                                            Log.e("EditDetails", errorMessage)
+                                            Toast.makeText(
+                                                context,
+                                                "Error: $errorMessage. Please try again.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    )
+                                    vm.addExtraDetails(
+                                        extraData,
+                                        personalInfoId,
+                                        onSuccess = {
+                                            Toast.makeText(
+                                                context,
+                                                "Details Updated",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            val updatedUserDetails =
+                                                sharedPreferencesManager.getUserDetails().copy(
+                                                    height = height,
+                                                    weight = weight,
+                                                    dob = dob
+                                                )
+                                            Log.d("data", "$updatedUserDetails  $personalInfoId")
                                         },
                                         onError = { errorMessage ->
                                             Log.e("EditDetails", errorMessage)

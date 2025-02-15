@@ -10,9 +10,12 @@ import com.example.medico.user.dto.EditUserPersonalDetails
 import com.example.medico.common.model.LoginCredentials
 import com.example.medico.user.responses.UserLoginResponse
 import com.example.medico.common.dto.EditPassword
-import com.example.medico.user.data.UserDetails
+import com.example.medico.user.model.UserDetails
+import com.example.medico.user.model.ExtraDetails
+import com.example.medico.user.responses.UserDetailsResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -23,23 +26,21 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
     private val url = "https://b29d-2409-40d2-10b6-99f5-65ea-417d-7570-5412.ngrok-free.app"
 
-    override suspend fun login(user: LoginCredentials): UserLoginResponse {
+    override suspend fun login(user: LoginCredentials): Result<UserLoginResponse> {
         return try {
             val response: UserLoginResponse = client.post("$url/login") {
                 contentType(ContentType.Application.Json)
                 setBody(LoginCredentials(user.email, user.password, user.role))
-                println(user.role)// Sending LoginCredentials data
             }.body()
-            response
-
+            Result.success(response)
         } catch (e: Exception) {
             throw Exception("Error during login: ${e.message}") // Clear error message
         }
     }
 
-    override suspend fun registerDoc(data: UserDetails): UserDetails {
+    override suspend fun registerUser(data: UserDetails): UserDetails {
         return try {
-            val response: UserDetails = client.post("$url/register") {
+            val response: UserDetails = client.post("$url/u/register") {
                 contentType(ContentType.Application.Json)
                 setBody(data)
             }.body()
@@ -49,7 +50,7 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
         }
     }
 
-    override suspend fun registerDoc(data: DoctorDetails): DoctorDetails {
+    override suspend fun registerUser(data: DoctorDetails): DoctorDetails {
         return try {
             val response: DoctorDetails = client.post("$url/doctor/register") {
                 contentType(ContentType.Application.Json)
@@ -152,4 +153,46 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
             Result.failure(e)
         }
     }
+
+    override suspend fun addExtraDetails(data: ExtraDetails, id: String): Result<UserDetailsResponse> {
+        return try {
+            val response: UserDetailsResponse = client.put("$url/personalInfo/extraDetails/$id") {
+                contentType(ContentType.Application.Json)
+                setBody(data)
+            }.body()
+            Log.d("data", "$data  $id")
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getExtraDetails(
+        id: String,
+    ): Result<UserDetailsResponse> {
+        return try {
+            val response: UserDetailsResponse = client.get("$url/personalInfo/getPersonalInfo/$id") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Log.d("data", " $id")
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getPersonalInfoId(id: String): Result<String> {
+        return try {
+            val response: String = client.get("$url/personalInfo/getPersonalInfoId/$id") {
+                contentType(ContentType.Application.Json)
+            }.body()
+
+            Log.d("data", "$response  $id")
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
 }

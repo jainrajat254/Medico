@@ -35,7 +35,7 @@ import com.example.medico.common.utils.BloodGroupDropdown
 import com.example.medico.common.utils.CustomTextField
 import com.example.medico.common.utils.GenderDropdown
 import com.example.medico.common.viewModel.AuthViewModel
-import com.example.medico.user.data.UserDetails
+import com.example.medico.user.model.UserDetails
 
 @Composable
 fun Register(
@@ -162,7 +162,6 @@ fun Register(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            // Display Error Message (if any)
                             errorMessage?.let {
                                 Text(
                                     text = it,
@@ -196,7 +195,7 @@ fun Register(
                                         firstName, lastName, age, gender, bloodGroup, phone, email, password
                                     )
 
-                                    vm.register(
+                                    vm.registerUser(
                                         user,
                                         onSuccess = {
                                             Toast.makeText(

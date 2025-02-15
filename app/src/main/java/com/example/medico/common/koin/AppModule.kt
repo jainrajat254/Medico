@@ -2,7 +2,7 @@ package com.example.medico.common.koin
 
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.doctor.viewModel.DoctorDetails
-import com.example.medico.user.model.UserDetails
+import com.example.medico.user.viewModel.UserDetails
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.doctor.viewModel.DoctorRegister
 import io.ktor.client.*
@@ -23,6 +23,7 @@ val appModule = module {
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
+                    coerceInputValues = true
                 })
             }
         }

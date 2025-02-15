@@ -34,6 +34,9 @@ import com.example.medico.doctor.screens.DocPersonalDetails
 import com.example.medico.doctor.screens.DoctorSettingsPage
 import com.example.medico.doctor.screens.HomeScreen
 import com.example.medico.doctor.screens.PatientPersonalInfo
+import com.example.medico.user.screens.AddressDetails
+import com.example.medico.user.screens.FamilyDetails
+import com.example.medico.user.screens.InsuranceDetails
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -102,6 +105,18 @@ fun App() {
 
         composable(Routes.Schedule.routes) {
             HomeScreen(navController = navController)
+        }
+
+        composable(Routes.InsuranceDetails.routes) {
+            InsuranceDetails(vm,sharedPreferencesManager)
+        }
+
+        composable(Routes.FamilyDetails.routes) {
+            FamilyDetails(vm,sharedPreferencesManager)
+        }
+
+        composable(Routes.Address.routes) {
+            AddressDetails(vm,sharedPreferencesManager)
         }
 
         composable(Routes.DoctorLogin.routes) {
