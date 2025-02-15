@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.medico.R
+import com.example.medico.common.model.Districts
 import com.example.medico.common.model.HealthReport
 import com.example.medico.common.model.Medication
 import com.example.medico.doctor.viewModel.DoctorRegister
@@ -315,7 +316,11 @@ fun ProfileImage(
 }
 
 @Composable
-fun BackgroundContent(paddingValues: PaddingValues, content: @Composable () -> Unit) {
+fun BackgroundContent(
+    paddingValues: PaddingValues,
+    showTagline: Boolean = true,
+    content: @Composable () -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -336,8 +341,10 @@ fun BackgroundContent(paddingValues: PaddingValues, content: @Composable () -> U
             verticalArrangement = Arrangement.Top
         ) {
             HeaderSection()
-            Spacer(modifier = Modifier.height(16.dp))
-            Tagline()
+            if (showTagline) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Tagline()
+            }
             Spacer(modifier = Modifier.height(32.dp))
             content()
         }
@@ -345,7 +352,11 @@ fun BackgroundContent(paddingValues: PaddingValues, content: @Composable () -> U
 }
 
 @Composable
-fun BackgroundContentHome(paddingValues: PaddingValues, content: @Composable () -> Unit) {
+fun BackgroundContentHome(
+    paddingValues: PaddingValues,
+    name: String,
+    content: @Composable () -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -369,6 +380,18 @@ fun BackgroundContentHome(paddingValues: PaddingValues, content: @Composable () 
                 .padding(start = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                text = "Welcome, $name",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Start,
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 64.dp)
+            )
+
+            TaglineAndProfilePicture()
             content()
         }
     }
@@ -512,141 +535,8 @@ fun StateDistrictDropdown(
     val selectedState = viewModel.state.collectAsState().value
     val selectedDistrict = viewModel.district.collectAsState().value
 
-    val districts = mapOf(
-        "Delhi" to listOf(
-            "Central Delhi",
-            "East Delhi",
-            "New Delhi",
-            "North Delhi",
-            "North East Delhi",
-            "North West Delhi",
-            "Shahdara",
-            "South Delhi",
-            "South East Delhi",
-            "South West Delhi",
-            "West Delhi"
-        ),
-        "Haryana" to listOf(
-            "Ambala",
-            "Bhiwani",
-            "Charkhi Dadri",
-            "Faridabad",
-            "Fatehabad",
-            "Gurugram",
-            "Hisar",
-            "Jhajjar",
-            "Jind",
-            "Kaithal",
-            "Karnal",
-            "Kurukshetra",
-            "Mahendragarh",
-            "Nuh",
-            "Palwal",
-            "Panchkula",
-            "Panipat",
-            "Rewari",
-            "Rohtak",
-            "Sirsa",
-            "Sonipat",
-            "Yamunanagar"
-        ),
-        "Uttar Pradesh" to listOf(
-            "Agra",
-            "Aligarh",
-            "Ambedkar Nagar",
-            "Amethi",
-            "Amroha",
-            "Auraiya",
-            "Ayodhya",
-            "Azamgarh",
-            "Baghpat",
-            "Bahraich",
-            "Ballia",
-            "Balrampur",
-            "Banda",
-            "Barabanki",
-            "Bareilly",
-            "Basti",
-            "Bhadohi",
-            "Bijnor",
-            "Budaun",
-            "Bulandshahr",
-            "Chandauli",
-            "Chitrakoot",
-            "Deoria",
-            "Etah",
-            "Etawah",
-            "Farrukhabad",
-            "Fatehpur",
-            "Firozabad",
-            "Gautam Buddha Nagar",
-            "Ghaziabad",
-            "Ghazipur",
-            "Gonda",
-            "Gorakhpur",
-            "Hamirpur",
-            "Hapur",
-            "Hardoi",
-            "Hathras",
-            "Jalaun",
-            "Jaunpur",
-            "Jhansi",
-            "Kannauj",
-            "Kanpur Dehat",
-            "Kanpur Nagar",
-            "Kasganj",
-            "Kaushambi",
-            "Kheri",
-            "Kushinagar",
-            "Lalitpur",
-            "Lucknow",
-            "Maharajganj",
-            "Mahoba",
-            "Mainpuri",
-            "Mathura",
-            "Mau",
-            "Meerut",
-            "Mirzapur",
-            "Moradabad",
-            "Muzaffarnagar",
-            "Pilibhit",
-            "Pratapgarh",
-            "Prayagraj",
-            "Raebareli",
-            "Rampur",
-            "Saharanpur",
-            "Sambhal",
-            "Sant Kabir Nagar",
-            "Shahjahanpur",
-            "Shamli",
-            "Shrawasti",
-            "Siddharthnagar",
-            "Sitapur",
-            "Sonbhadra",
-            "Sultanpur",
-            "Unnao",
-            "Varanasi"
-        ),
-        "Uttarakhand" to listOf(
-            "Almora",
-            "Bageshwar",
-            "Chamoli",
-            "Champawat",
-            "Dehradun",
-            "Haridwar",
-            "Nainital",
-            "Pauri Garhwal",
-            "Pithoragarh",
-            "Rudraprayag",
-            "Tehri Garhwal",
-            "Udham Singh Nagar",
-            "Uttarkashi"
-        ),
-        "Goa" to listOf(
-            "North Goa",
-            "South Goa"
-        )
-    )
+    val districts = Districts.districts
+
 
     Column {
         // State Dropdown

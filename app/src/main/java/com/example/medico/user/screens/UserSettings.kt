@@ -26,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.medico.R
 import com.example.medico.common.navigation.UserBottomNavBar
@@ -35,7 +34,7 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
 
 @Composable
-fun SettingsPage(
+fun UserSettingsPage(
     navController: NavHostController,
     sharedPreferencesManager: SharedPreferencesManager,
 ) {
@@ -70,8 +69,6 @@ fun SettingsPage(
                     "App Theme",
                     "Notifications",
                     "Help & Support",
-                    "Privacy Policy",
-                    "Terms of Service",
                     "Sign Out"
                 )
                 items(options) { option ->
@@ -85,12 +82,10 @@ fun SettingsPage(
                             "Insurance Details" -> navController.navigate(Routes.InsuranceDetails.routes)
                             "FamilyDetails" -> navController.navigate(Routes.FamilyDetails.routes)
                             "Address Details" -> navController.navigate(Routes.Address.routes)
-                            "Change Password" -> navController.navigate("change_password")
+                            "Change Password" -> navController.navigate(Routes.ChangePassword.routes)
                             "App Theme" -> navController.navigate("app_theme")
                             "Notifications" -> navController.navigate("notifications")
                             "Help & Support" -> navController.navigate("help_support")
-                            "Privacy Policy" -> navController.navigate("privacy_policy")
-                            "Terms of Service" -> navController.navigate("terms_of_service")
                             else -> Unit
                         }
                     }
@@ -150,13 +145,4 @@ fun HelpSupportScreen(navController: NavHostController) {
     // Content for Help & Support screen
 }
 
-@Composable
-fun PrivacyPolicyScreen(navController: NavHostController) {
-    // Content for Privacy Policy screen
-}
-
-@Composable
-fun TermsOfServiceScreen(navController: NavHostController) {
-    // Content for Terms of Service screen
-}
 

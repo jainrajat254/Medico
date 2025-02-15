@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +20,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,11 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medico.R
-import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.model.Medicines
+import com.example.medico.common.navigation.Routes
+import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContentHome
-import com.example.medico.common.utils.TaglineAndProfilePicture
 
 
 val medicines = listOf(
@@ -57,27 +60,31 @@ fun UserHomePage(navController: NavController, sharedPreferencesManager: SharedP
     Scaffold(
         bottomBar = {
             UserBottomNavBar(modifier = Modifier, navController = navController)
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { navController.navigate(Routes.UserAppointments.routes) },
+                containerColor = Color(0xFF4771CC),
+                contentColor = MaterialTheme.colorScheme.secondary
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.appointment),
+                    contentDescription = "appointments",
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Appointments")
+            }
         }
     ) { paddingValues ->
-        BackgroundContentHome(paddingValues = paddingValues) {
-
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                item {
-                    Text(
-                        text = "Welcome, ${user?.firstName}",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Start,
-                        color = Color.White,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, top = 64.dp)
-                    )
-                }
-
-                item {
-                    TaglineAndProfilePicture()
-                }
+        BackgroundContentHome(
+            paddingValues = paddingValues,
+            name = user?.firstName ?: ""
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(bottom = 80.dp)
+            ) {
 
                 item {
                     MedicationCard()

@@ -18,6 +18,8 @@ object Routes {
     val UserSettings = Route("user_settings")
     val DocSettings = Route("doc_settings")
     val History = Route("history")
+    val UserAppointments = Route("user_appointments")
+    val DoctorAppointments = Route("doc_appointments")
     val Schedule = Route("schedule")
     val InsuranceDetails = Route("insurance_details")
     val FamilyDetails = Route("family_details")

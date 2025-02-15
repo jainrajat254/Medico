@@ -6,37 +6,36 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.medico.common.screens.ContinueAs
+import com.example.medico.common.screens.SplashScreen
+import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.doctor.screens.AddMedicationPage
-import com.example.medico.user.screens.AppThemeScreen
-import com.example.medico.user.screens.ChangePassword
-import com.example.medico.common.screens.ContinueAs
+import com.example.medico.doctor.screens.CurrentPatientInfo
 import com.example.medico.doctor.screens.DocAddressDetails
 import com.example.medico.doctor.screens.DocMedicalDetails
+import com.example.medico.doctor.screens.DocPersonalDetails
 import com.example.medico.doctor.screens.DoctorRegister
+import com.example.medico.doctor.screens.DoctorSettingsPage
+import com.example.medico.doctor.screens.HomeScreen
+import com.example.medico.doctor.screens.LoginDoc
+import com.example.medico.doctor.screens.PatientPersonalInfo
+import com.example.medico.user.screens.AddressDetails
+import com.example.medico.user.screens.AppThemeScreen
+import com.example.medico.user.screens.ChangePassword
+import com.example.medico.user.screens.DoctorAppointmentScreen
+import com.example.medico.user.screens.FamilyDetails
 import com.example.medico.user.screens.HealthRecords
 import com.example.medico.user.screens.HealthReports
 import com.example.medico.user.screens.HelpSupportScreen
-import com.example.medico.user.screens.UserHomePage
-import com.example.medico.doctor.screens.LoginDoc
+import com.example.medico.user.screens.InsuranceDetails
 import com.example.medico.user.screens.LoginPage
 import com.example.medico.user.screens.MedicationPage
 import com.example.medico.user.screens.NotificationsScreen
-import com.example.medico.user.screens.PrivacyPolicyScreen
 import com.example.medico.user.screens.Register
-import com.example.medico.user.screens.SettingsPage
-import com.example.medico.common.screens.SplashScreen
-import com.example.medico.user.screens.TermsOfServiceScreen
+import com.example.medico.user.screens.UserHomePage
 import com.example.medico.user.screens.UserPersonalDetails
-import com.example.medico.common.sharedPreferences.SharedPreferencesManager
-import com.example.medico.doctor.screens.CurrentPatientInfo
-import com.example.medico.doctor.screens.DocPersonalDetails
-import com.example.medico.doctor.screens.DoctorSettingsPage
-import com.example.medico.doctor.screens.HomeScreen
-import com.example.medico.doctor.screens.PatientPersonalInfo
-import com.example.medico.user.screens.AddressDetails
-import com.example.medico.user.screens.FamilyDetails
-import com.example.medico.user.screens.InsuranceDetails
+import com.example.medico.user.screens.UserSettingsPage
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -74,8 +73,14 @@ fun App() {
         composable(Routes.Reports.routes) {
             HealthReports(navController)
         }
+        composable(Routes.UserAppointments.routes) {
+            DoctorAppointmentScreen()
+        }
+        composable(Routes.DoctorAppointments.routes) {
+
+        }
         composable(Routes.UserSettings.routes) {
-            SettingsPage(navController, sharedPreferencesManager)
+            UserSettingsPage(navController, sharedPreferencesManager)
         }
         composable(Routes.DocSettings.routes) {
             DoctorSettingsPage(navController, sharedPreferencesManager)
@@ -151,8 +156,6 @@ fun App() {
         composable(Routes.AppTheme.routes) { AppThemeScreen(navController) }
         composable(Routes.Notifications.routes) { NotificationsScreen(navController) }
         composable(Routes.HelpSupport.routes) { HelpSupportScreen(navController) }
-        composable(Routes.PrivacyPolicy.routes) { PrivacyPolicyScreen(navController) }
-        composable(Routes.TermsOfService.routes) { TermsOfServiceScreen(navController) }
     }
 }
 

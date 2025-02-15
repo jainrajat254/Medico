@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,29 +57,16 @@ fun HomeScreen(
             DocBottomNavBar(modifier = Modifier, navController = navController)
         }
     ) { paddingValues ->
-        BackgroundContentHome(paddingValues = paddingValues) {
+        BackgroundContentHome(paddingValues = paddingValues, name = "Doctor") {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(bottom = 4.dp)
             ) {
-                item {
-                    Text(
-                        text = "Welcome, Doctor",
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Start,
-                        color = Color.White,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 64.dp)
-                    )
-                }
-                item { TaglineAndProfilePicture() }
 
-                // Current Patient (First in List)
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.padding(top = 24.dp))
                     CurrentPatientCard(
                         patientName = "John Doe",
                         index = 1,
@@ -89,9 +77,8 @@ fun HomeScreen(
                         onAbsentClick = { /* Handle Absent */ }
                     )
                 }
-
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.padding(18.dp))
                     OtherPatientsList(patients.drop(1)) // Exclude first patient
                 }
             }

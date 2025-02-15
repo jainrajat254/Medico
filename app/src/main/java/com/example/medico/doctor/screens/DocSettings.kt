@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.medico.R
+import com.example.medico.common.navigation.DocBottomNavBar
 import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.navigation.Routes
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
@@ -41,7 +42,7 @@ fun DoctorSettingsPage(
 ) {
     Scaffold(
         bottomBar = {
-            UserBottomNavBar(modifier = Modifier, navController = navController)
+            DocBottomNavBar(modifier = Modifier, navController = navController)
         }
     ) { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
