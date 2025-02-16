@@ -65,7 +65,7 @@ fun App() {
             MedicationPage(navController)
         }
         composable(Routes.MedAdd.routes) {
-            AddMedicationPage(navController)
+            AddMedicationPage()
         }
         composable(Routes.Records.routes) {
             HealthRecords(navController)

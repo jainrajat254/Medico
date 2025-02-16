@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.medico.R
 import com.example.medico.common.model.Districts
+import com.example.medico.common.model.Frequency
 import com.example.medico.common.model.HealthReport
 import com.example.medico.common.model.Medication
 import com.example.medico.doctor.viewModel.DoctorRegister
@@ -596,11 +597,108 @@ fun GenderDropdown(
 }
 
 @Composable
+fun FrequencyDropdown(
+    selectedFrequency: String,
+    onFrequencySelected: (String) -> Unit,
+) {
+    val frequencyOptions = listOf(
+        "Once a day", "Twice a day", "Thrice a day", "Four times a day",
+        "Morning only", "Afternoon only", "Night only", "Before bed",
+        "Empty stomach", "Before meals", "After meals", "With food",
+        "Every alternate day", "Weekly once", "As needed"
+    )
+
+    CommonDropDownMenu(
+        items = frequencyOptions,
+        selectedItem = selectedFrequency,
+        onItemSelected = { frequency -> onFrequencySelected(frequency) },
+        label = "Frequency",
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 8.dp) // Equal padding
+    )
+}
+
+
+@Composable
+fun DosageDropdown(
+    selectedDosage: String,
+    onDosageSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val dosageOptions = listOf("1 tablet", "2 tablets", "5 ml", "10 ml", "1 capsule", "Half tablet")
+
+    CommonDropDownMenu(
+        items = dosageOptions,
+        selectedItem = selectedDosage,
+        onItemSelected = { dosage ->
+            onDosageSelected(dosage)
+        },
+        label = "Dosage",
+        modifier = modifier
+    )
+}
+
+@Composable
+fun DurationDropdown(
+    selectedDuration: String,
+    onDurationSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val durationOptions = listOf("3 days", "5 days", "7 days", "10 days", "2 weeks", "1 month", "Until further notice")
+
+    CommonDropDownMenu(
+        items = durationOptions,
+        selectedItem = selectedDuration,
+        onItemSelected = { duration -> onDurationSelected(duration) },
+        label = "Duration",
+        modifier = modifier
+    )
+}
+
+@Composable
+fun IntakeMethodDropdown(
+    selectedMethod: String,
+    onMethodSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val methodOptions = listOf("With Water", "With Milk", "With Food", "After Food", "Before Food", "Sublingual (Under Tongue)", "Inhalation")
+
+    CommonDropDownMenu(
+        items = methodOptions,
+        selectedItem = selectedMethod,
+        onItemSelected = { method -> onMethodSelected(method) },
+        label = "Intake Method",
+        modifier = modifier
+    )
+}
+
+
+@Composable
+fun MedicationTypeDropdown(
+    selectedType: String,
+    onTypeSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val typeOptions = listOf("Tablet", "Capsule", "Syrup", "Injection", "Ointment", "Drops", "Inhaler")
+
+    CommonDropDownMenu(
+        items = typeOptions,
+        selectedItem = selectedType,
+        onItemSelected = { type -> onTypeSelected(type) },
+        label = "Medication Type",
+        modifier = modifier
+    )
+}
+
+
+@Composable
 fun CommonDropDownMenu(
     items: List<String>,
     selectedItem: String,
     onItemSelected: (String) -> Unit,
     label: String,
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
