@@ -9,6 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +31,7 @@ import com.example.medico.user.screens.reports
 fun CurrentPatientInfo(
     navController: NavController,
 ) {
+    val id by remember { mutableStateOf("61532e84-b457-40c7-83fa-e164d7cb6693") }
     Scaffold(
         bottomBar = { DocBottomNavBar(modifier = Modifier, navController = navController) }
     ) { paddingValues ->
@@ -44,7 +48,11 @@ fun CurrentPatientInfo(
                         index = 1,
                         appointmentTime = "10:30 AM",
                         showPersonalInfoOnly = true,
-                        onPersonalInfoClick = { navController.navigate(Routes.CurrentPatientDetails.routes) }
+                        onPersonalInfoClick = {
+                            navController.navigate(Routes.UserOverview.createRoutes(id)) {
+                                launchSingleTop = true
+                            }
+                        }
                     )
                 }
                 item {

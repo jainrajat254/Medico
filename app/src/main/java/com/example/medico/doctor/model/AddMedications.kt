@@ -12,9 +12,6 @@ class AddMedications : ViewModel() {
     private val _medicationType = MutableStateFlow("")
     val medicationType: StateFlow<String> = _medicationType
 
-    private val _dosage = MutableStateFlow("")
-    val dosage: StateFlow<String> = _dosage
-
     private val _dosageType = MutableStateFlow("")
     val dosageType: StateFlow<String> = _dosageType
 
@@ -33,7 +30,6 @@ class AddMedications : ViewModel() {
     // Functions to update state
     fun setMedication(value: String) { _medication.value = value }
     fun setMedicationType(value: String) { _medicationType.value = value }
-    fun setDosage(value: String) { _dosage.value = value }
     fun setDosageType(value: String) { _dosageType.value = value }
     fun setTime(value: String) { _time.value = value }
     fun setFrequency(value: String) { _frequency.value = value }

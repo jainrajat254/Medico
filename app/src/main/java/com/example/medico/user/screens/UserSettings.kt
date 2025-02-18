@@ -77,7 +77,7 @@ fun UserSettingsPage(
                         textColor = if (option == "Sign Out") Color.Red else Color.Black
                     ) {
                         when (option) {
-                            "Sign Out" -> sharedPreferencesManager.logOut(navController)
+                            "Sign Out" -> sharedPreferencesManager.userLogout(navController)
                             "Personal Info" -> navController.navigate(Routes.UserPersonalDetails.routes)
                             "Insurance Details" -> navController.navigate(Routes.InsuranceDetails.routes)
                             "FamilyDetails" -> navController.navigate(Routes.FamilyDetails.routes)

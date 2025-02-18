@@ -51,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -61,6 +62,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -337,7 +339,7 @@ fun BackgroundContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -351,6 +353,7 @@ fun BackgroundContent(
         }
     }
 }
+
 
 @Composable
 fun BackgroundContentHome(
@@ -600,40 +603,39 @@ fun GenderDropdown(
 fun FrequencyDropdown(
     selectedFrequency: String,
     onFrequencySelected: (String) -> Unit,
+    modifier: Modifier
 ) {
     val frequencyOptions = listOf(
         "Once a day", "Twice a day", "Thrice a day", "Four times a day",
-        "Morning only", "Afternoon only", "Night only", "Before bed",
+        "Morning", "Afternoon", "Night", "Before bed",
         "Empty stomach", "Before meals", "After meals", "With food",
-        "Every alternate day", "Weekly once", "As needed"
+        "Alternate days", "Weekly", "As needed"
     )
 
     CommonDropDownMenu(
         items = frequencyOptions,
         selectedItem = selectedFrequency,
-        onItemSelected = { frequency -> onFrequencySelected(frequency) },
+        onItemSelected = onFrequencySelected,
         label = "Frequency",
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp, vertical = 8.dp) // Equal padding
+        modifier = modifier
     )
 }
-
 
 @Composable
 fun DosageDropdown(
     selectedDosage: String,
     onDosageSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
-    val dosageOptions = listOf("1 tablet", "2 tablets", "5 ml", "10 ml", "1 capsule", "Half tablet")
+    val dosageOptions = listOf(
+        "1 tablet", "2 tablets", "5 ml", "10 ml",
+        "1 capsule", "Half tablet", "1 drop", "1 spoon"
+    )
 
     CommonDropDownMenu(
         items = dosageOptions,
         selectedItem = selectedDosage,
-        onItemSelected = { dosage ->
-            onDosageSelected(dosage)
-        },
+        onItemSelected = onDosageSelected,
         label = "Dosage",
         modifier = modifier
     )
@@ -643,14 +645,17 @@ fun DosageDropdown(
 fun DurationDropdown(
     selectedDuration: String,
     onDurationSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
-    val durationOptions = listOf("3 days", "5 days", "7 days", "10 days", "2 weeks", "1 month", "Until further notice")
+    val durationOptions = listOf(
+        "3 days", "5 days", "7 days", "10 days",
+        "2 weeks", "1 month", "Ongoing"
+    )
 
     CommonDropDownMenu(
         items = durationOptions,
         selectedItem = selectedDuration,
-        onItemSelected = { duration -> onDurationSelected(duration) },
+        onItemSelected = onDurationSelected,
         label = "Duration",
         modifier = modifier
     )
@@ -660,32 +665,39 @@ fun DurationDropdown(
 fun IntakeMethodDropdown(
     selectedMethod: String,
     onMethodSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
-    val methodOptions = listOf("With Water", "With Milk", "With Food", "After Food", "Before Food", "Sublingual (Under Tongue)", "Inhalation")
+    val methodOptions = listOf(
+        "With Water", "With Milk", "With Food",
+        "Before Food", "After Food",
+        "Sublingual", "Inhalation"
+    )
 
     CommonDropDownMenu(
         items = methodOptions,
         selectedItem = selectedMethod,
-        onItemSelected = { method -> onMethodSelected(method) },
+        onItemSelected = onMethodSelected,
         label = "Intake Method",
         modifier = modifier
     )
 }
 
-
 @Composable
 fun MedicationTypeDropdown(
     selectedType: String,
     onTypeSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
-    val typeOptions = listOf("Tablet", "Capsule", "Syrup", "Injection", "Ointment", "Drops", "Inhaler")
+    val typeOptions = listOf(
+        "Tablet", "Capsule", "Syrup",
+        "Injection", "Ointment",
+        "Drops", "Inhaler", "Powder"
+    )
 
     CommonDropDownMenu(
         items = typeOptions,
         selectedItem = selectedType,
-        onItemSelected = { type -> onTypeSelected(type) },
+        onItemSelected = onTypeSelected,
         label = "Medication Type",
         modifier = modifier
     )
@@ -1063,6 +1075,33 @@ fun CurrentPatientCard(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun DetailRow(label: String, value: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+    ) {
+        Column {
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 2.dp) // Spacing between label and value
+            )
+            Text(
+                text = value,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                maxLines = 2, // Allows longer values to show
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

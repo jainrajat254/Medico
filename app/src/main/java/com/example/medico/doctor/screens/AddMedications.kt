@@ -1,7 +1,6 @@
 package com.example.medico.doctor.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,10 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.CustomTextField
 import com.example.medico.common.utils.DosageDropdown
@@ -32,13 +31,11 @@ import com.example.medico.common.utils.IntakeMethodDropdown
 import com.example.medico.common.utils.MedicationTypeDropdown
 import com.example.medico.doctor.model.AddMedications
 
-@Preview(showBackground = true)
 @Composable
-fun AddMedicationPage() {
+fun AddMedicationPage(navController: NavController) {
     val viewModel: AddMedications = viewModel()
 
     val medication by viewModel.medication.collectAsState()
-    val dosage by viewModel.dosage.collectAsState()
     val time by viewModel.time.collectAsState()
     val frequency by viewModel.frequency.collectAsState()
     val medicationType by viewModel.medicationType.collectAsState()
@@ -73,7 +70,7 @@ fun AddMedicationPage() {
                         keyboardType = KeyboardType.Text,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp) // Matching height
+                            .height(56.dp)
                     )
                 }
 
@@ -113,6 +110,9 @@ fun AddMedicationPage() {
                     FrequencyDropdown(
                         selectedFrequency = frequency,
                         onFrequencySelected = viewModel::setFrequency,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp) // Matching height
                     )
                 }
 

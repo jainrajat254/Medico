@@ -10,6 +10,7 @@ import com.example.medico.common.screens.ContinueAs
 import com.example.medico.common.screens.SplashScreen
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.viewModel.AuthViewModel
+import com.example.medico.doctor.dto.DoctorDTO
 import com.example.medico.doctor.screens.AddMedicationPage
 import com.example.medico.doctor.screens.CurrentPatientInfo
 import com.example.medico.doctor.screens.DocAddressDetails
@@ -19,11 +20,12 @@ import com.example.medico.doctor.screens.DoctorRegister
 import com.example.medico.doctor.screens.DoctorSettingsPage
 import com.example.medico.doctor.screens.HomeScreen
 import com.example.medico.doctor.screens.LoginDoc
-import com.example.medico.doctor.screens.PatientPersonalInfo
+import com.example.medico.doctor.screens.UserOverview
 import com.example.medico.user.screens.AddressDetails
 import com.example.medico.user.screens.AppThemeScreen
 import com.example.medico.user.screens.ChangePassword
 import com.example.medico.user.screens.DoctorAppointmentScreen
+import com.example.medico.user.screens.DoctorOverview
 import com.example.medico.user.screens.FamilyDetails
 import com.example.medico.user.screens.HealthRecords
 import com.example.medico.user.screens.HealthReports
@@ -36,6 +38,8 @@ import com.example.medico.user.screens.Register
 import com.example.medico.user.screens.UserHomePage
 import com.example.medico.user.screens.UserPersonalDetails
 import com.example.medico.user.screens.UserSettingsPage
+import com.example.medico.user.viewModel.UserOverviewViewModel
+import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -45,6 +49,7 @@ fun App() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val vm: AuthViewModel = koinViewModel()
+    val ovm: UserOverviewViewModel = koinViewModel()
     val sharedPreferencesManager: SharedPreferencesManager = koinInject()
 
     NavHost(navController = navController, startDestination = Routes.Welcome.routes) {
@@ -65,7 +70,7 @@ fun App() {
             MedicationPage(navController)
         }
         composable(Routes.MedAdd.routes) {
-            AddMedicationPage()
+            AddMedicationPage(navController)
         }
         composable(Routes.Records.routes) {
             HealthRecords(navController)
@@ -74,7 +79,7 @@ fun App() {
             HealthReports(navController)
         }
         composable(Routes.UserAppointments.routes) {
-            DoctorAppointmentScreen()
+            DoctorAppointmentScreen(navController)
         }
         composable(Routes.DoctorAppointments.routes) {
 
@@ -104,8 +109,11 @@ fun App() {
             CurrentPatientInfo(navController = navController)
         }
 
-        composable(Routes.CurrentPatientDetails.routes) {
-            PatientPersonalInfo(navController = navController)
+        composable(Routes.UserOverview.routes) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")
+            if (id != null) {
+                UserOverview(id, ovm)
+            }
         }
 
         composable(Routes.Schedule.routes) {
@@ -134,6 +142,14 @@ fun App() {
 
         composable(Routes.DocAddressDetails.routes) {
             DocAddressDetails(sharedPreferencesManager, vm)
+        }
+
+        composable(Routes.DoctorOverview.routes) { backStackEntry ->
+            val doctorJson = backStackEntry.arguments?.getString("doctorDetails")
+            if (doctorJson != null) {
+                val doctorDetails = Json.decodeFromString<DoctorDTO>(doctorJson)
+                DoctorOverview(doctorDetails)
+            }
         }
 
         composable(Routes.DocMedicalDetails.routes) {

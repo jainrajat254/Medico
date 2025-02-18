@@ -6,7 +6,6 @@ import androidx.navigation.NavController
 import com.example.medico.doctor.responses.DoctorLoginResponse
 import com.example.medico.user.responses.UserLoginResponse
 import com.example.medico.common.navigation.Routes
-import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.responses.UserDetailsResponse
 import java.util.UUID
 
@@ -196,12 +195,24 @@ class SharedPreferencesManager(context: Context) {
         return sharedPreferences.getBoolean(IS_LOGGED_IN_KEY, false)
     }
 
-    fun logOut(navController: NavController) {
+    fun userLogout(navController: NavController) {
         sharedPreferences.edit().apply {
             clear()
             apply()
         }
-        navController.navigate(Routes.UserLogin.routes)
+        navController.navigate(Routes.UserLogin.routes) {
+            popUpTo(0)
+        }
+    }
+
+    fun docLogout(navController: NavController) {
+        sharedPreferences.edit().apply {
+            clear()
+            apply()
+        }
+        navController.navigate(Routes.DoctorLogin.routes) {
+            popUpTo(0)
+        }
     }
 
     fun saveUserPassword(password: String) {

@@ -15,6 +15,7 @@ import com.example.medico.user.responses.UserLoginResponse
 import com.example.medico.common.dto.EditPassword
 import com.example.medico.user.model.UserDetails
 import com.example.medico.common.koin.ApiService
+import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.responses.UserDetailsResponse
 import kotlinx.coroutines.launch
@@ -247,6 +248,20 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
                 onError("Unexpected error: ${e.message}")
             }
         }
+    }
+
+    fun getDetails(id: String,onResult: (UserDTO) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getDetails(id)
+
+                Log.d("UserOverview", "Raw API Response: $response") // Print API response
+
+            } catch (e: Exception) {
+                Log.e("UserOverview", "Exception fetching user details", e)
+            }
+        }
+
     }
 
 }

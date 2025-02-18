@@ -1,42 +1,51 @@
 package com.example.medico.common.navigation
 
-object Routes {
-    val Splash = Route("splash")
-    val Welcome = Route("welcome")
-    val UserLogin = Route("user_login")
-    val UserPersonalDetails = Route("user_personal_details")
-    val UserRegister = Route("user_register")
-    val UserHome = Route("user_home")
-    val DoctorHome = Route("doctor_home")
-    val CurrentPatient = Route("current_patient")
-    val Address = Route("address")
-    val CurrentPatientDetails = Route("current_patient_details")
-    val Medications = Route("medications")
-    val MedAdd = Route("add_medications")
-    val Records = Route("records")
-    val Reports = Route("reports")
-    val UserSettings = Route("user_settings")
-    val DocSettings = Route("doc_settings")
-    val History = Route("history")
-    val UserAppointments = Route("user_appointments")
-    val DoctorAppointments = Route("doc_appointments")
-    val Schedule = Route("schedule")
-    val InsuranceDetails = Route("insurance_details")
-    val FamilyDetails = Route("family_details")
-    val UserBottomNav = Route("user_bottom_nav")
-    val DocPersonalDetails = Route("doc_personal_details")
-    val DocAddressDetails = Route("doc_address_details")
-    val DocMedicalDetails = Route("doc_medical_details")
+import com.example.medico.doctor.dto.DoctorDTO
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-    val ChangePassword = Route("change_password")
-    val AppTheme = Route("app_theme")
-    val Notifications = Route("notifications")
-    val HelpSupport = Route("help_support")
-    val PrivacyPolicy = Route("privacy_policy")
-    val TermsOfService = Route("terms_of_service")
+sealed class Routes(var routes: String) {
 
-    val DoctorRegister = Route("doctor_register")
-    val DoctorLogin = Route("doctor_login")
+    data object Splash : Routes("splash")
+    data object Welcome : Routes("welcome")
 
-    data class Route(val routes: String)
+    data object UserLogin : Routes("user_login")
+    data object UserPersonalDetails : Routes("user_personal_details")
+    data object UserRegister : Routes("user_register")
+    data object UserHome : Routes("user_home")
+    data object Address : Routes("address")
+    data object Medications : Routes("medications")
+    data object MedAdd : Routes("add_medications")
+    data object Records : Routes("records")
+    data object Reports : Routes("reports")
+    data object UserSettings : Routes("user_settings")
+    data object History : Routes("history")
+    data object UserAppointments : Routes("user_appointments")
+    data object UserBottomNav : Routes("user_bottom_nav")
+    data object ChangePassword : Routes("change_password")
+    data object AppTheme : Routes("app_theme")
+    data object Notifications : Routes("notifications")
+    data object HelpSupport : Routes("help_support")
+
+    data object DoctorHome : Routes("doctor_home")
+    data object CurrentPatient : Routes("current_patient")
+    data object UserOverview : Routes("user_overview/{id}") {
+        fun createRoutes(id: String) =
+            "user_overview/$id"
+    }
+    data object DocSettings : Routes("doc_settings")
+    data object DoctorAppointments : Routes("doc_appointments")
+    data object Schedule : Routes("schedule")
+    data object InsuranceDetails : Routes("insurance_details")
+    data object FamilyDetails : Routes("family_details")
+    data object DocPersonalDetails : Routes("doc_personal_details")
+    data object DocAddressDetails : Routes("doc_address_details")
+    data object DocMedicalDetails : Routes("doc_medical_details")
+    data object DoctorOverview : Routes("doctor_overview/{doctorDetails}") {
+        fun createRoutes(doctorDetails: DoctorDTO) =
+            "doctor_overview/${Json.encodeToString(doctorDetails)}"
+    }
+
+    data object DoctorRegister : Routes("doctor_register")
+    data object DoctorLogin : Routes("doctor_login")
 }

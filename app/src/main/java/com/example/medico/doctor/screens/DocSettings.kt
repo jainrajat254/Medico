@@ -26,11 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.medico.R
 import com.example.medico.common.navigation.DocBottomNavBar
-import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.navigation.Routes
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
@@ -78,7 +76,7 @@ fun DoctorSettingsPage(
                         textColor = if (option == "Sign Out") Color.Red else Color.Black
                     ) {
                         when (option) {
-                            "Sign Out" -> sharedPreferencesManager.logOut(navController)
+                            "Sign Out" -> sharedPreferencesManager.docLogout(navController)
                             "Personal Details" -> navController.navigate(Routes.DocPersonalDetails.routes)
                             "Medical Details" -> navController.navigate(Routes.DocMedicalDetails.routes)
                             "Address Details" -> navController.navigate(Routes.DocAddressDetails.routes)

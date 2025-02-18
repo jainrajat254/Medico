@@ -10,6 +10,8 @@ import com.example.medico.user.dto.EditUserPersonalDetails
 import com.example.medico.common.model.LoginCredentials
 import com.example.medico.user.responses.UserLoginResponse
 import com.example.medico.common.dto.EditPassword
+import com.example.medico.doctor.dto.DoctorDTO
+import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.UserDetails
 import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.responses.UserDetailsResponse
@@ -19,12 +21,13 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val url = "https://b29d-2409-40d2-10b6-99f5-65ea-417d-7570-5412.ngrok-free.app"
+    private val url = "https://dd7e-2409-40d2-211c-f5d8-9da5-5177-c556-ddcb.ngrok-free.app"
 
     override suspend fun login(user: LoginCredentials): Result<UserLoginResponse> {
         return try {
@@ -194,5 +197,25 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
         }
     }
 
+    override suspend fun getDoctors(): Result<List<DoctorDTO>> {
+        return try {
+            val response: List<DoctorDTO> = client.get("$url/doctor/getDoctors") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
+    override suspend fun getDetails(id: String): Result<UserDTO> {
+        return try {
+            val response: UserDTO = client.get("$url/u/getDetails/$id") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

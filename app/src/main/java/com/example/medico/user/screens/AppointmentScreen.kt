@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,69 +41,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.medico.common.model.Districts
+import com.example.medico.common.navigation.Routes
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.CommonDropDownMenu
+import com.example.medico.doctor.dto.DoctorDTO
+import com.example.medico.user.viewModel.AppointmentsViewModel
+import org.koin.androidx.compose.getViewModel
 
-@Preview(showBackground = true)
 @Composable
-fun DoctorAppointmentScreen() {
-    var searchQuery by remember { mutableStateOf("") }
+fun DoctorAppointmentScreen(navController: NavController) {
+    val viewModel: AppointmentsViewModel = getViewModel()
+    val doctors by viewModel.filteredDoctors.collectAsState()
     var showFilterSheet by remember { mutableStateOf(false) }
-
-    var selectedState by remember { mutableStateOf("") }
-    var selectedDistrict by remember { mutableStateOf("") }
-
-    val doctors = listOf(
-        Doctor("Dr. Rajat Jain", "Delhi", "North", "110001", "AIIMS", "Cardiologist"),
-        Doctor(
-            "Dr. Priyanshu Kumar",
-            "Uttar Pradesh",
-            "Ghaziabad",
-            "201001",
-            "Fortis",
-            "Neurologist"
-        ),
-        Doctor("Dr. Soumya", "Uttar Pradesh", "Noida", "201301", "Apollo", "Pediatrician"),
-        Doctor("Dr. Harsh Verma", "Delhi", "South", "110020", "Max Hospital", "Orthopedic")
-    )
-
-    // Filtered List
-    val filteredDoctors = doctors.filter {
-        (searchQuery.isEmpty() || it.name.contains(searchQuery, true) || it.workspace.contains(
-            searchQuery, true
-        ) || it.state.contains(
-            searchQuery, true
-        ) || it.zipcode.contains(searchQuery, true) || it.specialization.contains(
-            searchQuery,
-            true
-        )) &&
-                (selectedState.isEmpty() || it.state.equals(selectedState, true)) &&
-                (selectedDistrict.isEmpty() || it.district.equals(selectedDistrict, true))
-    }
 
     Scaffold { paddingValues ->
         BackgroundContent(paddingValues = paddingValues, showTagline = false) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Search Bar
+                    val searchQuery by viewModel.searchQuery.collectAsState()
+
                     OutlinedTextField(
                         value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        label = { Text("Search Doctor, Specialization, or Address") },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        onValueChange = { viewModel.updateSearchQuery(it) },
+                        label = { Text(text = "Search Doctor, Specialization, or Address") },
+                        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                         trailingIcon = {
                             Icon(
-                                Icons.Default.FilterAlt,
+                                Icons.Filled.FilterAlt,
                                 contentDescription = null,
                                 modifier = Modifier.clickable { showFilterSheet = true }
                             )
@@ -122,22 +95,34 @@ fun DoctorAppointmentScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(filteredDoctors) { doctor ->
-                        DoctorCard(doctor)
+                    if (doctors.isEmpty()) {
+                        item {
+                            Text(
+                                text = "No doctors found",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        items(doctors) { doctor ->
+                            DoctorCard(doctor, navController)
+                        }
                     }
                 }
             }
 
-            // Show Filter BottomSheetDialog
+            // Filter Bottom Sheet
             if (showFilterSheet) {
                 FilterBottomSheet(
-                    selectedState = selectedState,
-                    selectedDistrict = selectedDistrict,
-                    onStateChange = {
-                        selectedState = it
-                        selectedDistrict = "" // Reset district when state changes
-                    },
-                    onDistrictChange = { selectedDistrict = it },
+                    selectedState = viewModel.selectedState,
+                    selectedDistrict = viewModel.selectedDistrict,
+                    onStateChange = viewModel::updateState,
+                    onDistrictChange = viewModel::updateDistrict,
                     onDismiss = { showFilterSheet = false }
                 )
             }
@@ -145,17 +130,8 @@ fun DoctorAppointmentScreen() {
     }
 }
 
-data class Doctor(
-    val name: String,
-    val state: String,
-    val district: String,
-    val zipcode: String,
-    val workspace: String,
-    val specialization: String,
-)
-
 @Composable
-fun DoctorCard(doctor: Doctor) {
+fun DoctorCard(doctor: DoctorDTO, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -173,9 +149,17 @@ fun DoctorCard(doctor: Doctor) {
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = doctor.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(
-                text = "${doctor.workspace}, ${doctor.district}, ${doctor.state} - ${doctor.zipcode}",
+                text = "${doctor.firstName} ${doctor.lastName}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "${doctor.specialization}, ${doctor.qualification}",
+                fontSize = 14.sp
+            )
+            Text(
+                text = "${doctor.district}, ${doctor.state} -${doctor.zipCode}",
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -199,7 +183,16 @@ fun DoctorCard(doctor: Doctor) {
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("About", color = Color.White, fontSize = 12.sp)
+                    Text(
+                        "About",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        modifier = Modifier.clickable {
+                            navController.navigate(Routes.DoctorOverview.createRoutes(doctor)) {
+                                launchSingleTop = true
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -207,7 +200,6 @@ fun DoctorCard(doctor: Doctor) {
     Spacer(modifier = Modifier.height(12.dp))
 }
 
-// Bottom Sheet for Filters
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterBottomSheet(
@@ -231,7 +223,7 @@ fun FilterBottomSheet(
                 items = states,
                 onItemSelected = {
                     onStateChange(it)
-                    onDistrictChange("") // Reset district when state changes
+                    onDistrictChange("")
                 }
             )
 
@@ -266,4 +258,5 @@ fun FilterBottomSheet(
         }
     }
 }
+
 
