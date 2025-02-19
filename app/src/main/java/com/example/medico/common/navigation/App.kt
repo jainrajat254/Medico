@@ -23,6 +23,7 @@ import com.example.medico.doctor.screens.LoginDoc
 import com.example.medico.doctor.screens.UserOverview
 import com.example.medico.user.screens.AddressDetails
 import com.example.medico.user.screens.AppThemeScreen
+import com.example.medico.user.screens.BookAppointment
 import com.example.medico.user.screens.ChangePassword
 import com.example.medico.user.screens.DoctorAppointmentScreen
 import com.example.medico.user.screens.DoctorOverview
@@ -52,7 +53,7 @@ fun App() {
     val ovm: UserOverviewViewModel = koinViewModel()
     val sharedPreferencesManager: SharedPreferencesManager = koinInject()
 
-    NavHost(navController = navController, startDestination = Routes.Welcome.routes) {
+    NavHost(navController = navController, startDestination = Routes.MedAdd.routes) {
         composable(Routes.Splash.routes) {
             SplashScreen(navController = navController, sharedPreferencesManager)
         }
@@ -64,10 +65,10 @@ fun App() {
             UserBottomNavBar(modifier = Modifier, navController = navController)
         }
         composable(Routes.UserHome.routes) {
-            UserHomePage(navController, sharedPreferencesManager)
+            UserHomePage(navController, sharedPreferencesManager,vm)
         }
         composable(Routes.Medications.routes) {
-            MedicationPage(navController)
+            MedicationPage(navController,sharedPreferencesManager,vm)
         }
         composable(Routes.MedAdd.routes) {
             AddMedicationPage(navController)
@@ -149,6 +150,14 @@ fun App() {
             if (doctorJson != null) {
                 val doctorDetails = Json.decodeFromString<DoctorDTO>(doctorJson)
                 DoctorOverview(doctorDetails)
+            }
+        }
+
+        composable(Routes.BookAppointment.routes) { backStackEntry ->
+            val doctorJson = backStackEntry.arguments?.getString("doctorDetails")
+            if (doctorJson != null) {
+                val doctorDetails = Json.decodeFromString<DoctorDTO>(doctorJson)
+                BookAppointment(navController, doctorDetails, vm,sharedPreferencesManager)
             }
         }
 

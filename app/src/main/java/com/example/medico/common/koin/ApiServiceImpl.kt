@@ -1,33 +1,36 @@
 package com.example.medico.common.koin
 
 import android.util.Log
+import com.example.medico.common.dto.EditPassword
+import com.example.medico.common.model.LoginCredentials
+import com.example.medico.doctor.dto.DoctorDTO
 import com.example.medico.doctor.dto.EditDocAddressDetails
 import com.example.medico.doctor.dto.EditDocMedicalDetails
+import com.example.medico.doctor.dto.EditDocPersonalDetails
 import com.example.medico.doctor.model.DoctorDetails
 import com.example.medico.doctor.responses.DoctorLoginResponse
-import com.example.medico.doctor.dto.EditDocPersonalDetails
 import com.example.medico.user.dto.EditUserPersonalDetails
-import com.example.medico.common.model.LoginCredentials
-import com.example.medico.user.responses.UserLoginResponse
-import com.example.medico.common.dto.EditPassword
-import com.example.medico.doctor.dto.DoctorDTO
 import com.example.medico.user.dto.UserDTO
-import com.example.medico.user.model.UserDetails
+import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
+import com.example.medico.user.model.Medications
+import com.example.medico.user.model.UserDetails
+import com.example.medico.user.responses.AppointmentsResponse
+import com.example.medico.user.responses.MedicationResponse
 import com.example.medico.user.responses.UserDetailsResponse
+import com.example.medico.user.responses.UserLoginResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val url = "https://dd7e-2409-40d2-211c-f5d8-9da5-5177-c556-ddcb.ngrok-free.app"
+    private val url = "https://ca96-2409-40d2-1276-2a48-a9cc-6e7a-e9f7-fbba.ngrok-free.app"
 
     override suspend fun login(user: LoginCredentials): Result<UserLoginResponse> {
         return try {
@@ -218,4 +221,51 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
             Result.failure(e)
         }
     }
+
+    override suspend fun addAppointments(request: Appointments): Result<Appointments> {
+        return try {
+            val response: Appointments = client.post("$url/appointments/addAppointments") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun addMedications(request: Medications, id: String): Result<Medications> {
+        return try {
+            val response: Medications = client.post("$url/medications/addMedication/$id") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getMedications(id: String): Result<List<MedicationResponse>> {
+        return try {
+            val response: List<MedicationResponse> = client.get("$url/medications/getMedication/$id") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getAppointments(id: String): Result<List<AppointmentsResponse>> {
+        return try {
+            val response: List<AppointmentsResponse> = client.get("$url/appointments/getAppointments/$id") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
+

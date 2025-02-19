@@ -1,6 +1,8 @@
 package com.example.medico.common.viewModel
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.network.HttpException
@@ -15,12 +17,25 @@ import com.example.medico.user.responses.UserLoginResponse
 import com.example.medico.common.dto.EditPassword
 import com.example.medico.user.model.UserDetails
 import com.example.medico.common.koin.ApiService
-import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.ExtraDetails
+import com.example.medico.user.model.Appointments
+import com.example.medico.user.model.Medications
+import com.example.medico.user.responses.AppointmentsResponse
+import com.example.medico.user.responses.MedicationResponse
 import com.example.medico.user.responses.UserDetailsResponse
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class AuthViewModel(private val apiService: ApiService) : ViewModel() {
+
+    private val _appointments = MutableStateFlow<List<AppointmentsResponse>>(emptyList())
+    val appointments: StateFlow<List<AppointmentsResponse>> = _appointments
+
+    private val _medications = MutableStateFlow<List<MedicationResponse>>(emptyList())
+    val medications: StateFlow<List<MedicationResponse>> = _medications
 
     fun registerUser(
         user: UserDetails,
@@ -250,18 +265,74 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
         }
     }
 
-    fun getDetails(id: String,onResult: (UserDTO) -> Unit) {
+    fun addAppointments(appointmentRequest: Appointments, onResult: (Boolean, String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = apiService.getDetails(id)
+                val result = apiService.addAppointments(appointmentRequest)
 
-                Log.d("UserOverview", "Raw API Response: $response") // Print API response
+                result.onSuccess { response ->
+                    Log.d("Appointments", "Appointment booked successfully: $response")
+                    onResult(true, "Success")
+                }.onFailure { error ->
+                    Log.e("Appointments", "Error booking appointment: ${error.message}", error)
+                    onResult(false, error.message ?: "Unknown error")
+                }
 
             } catch (e: Exception) {
-                Log.e("UserOverview", "Exception fetching user details", e)
+                Log.e("Appointments", "Exception while booking appointment", e)
+                onResult(false, e.message ?: "Unknown exception")
             }
         }
-
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getAppointments(id: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getAppointments(id)
+                result.onSuccess { data ->
+                    val today = LocalDate.now()
+
+                    val filteredSortedData = data
+                        .filter { parseDate(it.date) >= today }
+                        .sortedBy { parseDate(it.date) }
+
+                    _appointments.value = filteredSortedData
+                }.onFailure { e ->
+                    Log.e("Appointments", "Error fetching appointments", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Appointments", "Unexpected error", e)
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun parseDate(dateStr: String): LocalDate {
+        val formatter = DateTimeFormatter.ofPattern("d/M/yyyy") // Allows single-digit days/months
+        return try {
+            LocalDate.parse(dateStr, formatter)
+        } catch (e: Exception) {
+            Log.e("Appointments", "Invalid date format: $dateStr", e)
+            LocalDate.MIN // Default to an old date if parsing fails
+        }
+    }
+
+
+    fun getMedication(id: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getMedications(id)
+                result.onSuccess { data ->
+                    _medications.value = data  // Store the fetched data in StateFlow
+                }.onFailure { e ->
+                    Log.e("Medications", "Error fetching medications", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Medications", "Unexpected error", e)
+            }
+        }
+    }
+
 
 }

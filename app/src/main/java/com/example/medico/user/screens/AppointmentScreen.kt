@@ -169,7 +169,9 @@ fun DoctorCard(doctor: DoctorDTO, navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { },
+                    onClick = { navController.navigate(Routes.BookAppointment.createRoutes(doctor)) {
+                        launchSingleTop = true
+                    } },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
                     shape = RoundedCornerShape(8.dp)
@@ -178,7 +180,9 @@ fun DoctorCard(doctor: DoctorDTO, navController: NavController) {
                 }
 
                 Button(
-                    onClick = { },
+                    onClick = { navController.navigate(Routes.DoctorOverview.createRoutes(doctor)) {
+                        launchSingleTop = true
+                    } },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
                     shape = RoundedCornerShape(8.dp)
@@ -186,12 +190,7 @@ fun DoctorCard(doctor: DoctorDTO, navController: NavController) {
                     Text(
                         "About",
                         color = Color.White,
-                        fontSize = 12.sp,
-                        modifier = Modifier.clickable {
-                            navController.navigate(Routes.DoctorOverview.createRoutes(doctor)) {
-                                launchSingleTop = true
-                            }
-                        }
+                        fontSize = 12.sp
                     )
                 }
             }

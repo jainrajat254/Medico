@@ -50,7 +50,14 @@ fun UserOverview(id: String, vm: UserOverviewViewModel = viewModel()) {
     Scaffold { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(24.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        start = 24.dp,
+                        top = 0.dp,
+                        end = 24.dp,
+                        bottom = 8.dp
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {

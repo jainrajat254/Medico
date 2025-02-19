@@ -26,6 +26,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -43,6 +46,9 @@ import com.example.medico.common.navigation.Routes
 import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContentHome
+import com.example.medico.common.utils.NotAvailable
+import com.example.medico.common.viewModel.AuthViewModel
+import com.example.medico.user.responses.AppointmentsResponse
 
 
 val medicines = listOf(
@@ -54,7 +60,11 @@ val medicines = listOf(
 )
 
 @Composable
-fun UserHomePage(navController: NavController, sharedPreferencesManager: SharedPreferencesManager) {
+fun UserHomePage(
+    navController: NavController,
+    sharedPreferencesManager: SharedPreferencesManager,
+    vm: AuthViewModel,
+) {
     val user = sharedPreferencesManager.getUserFromSharedPreferences()
     Log.d("User Details", "$user")
     Scaffold(
@@ -99,7 +109,7 @@ fun UserHomePage(navController: NavController, sharedPreferencesManager: SharedP
                 }
 
                 item {
-                    AppointmentsCard()
+                    AppointmentsList(sharedPreferencesManager, vm)
                 }
 
                 item {
@@ -186,10 +196,41 @@ fun MedicationItem(medication: Medicines) {
 }
 
 @Composable
-fun AppointmentsCard() {
+fun AppointmentsList(sharedPreferencesManager: SharedPreferencesManager, vm: AuthViewModel) {
+    val id = sharedPreferencesManager.getUserId()
+    val appointments by vm.appointments.collectAsState()
+
+    LaunchedEffect(id) {
+        vm.getAppointments(id)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        if (appointments.isEmpty()) {
+            NotAvailable(label = "No Appointments to show")
+        } else {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp)
+            ) {
+                items(appointments) { appointment ->
+                    AppointmentCard(appointment)
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun AppointmentCard(appointment: AppointmentsResponse) {
     Card(
         modifier = Modifier
-            .size(350.dp, 230.dp)
+            .size(320.dp, 230.dp)
             .padding(top = 30.dp)
             .border(
                 width = 2.dp,
@@ -206,9 +247,8 @@ fun AppointmentsCard() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp) // Internal padding for proper spacing
+                .padding(16.dp)
         ) {
-            // Title
             Text(
                 text = "Appointments",
                 fontSize = 20.sp,
@@ -217,8 +257,6 @@ fun AppointmentsCard() {
                 color = Color(0xFF333333),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-
-            // Divider
             HorizontalDivider(
                 color = Color(0xFFCCCCCC),
                 thickness = 1.dp,
@@ -226,10 +264,8 @@ fun AppointmentsCard() {
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
             )
-
-            // Doctor Name
             Text(
-                text = "Dr. N.K. Garg",
+                text = "Dr. ${appointment.doctorName}",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF4771CC),
@@ -237,9 +273,8 @@ fun AppointmentsCard() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Location
             Text(
-                text = "Hospital / Clinic",
+                text = appointment.workspaceName,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Gray,
@@ -247,9 +282,8 @@ fun AppointmentsCard() {
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            // Specialization
             Text(
-                text = "Cardiology",
+                text = appointment.specialization,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -257,9 +291,8 @@ fun AppointmentsCard() {
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            // Time
             Text(
-                text = "At 11:00 A.M.",
+                text = appointment.date,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF666666),
@@ -272,8 +305,6 @@ fun AppointmentsCard() {
     }
 }
 
-
-// Health Cards Row
 @Composable
 fun HealthCardsRow() {
     Row(
@@ -353,9 +384,9 @@ fun HealthCard(
             )
             Image(
                 painter = painter,
-                contentDescription = null, // Provide a description if needed
+                contentDescription = null,
                 modifier = Modifier
-                    .size(50.dp) // Adjust the size as needed
+                    .size(50.dp)
                     .padding(top = 12.dp)
             )
         }

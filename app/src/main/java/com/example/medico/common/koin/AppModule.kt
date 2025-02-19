@@ -4,6 +4,7 @@ import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.doctor.viewModel.DoctorDetails
 import com.example.medico.user.viewModel.UserDetails
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
+import com.example.medico.doctor.viewModel.AddMedications
 import com.example.medico.doctor.viewModel.DoctorRegister
 import com.example.medico.user.viewModel.AppointmentsViewModel
 import com.example.medico.user.viewModel.UserOverviewViewModel
@@ -38,4 +39,5 @@ val appModule = module {
     viewModel { AuthViewModel(get()) }
     viewModel { UserOverviewViewModel(get()) }
     viewModel { AppointmentsViewModel(get()) }
+    viewModel { AddMedications(get()) }
 }

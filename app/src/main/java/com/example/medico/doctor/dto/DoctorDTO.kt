@@ -20,5 +20,6 @@ data class DoctorDTO(
     val zipCode: String,
     val phone: String,
     val email: String,
+    val workingTime: List<String>,
     val availableForOnlineConsultation: Boolean,
 )

@@ -95,7 +95,7 @@ fun UserPersonalDetails(vm: AuthViewModel, sharedPreferencesManager: SharedPrefe
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {

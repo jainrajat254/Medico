@@ -1,6 +1,8 @@
 package com.example.medico.doctor.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,8 +22,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.medico.common.navigation.Routes
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.CustomTextField
 import com.example.medico.common.utils.DosageDropdown
@@ -29,21 +31,15 @@ import com.example.medico.common.utils.DurationDropdown
 import com.example.medico.common.utils.FrequencyDropdown
 import com.example.medico.common.utils.IntakeMethodDropdown
 import com.example.medico.common.utils.MedicationTypeDropdown
-import com.example.medico.doctor.model.AddMedications
+import com.example.medico.doctor.viewModel.AddMedications
+import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun AddMedicationPage(navController: NavController) {
-    val viewModel: AddMedications = viewModel()
+    val viewModel: AddMedications = getViewModel()
+    val medicationState by viewModel.medicationState.collectAsState()
 
-    val medication by viewModel.medication.collectAsState()
-    val time by viewModel.time.collectAsState()
-    val frequency by viewModel.frequency.collectAsState()
-    val medicationType by viewModel.medicationType.collectAsState()
-    val dosageType by viewModel.dosageType.collectAsState()
-    val duration by viewModel.duration.collectAsState()
-    val intakeMethod by viewModel.intakeMethod.collectAsState()
-
-    Scaffold { paddingValues ->
+    Scaffold() { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
             Text(
                 text = "Add Medications",
@@ -60,14 +56,66 @@ fun AddMedicationPage(navController: NavController) {
                     .fillMaxSize()
                     .padding(horizontal = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(bottom = 20.dp)
             ) {
                 item {
                     CustomTextField(
-                        value = medication,
-                        onValueChange = { viewModel.setMedication(it) },
+                        value = medicationState.medicationName,
+                        onValueChange = { viewModel.updateMedicationState(name = it) },
                         label = "Medication Name",
                         keyboardType = KeyboardType.Text,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp)
+                    )
+                }
+
+                item {
+                    MedicationTypeDropdown(
+                        selectedType = medicationState.medicationType,
+                        onTypeSelected = { viewModel.updateMedicationState(medicationType = it) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    )
+                }
+
+                item {
+                    DosageDropdown(
+                        selectedType = medicationState.medicationType,
+                        selectedDosage = medicationState.dosageType,
+                        onDosageSelected = { viewModel.updateMedicationState(dosageType = it) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    )
+                }
+
+                item {
+                    IntakeMethodDropdown(
+                        selectedMethod = medicationState.intakeMethod,
+                        onMethodSelected = { viewModel.updateMedicationState(intakeMethod = it) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    )
+                }
+
+                item {
+                    FrequencyDropdown(
+                        selectedFrequency = medicationState.frequency,
+                        onFrequencySelected = { viewModel.updateMedicationState(frequency = it) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    )
+                }
+
+                item {
+                    DurationDropdown(
+                        selectedDuration = medicationState.duration,
+                        onDurationSelected = { viewModel.updateMedicationState(duration = it) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
@@ -76,83 +124,37 @@ fun AddMedicationPage(navController: NavController) {
 
                 item {
                     CustomTextField(
-                        value = time,
-                        onValueChange = { viewModel.setTime(it) },
+                        value = medicationState.time,
+                        onValueChange = { viewModel.updateMedicationState(time = it) },
                         label = "Time (e.g., 10:30 AM)",
                         keyboardType = KeyboardType.Text,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp) // Matching height
-                    )
-                }
-
-                item {
-                    MedicationTypeDropdown(
-                        selectedType = medicationType,
-                        onTypeSelected = viewModel::setMedicationType,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp) // Matching height
-                    )
-                }
-
-                item {
-                    DosageDropdown(
-                        selectedDosage = dosageType,
-                        onDosageSelected = viewModel::setDosageType,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp) // Matching height
-                    )
-                }
-
-                item {
-                    FrequencyDropdown(
-                        selectedFrequency = frequency,
-                        onFrequencySelected = viewModel::setFrequency,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp) // Matching height
-                    )
-                }
-
-                item {
-                    DurationDropdown(
-                        selectedDuration = duration,
-                        onDurationSelected = viewModel::setDuration,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp) // Matching height
-                    )
-                }
-
-                item {
-                    IntakeMethodDropdown(
-                        selectedMethod = intakeMethod,
-                        onMethodSelected = viewModel::setIntakeMethod,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp) // Matching height
+                            .height(56.dp)
                     )
                 }
 
                 item {
                     Button(
-                        onClick = { /* Handle Add Medication Logic */ },
+                        onClick = {
+                            viewModel.addMedications(
+                                id = "61532e84-b457-40c7-83fa-e164d7cb6693",
+                                onSuccess = {
+                                    navController.navigate(Routes.CurrentPatient.routes)
+                                },
+                                onError = {
+                                    Log.d("Medications", it)
+                                }
+                            )
+                        },
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
                             .height(50.dp)
                     ) {
-                        Text(
-                            text = "ADD",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text(text = "ADD", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
         }
     }
 }
-
-

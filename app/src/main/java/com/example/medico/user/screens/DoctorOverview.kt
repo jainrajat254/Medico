@@ -44,9 +44,9 @@ fun DoctorOverview(doctor: DoctorDTO) {
                     .fillMaxSize()
                     .padding(
                         start = 24.dp,
-                        top = 24.dp,
+                        top = 0.dp,
                         end = 24.dp,
-                        bottom = 0.dp
+                        bottom = 8.dp
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top

@@ -355,6 +355,11 @@ class SharedPreferencesManager(context: Context) {
         }
     }
 
+    fun getUserId(): String {
+        return sharedPreferences.getString(PREFS_ID, null).toString()
+    }
+
+
     fun getJwtToken(): String? {
         return sharedPreferences.getString(JWT_TOKEN_KEY, null)
     }

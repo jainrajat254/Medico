@@ -24,7 +24,6 @@ import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.CurrentPatientCard
 import com.example.medico.common.utils.MedicationCard
 import com.example.medico.common.utils.ReportCard
-import com.example.medico.user.screens.medications
 import com.example.medico.user.screens.reports
 
 @Composable
@@ -65,15 +64,15 @@ fun CurrentPatientInfo(
                         color = Color.Black
                     )
                 }
-                items(medications) { medication ->
-                    MedicationCard(
-                        medication = medication,
-                        showActions = true,
-                        onUpdateClick = { /* Handle update */ },
-                        onRemoveClick = { /* Handle removal */ }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+//                items(medications) { medication ->
+//                    MedicationCard(
+//                        medication = medication,
+//                        showActions = true,
+//                        onUpdateClick = { /* Handle update */ },
+//                        onRemoveClick = { /* Handle removal */ }
+//                    )
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                }
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(

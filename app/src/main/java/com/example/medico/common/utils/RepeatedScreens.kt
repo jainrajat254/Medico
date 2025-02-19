@@ -1,6 +1,9 @@
 package com.example.medico.common.utils
 
+import android.app.DatePickerDialog
+import android.content.Context
 import android.net.Uri
+import android.widget.DatePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -51,7 +54,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -68,11 +70,237 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.medico.R
 import com.example.medico.common.model.Districts
-import com.example.medico.common.model.Frequency
 import com.example.medico.common.model.HealthReport
-import com.example.medico.common.model.Medication
 import com.example.medico.doctor.viewModel.DoctorRegister
+import com.example.medico.user.responses.MedicationResponse
+import java.util.Calendar
 
+
+@Composable
+fun MedicationTypeDropdown(
+    selectedType: String,
+    onTypeSelected: (String) -> Unit,
+    modifier: Modifier,
+) {
+    val typeOptions = listOf(
+        "Tablet", "Capsule", "Syrup",
+        "Injection", "Ointment",
+        "Drops", "Inhaler", "Powder"
+    )
+
+    CommonDropDownMenu(
+        items = typeOptions,
+        selectedItem = selectedType,
+        onItemSelected = onTypeSelected,
+        label = "Medication Type",
+        modifier = modifier,
+        allowCustomInput = true
+    )
+}
+
+@Composable
+fun DosageDropdown(
+    selectedType: String,
+    selectedDosage: String,
+    onDosageSelected: (String) -> Unit,
+    modifier: Modifier
+) {
+    val dosageOptions = when (selectedType) {
+        "Tablet", "Capsule" -> listOf("1 tablet", "2 tablets", "Half tablet", "1 capsule")
+        "Syrup" -> listOf("5 ml", "10 ml", "15 ml")
+        "Drops" -> listOf("1 drop", "2 drops", "3 drops")
+        "Injection" -> listOf("0.5 ml", "1 ml", "2 ml")
+        "Ointment" -> listOf("Apply thin layer", "Apply thick layer")
+        "Inhaler" -> listOf("1 puff", "2 puffs")
+        "Powder" -> listOf("1 teaspoon", "Half teaspoon")
+        else -> listOf("Not applicable")
+    }
+
+    CommonDropDownMenu(
+        items = dosageOptions,
+        selectedItem = selectedDosage,
+        onItemSelected = onDosageSelected,
+        label = "Dosage",
+        modifier = modifier,
+        allowCustomInput = true
+    )
+}
+
+@Composable
+fun FrequencyDropdown(
+    selectedFrequency: String,
+    onFrequencySelected: (String) -> Unit,
+    modifier: Modifier
+) {
+    val frequencyOptions = listOf(
+        "Once a day", "Twice a day", "Thrice a day", "Four times a day",
+        "Morning", "Afternoon", "Night", "Before bed",
+        "Empty stomach", "Before meals", "After meals", "With food",
+        "Alternate days", "Weekly", "As needed"
+    )
+
+    CommonDropDownMenu(
+        items = frequencyOptions,
+        selectedItem = selectedFrequency,
+        onItemSelected = onFrequencySelected,
+        label = "Frequency",
+        modifier = modifier,
+        allowCustomInput = true
+    )
+}
+
+@Composable
+fun DurationDropdown(
+    selectedDuration: String,
+    onDurationSelected: (String) -> Unit,
+    modifier: Modifier
+) {
+    val durationOptions = listOf(
+        "3 days", "5 days", "7 days", "10 days",
+        "2 weeks", "1 month", "Ongoing"
+    )
+
+    CommonDropDownMenu(
+        items = durationOptions,
+        selectedItem = selectedDuration,
+        onItemSelected = onDurationSelected,
+        label = "Duration",
+        modifier = modifier,
+        allowCustomInput = true
+    )
+}
+
+@Composable
+fun IntakeMethodDropdown(
+    selectedMethod: String,
+    onMethodSelected: (String) -> Unit,
+    modifier: Modifier
+) {
+    val methodOptions = listOf(
+        "With Water", "With Milk", "With Food",
+        "Before Food", "After Food",
+        "Sublingual", "Inhalation"
+    )
+
+    CommonDropDownMenu(
+        items = methodOptions,
+        selectedItem = selectedMethod,
+        onItemSelected = onMethodSelected,
+        label = "Intake Method",
+        modifier = modifier,
+        allowCustomInput = true
+    )
+}
+
+
+@Composable
+fun CommonDropDownMenu(
+    items: List<String>,
+    selectedItem: String,
+    onItemSelected: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    allowCustomInput: Boolean = false // Added parameter to allow custom input
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+    var isTextFieldEditable by remember { mutableStateOf(false) }
+    var customText by remember { mutableStateOf("") }
+    var isCustomSelected by remember { mutableStateOf(false) }
+
+    // Add "Custom" option if allowed
+    val finalItems = if (allowCustomInput) items + "Custom" else items
+
+    // Filter items based on searchText
+    val filteredItems = if (searchText.isEmpty()) {
+        finalItems
+    } else {
+        finalItems.filter { it.contains(searchText, ignoreCase = true) }
+    }
+
+    Box {
+        CustomTextField(
+            value = if (isCustomSelected) customText else selectedItem,
+            onValueChange = {
+                if (isCustomSelected) {
+                    customText = it
+                    onItemSelected(it)
+                }
+            },
+            label = label,
+            readOnly = !(isTextFieldEditable || isCustomSelected),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    expanded = true; isTextFieldEditable = true
+                },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown Icon",
+                    tint = Color.Black,
+                    modifier = Modifier.clickable {
+                        expanded = true; isTextFieldEditable = true
+                    }
+                )
+            }
+        )
+
+        // Dropdown menu
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+                isTextFieldEditable = false
+            }
+        ) {
+            // Add a TextField for search input
+            DropdownMenuItem(
+                text = {
+                    TextField(
+                        value = searchText,
+                        onValueChange = { searchText = it },
+                        placeholder = { Text(text = "Search...", color = Color.White) },
+                        textStyle = TextStyle(color = Color.White),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color.White,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent
+                        )
+                    )
+                },
+                onClick = {} // No action when clicking on the search field
+            )
+
+            // Display filtered items
+            filteredItems.forEach { item ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = item,
+                            style = TextStyle(color = Color.White)
+                        )
+                    },
+                    onClick = {
+                        if (item == "Custom") {
+                            isCustomSelected = true
+                            customText = "" // Clear previous input
+                        } else {
+                            isCustomSelected = false
+                            onItemSelected(item)
+                        }
+                        searchText = ""
+                        expanded = false
+                        isTextFieldEditable = false
+                    }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun HeaderSection() {
@@ -109,7 +337,7 @@ fun Tagline() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -207,6 +435,7 @@ fun UserInfoField(
     }
 }
 
+
 @Composable
 fun CustomTextField(
     value: String,
@@ -236,7 +465,6 @@ fun CustomTextField(
         ),
     )
 }
-
 
 @Composable
 fun UserPasswordField(
@@ -318,6 +546,7 @@ fun ProfileImage(
     }
 }
 
+
 @Composable
 fun BackgroundContent(
     paddingValues: PaddingValues,
@@ -353,7 +582,6 @@ fun BackgroundContent(
         }
     }
 }
-
 
 @Composable
 fun BackgroundContentHome(
@@ -400,6 +628,7 @@ fun BackgroundContentHome(
         }
     }
 }
+
 
 @Composable
 fun LoginForm(
@@ -530,7 +759,6 @@ fun LoginForm(
     }
 }
 
-
 @Composable
 fun StateDistrictDropdown(
     viewModel: DoctorRegister,
@@ -583,6 +811,25 @@ fun BloodGroupDropdown(
     )
 }
 
+
+@Composable
+fun SlotDropdown(
+    selectedSlot: String,
+    availableSlots: List<String>,
+    onSlotSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    CommonDropDownMenu(
+        items = availableSlots,
+        selectedItem = selectedSlot,
+        onItemSelected = { slot ->
+            onSlotSelected(slot)
+        },
+        label = "Time Slot",
+        modifier = modifier
+    )
+}
+
 @Composable
 fun GenderDropdown(
     selectedGender: String,
@@ -600,204 +847,8 @@ fun GenderDropdown(
 }
 
 @Composable
-fun FrequencyDropdown(
-    selectedFrequency: String,
-    onFrequencySelected: (String) -> Unit,
-    modifier: Modifier
-) {
-    val frequencyOptions = listOf(
-        "Once a day", "Twice a day", "Thrice a day", "Four times a day",
-        "Morning", "Afternoon", "Night", "Before bed",
-        "Empty stomach", "Before meals", "After meals", "With food",
-        "Alternate days", "Weekly", "As needed"
-    )
-
-    CommonDropDownMenu(
-        items = frequencyOptions,
-        selectedItem = selectedFrequency,
-        onItemSelected = onFrequencySelected,
-        label = "Frequency",
-        modifier = modifier
-    )
-}
-
-@Composable
-fun DosageDropdown(
-    selectedDosage: String,
-    onDosageSelected: (String) -> Unit,
-    modifier: Modifier
-) {
-    val dosageOptions = listOf(
-        "1 tablet", "2 tablets", "5 ml", "10 ml",
-        "1 capsule", "Half tablet", "1 drop", "1 spoon"
-    )
-
-    CommonDropDownMenu(
-        items = dosageOptions,
-        selectedItem = selectedDosage,
-        onItemSelected = onDosageSelected,
-        label = "Dosage",
-        modifier = modifier
-    )
-}
-
-@Composable
-fun DurationDropdown(
-    selectedDuration: String,
-    onDurationSelected: (String) -> Unit,
-    modifier: Modifier
-) {
-    val durationOptions = listOf(
-        "3 days", "5 days", "7 days", "10 days",
-        "2 weeks", "1 month", "Ongoing"
-    )
-
-    CommonDropDownMenu(
-        items = durationOptions,
-        selectedItem = selectedDuration,
-        onItemSelected = onDurationSelected,
-        label = "Duration",
-        modifier = modifier
-    )
-}
-
-@Composable
-fun IntakeMethodDropdown(
-    selectedMethod: String,
-    onMethodSelected: (String) -> Unit,
-    modifier: Modifier
-) {
-    val methodOptions = listOf(
-        "With Water", "With Milk", "With Food",
-        "Before Food", "After Food",
-        "Sublingual", "Inhalation"
-    )
-
-    CommonDropDownMenu(
-        items = methodOptions,
-        selectedItem = selectedMethod,
-        onItemSelected = onMethodSelected,
-        label = "Intake Method",
-        modifier = modifier
-    )
-}
-
-@Composable
-fun MedicationTypeDropdown(
-    selectedType: String,
-    onTypeSelected: (String) -> Unit,
-    modifier: Modifier
-) {
-    val typeOptions = listOf(
-        "Tablet", "Capsule", "Syrup",
-        "Injection", "Ointment",
-        "Drops", "Inhaler", "Powder"
-    )
-
-    CommonDropDownMenu(
-        items = typeOptions,
-        selectedItem = selectedType,
-        onItemSelected = onTypeSelected,
-        label = "Medication Type",
-        modifier = modifier
-    )
-}
-
-
-@Composable
-fun CommonDropDownMenu(
-    items: List<String>,
-    selectedItem: String,
-    onItemSelected: (String) -> Unit,
-    label: String,
-    modifier: Modifier = Modifier
-) {
-    var expanded by remember { mutableStateOf(false) }
-    var searchText by remember { mutableStateOf("") }
-    var isTextFieldEditable by remember { mutableStateOf(false) } // Track if the TextField is editable
-
-    // Filter items based on searchText
-    val filteredItems = if (searchText.isEmpty()) {
-        items
-    } else {
-        items.filter { it.contains(searchText, ignoreCase = true) }
-    }
-
-    Box {
-        CustomTextField(
-            value = selectedItem,
-            onValueChange = {}, // Don't allow typing, only selecting
-            label = label,
-            readOnly = !isTextFieldEditable, // Make it editable only when the dropdown is open
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    expanded = true; isTextFieldEditable = true
-                }, // Open dropdown and enable typing
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Dropdown Icon",
-                    tint = Color.Black,
-                    modifier = Modifier.clickable { expanded = true; isTextFieldEditable = true }
-                )
-            }
-        )
-
-        // Dropdown menu
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-                isTextFieldEditable = false // Disable editing after dropdown closes
-            }
-        ) {
-            // Add a TextField for search input
-            DropdownMenuItem(
-                text = {
-                    TextField(
-                        value = searchText,
-                        onValueChange = { searchText = it },
-                        placeholder = { Text(text = "Search...", color = Color.White) },
-                        textStyle = TextStyle(color = Color.White),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            cursorColor = Color.White,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        )
-                    )
-
-                },
-                onClick = {} // No action when clicking on the search field
-            )
-
-            // Display filtered items
-            filteredItems.forEach { item ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = item,
-                            style = TextStyle(color = Color.White)
-                        )
-                    },
-                    onClick = {
-                        onItemSelected(item)
-                        searchText = "" // Clear search text after selection
-                        expanded = false
-                        isTextFieldEditable = false // Disable editing once an item is selected
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun MedicationCard(
-    medication: Medication,
+    medication: MedicationResponse,
     showActions: Boolean = false,
     onUpdateClick: (() -> Unit)? = null,
     onRemoveClick: (() -> Unit)? = null,
@@ -831,16 +882,15 @@ fun MedicationCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = medication.name,
+                    text = medication.medicationName,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF4771CC)
                 )
                 Text(text = medication.dosage, fontSize = 16.sp, color = Color.Gray)
-                Text(text = medication.instructions, fontSize = 14.sp, color = Color.DarkGray)
+                Text(text = medication.dosageType, fontSize = 14.sp, color = Color.DarkGray)
             }
 
-            // Show options menu only if showActions is true
             if (showActions) {
                 Box {
                     IconButton(onClick = { expanded = true }) {
@@ -1046,7 +1096,6 @@ fun CurrentPatientCard(
                         Text("Personal Info", color = Color.White, fontSize = 12.sp)
                     }
                 } else {
-                    // Show "Records", "Done", and "Absent" buttons
                     Button(
                         onClick = { onRecordsClick?.invoke() },
                         modifier = Modifier.weight(1f),
@@ -1101,6 +1150,74 @@ fun DetailRow(label: String, value: String) {
                 color = Color.Black,
                 maxLines = 2, // Allows longer values to show
                 overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
+    val calendar = Calendar.getInstance()
+    calendar.add(Calendar.DAY_OF_MONTH, 1)
+    val minDate = calendar.timeInMillis
+
+    val defaultYear = calendar.get(Calendar.YEAR)
+    val defaultMonth = calendar.get(Calendar.MONTH)
+    val defaultDay = calendar.get(Calendar.DAY_OF_MONTH)
+
+    // Set maximum date to one week from today
+    calendar.add(Calendar.DAY_OF_MONTH, 6) // 1 already added, so add 6 more
+    val maxDate = calendar.timeInMillis
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            onDateSelected("$dayOfMonth/${month + 1}/$year")  // Formatting date
+        },
+        defaultYear,
+        defaultMonth,
+        defaultDay
+    )
+
+    // Set date range
+    datePickerDialog.datePicker.minDate = minDate
+    datePickerDialog.datePicker.maxDate = maxDate
+
+    datePickerDialog.show()
+}
+
+@Composable
+fun NotAvailable(label: String) {
+    Card(
+        modifier = Modifier
+            .height(124.dp)
+            .padding(top = 30.dp)
+            .border(
+                width = 2.dp,
+                color = Color(0xFF4771CC),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+            contentColor = Color.Black
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ) {
+            Text(
+                text = label,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4771CC),
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
     }
