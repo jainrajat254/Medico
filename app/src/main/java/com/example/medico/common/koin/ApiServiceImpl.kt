@@ -14,18 +14,24 @@ import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.model.Medications
+import com.example.medico.user.model.Reports
 import com.example.medico.user.model.UserDetails
 import com.example.medico.user.responses.AppointmentsResponse
 import com.example.medico.user.responses.MedicationResponse
+import com.example.medico.user.responses.ReportsResponse
 import com.example.medico.user.responses.UserDetailsResponse
 import com.example.medico.user.responses.UserLoginResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
@@ -256,6 +262,52 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
             Result.failure(e)
         }
     }
+
+    override suspend fun addReports(request: Reports, id: String): Result<Reports> {
+        return try {
+            val response: Reports = client.post("$url/reports/addReport/$id") {
+                setBody(MultiPartFormDataContent(
+                    formData {
+                        append("reportName", request.reportName)
+                        append("reviewedBy", request.reviewedBy)
+                        append("attentionLevel", request.attentionLevel)
+                        append("reportFile", request.reportFile, Headers.build {
+                            append(HttpHeaders.ContentType, "application/pdf")
+                            append(HttpHeaders.ContentDisposition, "filename=report.pdf")
+                        })
+                    }
+                ))
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    override suspend fun getReports(id: String): Result<List<ReportsResponse>> {
+        return try {
+            val response: List<ReportsResponse> = client.get("$url/reports/getReports/$id") {
+                contentType(ContentType.Application.Json)
+            }.body<List<ReportsResponse>>() // Explicitly specify List
+
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getReportFile(reportId: String): Result<ByteArray> {
+        return try {
+            val response: ByteArray = client.get("$url/reports/getReportFile/$reportId") {
+                contentType(ContentType.Application.OctetStream)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
     override suspend fun getAppointments(id: String): Result<List<AppointmentsResponse>> {
         return try {

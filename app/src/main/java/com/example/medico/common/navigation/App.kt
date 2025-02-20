@@ -12,6 +12,7 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.doctor.dto.DoctorDTO
 import com.example.medico.doctor.screens.AddMedicationPage
+import com.example.medico.doctor.screens.AddReportScreen
 import com.example.medico.doctor.screens.CurrentPatientInfo
 import com.example.medico.doctor.screens.DocAddressDetails
 import com.example.medico.doctor.screens.DocMedicalDetails
@@ -53,7 +54,7 @@ fun App() {
     val ovm: UserOverviewViewModel = koinViewModel()
     val sharedPreferencesManager: SharedPreferencesManager = koinInject()
 
-    NavHost(navController = navController, startDestination = Routes.MedAdd.routes) {
+    NavHost(navController = navController, startDestination = Routes.Welcome.routes) {
         composable(Routes.Splash.routes) {
             SplashScreen(navController = navController, sharedPreferencesManager)
         }
@@ -77,7 +78,7 @@ fun App() {
             HealthRecords(navController)
         }
         composable(Routes.Reports.routes) {
-            HealthReports(navController)
+            HealthReports(navController,sharedPreferencesManager,vm)
         }
         composable(Routes.UserAppointments.routes) {
             DoctorAppointmentScreen(navController)
@@ -102,12 +103,16 @@ fun App() {
             DoctorRegister(navController, vm)
         }
 
+        composable(Routes.AddReport.routes) {
+            AddReportScreen(navController)
+        }
+
         composable(Routes.DoctorHome.routes) {
             HomeScreen(navController = navController)
         }
 
         composable(Routes.CurrentPatient.routes) {
-            CurrentPatientInfo(navController = navController)
+            CurrentPatientInfo(navController = navController, vm = vm)
         }
 
         composable(Routes.UserOverview.routes) { backStackEntry ->

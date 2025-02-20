@@ -49,7 +49,7 @@ sealed class Routes(var routes: String) {
         fun createRoutes(doctorDetails: DoctorDTO) =
             "book_appointment/${Json.encodeToString(doctorDetails)}"
     }
-
+    data object AddReport : Routes("add_report")
     data object DoctorRegister : Routes("doctor_register")
     data object DoctorLogin : Routes("doctor_login")
 }

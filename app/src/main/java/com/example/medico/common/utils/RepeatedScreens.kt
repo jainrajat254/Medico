@@ -70,10 +70,30 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.medico.R
 import com.example.medico.common.model.Districts
-import com.example.medico.common.model.HealthReport
 import com.example.medico.doctor.viewModel.DoctorRegister
 import com.example.medico.user.responses.MedicationResponse
+import com.example.medico.user.responses.ReportsResponse
 import java.util.Calendar
+
+@Composable
+fun AttentionLevelDropdown(
+    selectedType: String,
+    onTypeSelected: (String) -> Unit,
+    modifier: Modifier,
+) {
+    val typeOptions = listOf(
+        "Normal", "Attention", "Urgent"
+    )
+
+    CommonDropDownMenu(
+        items = typeOptions,
+        selectedItem = selectedType,
+        onItemSelected = onTypeSelected,
+        label = "Medication Type",
+        modifier = modifier,
+        allowCustomInput = true
+    )
+}
 
 
 @Composable
@@ -103,7 +123,7 @@ fun DosageDropdown(
     selectedType: String,
     selectedDosage: String,
     onDosageSelected: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     val dosageOptions = when (selectedType) {
         "Tablet", "Capsule" -> listOf("1 tablet", "2 tablets", "Half tablet", "1 capsule")
@@ -130,7 +150,7 @@ fun DosageDropdown(
 fun FrequencyDropdown(
     selectedFrequency: String,
     onFrequencySelected: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     val frequencyOptions = listOf(
         "Once a day", "Twice a day", "Thrice a day", "Four times a day",
@@ -153,7 +173,7 @@ fun FrequencyDropdown(
 fun DurationDropdown(
     selectedDuration: String,
     onDurationSelected: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     val durationOptions = listOf(
         "3 days", "5 days", "7 days", "10 days",
@@ -174,7 +194,7 @@ fun DurationDropdown(
 fun IntakeMethodDropdown(
     selectedMethod: String,
     onMethodSelected: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     val methodOptions = listOf(
         "With Water", "With Milk", "With Food",
@@ -200,7 +220,7 @@ fun CommonDropDownMenu(
     onItemSelected: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    allowCustomInput: Boolean = false // Added parameter to allow custom input
+    allowCustomInput: Boolean = false, // Added parameter to allow custom input
 ) {
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
@@ -443,7 +463,7 @@ fun CustomTextField(
     label: String,
     modifier: Modifier = Modifier,
     readOnly: Boolean = false,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     singleLine: Boolean = true,
 ) {
@@ -817,7 +837,7 @@ fun SlotDropdown(
     selectedSlot: String,
     availableSlots: List<String>,
     onSlotSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     CommonDropDownMenu(
         items = availableSlots,
@@ -840,7 +860,7 @@ fun GenderDropdown(
         items = genderOptions,
         selectedItem = selectedGender,
         onItemSelected = { gender ->
-            onGenderSelected(gender)  // Notify the parent composable to update the ViewModel
+            onGenderSelected(gender)
         },
         label = "Gender"
     )
@@ -887,9 +907,38 @@ fun MedicationCard(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF4771CC)
                 )
-                Text(text = medication.dosage, fontSize = 16.sp, color = Color.Gray)
-                Text(text = medication.dosageType, fontSize = 14.sp, color = Color.DarkGray)
+
+                Text(
+                    text = "Dosage: ${medication.dosageType}",
+                    fontSize = 16.sp,
+                    color = Color.Gray
+                )
+
+                Text(
+                    text = "Type: ${medication.medicationType}",
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
+                )
+
+                Text(
+                    text = "Intake Method: ${medication.intakeMethod}",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+
+                Text(
+                    text = "Frequency: ${medication.frequency}",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+
+                Text(
+                    text = "Duration: ${medication.duration}",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
             }
+
 
             if (showActions) {
                 Box {
@@ -929,7 +978,7 @@ fun MedicationCard(
 
 @Composable
 fun ReportCard(
-    report: HealthReport,
+    report: ReportsResponse,
     showExportButton: Boolean = false,  // Control visibility of Export button
     onExportClick: (() -> Unit)? = null,
     onViewFullReportClick: (() -> Unit)? = null,
@@ -966,7 +1015,7 @@ fun ReportCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Reviewed by: ${report.doctorName}",
+                text = "Reviewed by: Dr. ${report.reviewedBy}",
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
@@ -978,9 +1027,9 @@ fun ReportCard(
 
             // Attention Text with conditional color
             Text(
-                text = report.attention,
+                text = report.attentionLevel,
                 style = TextStyle(
-                    color = if (report.attention.contains("Attention", ignoreCase = true))
+                    color = if (report.attentionLevel.contains("Attention", ignoreCase = true))
                         Color.Red
                     else
                         Color.Green,
@@ -1031,7 +1080,9 @@ fun CurrentPatientCard(
     onDoneClick: (() -> Unit)? = null,
     onAbsentClick: (() -> Unit)? = null,
     onPersonalInfoClick: (() -> Unit)? = null,
-) {
+    onAddMedicationsClick: (() -> Unit)? = null,
+
+    ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1089,11 +1140,19 @@ fun CurrentPatientCard(
                     // Show only the "Personal Info" button
                     Button(
                         onClick = { onPersonalInfoClick?.invoke() },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Personal Info", color = Color.White, fontSize = 12.sp)
+                    }
+                    Button(
+                        onClick = { onAddMedicationsClick?.invoke() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Add Medication", color = Color.White, fontSize = 12.sp)
                     }
                 } else {
                     Button(

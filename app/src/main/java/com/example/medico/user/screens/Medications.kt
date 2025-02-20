@@ -29,6 +29,7 @@ import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.MedicationCard
+import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.viewModel.AuthViewModel
 
 @Composable
@@ -75,23 +76,7 @@ fun MedicationList(sharedPreferencesManager: SharedPreferencesManager, vm: AuthV
         verticalArrangement = Arrangement.Top
     ) {
         if (medications.isEmpty()) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(8.dp)
-            ) {
-                Text(
-                    text = "No Current Medications",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Gray,
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-            }
+            NotAvailable(label = "No medication to show")
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize()

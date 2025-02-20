@@ -1,8 +1,14 @@
 package com.example.medico.common.viewModel
 
+import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.os.Environment
+import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.network.HttpException
@@ -22,10 +28,13 @@ import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.Medications
 import com.example.medico.user.responses.AppointmentsResponse
 import com.example.medico.user.responses.MedicationResponse
+import com.example.medico.user.responses.ReportsResponse
 import com.example.medico.user.responses.UserDetailsResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileInputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -36,6 +45,9 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
 
     private val _medications = MutableStateFlow<List<MedicationResponse>>(emptyList())
     val medications: StateFlow<List<MedicationResponse>> = _medications
+
+    private val _reports = MutableStateFlow<List<ReportsResponse>>(emptyList())
+    val reports: StateFlow<List<ReportsResponse>> = _reports
 
     fun registerUser(
         user: UserDetails,
@@ -333,6 +345,100 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
             }
         }
     }
+
+    fun getReports(id: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getReports(id)
+                result.onSuccess { data ->
+                    _reports.value = data  // Store the fetched data in StateFlow
+                }.onFailure { e ->
+                    Log.e("Reports", "Error fetching medications", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Reports", "Unexpected error", e)
+            }
+        }
+    }
+
+    fun downloadAndOpenPdf(reportId: String, context: Context) {
+        viewModelScope.launch {
+            val result = apiService.getReportFile(reportId)
+            result.onSuccess { pdfData ->
+                try {
+                    val file = File(context.getExternalFilesDir(null), "report.pdf")
+                    file.writeBytes(pdfData)
+
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider",
+                        file
+                    )
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setDataAndType(uri, "application/pdf")
+                    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Log.e("PDF", "Error opening PDF", e)
+                }
+            }.onFailure { e ->
+                Log.e("API", "Error fetching PDF", e)
+            }
+        }
+    }
+
+    fun exportPdf(reportId: String, context: Context) {
+        viewModelScope.launch {
+            val result = apiService.getReportFile(reportId)
+            result.onSuccess { pdfData ->
+                try {
+                    val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    val file = File(downloadsDir, "Report_$reportId.pdf")
+                    file.writeBytes(pdfData)
+
+                    // Show success message
+                    Toast.makeText(context, "PDF saved to Downloads", Toast.LENGTH_SHORT).show()
+
+                    // Optional: Open Share Intent
+                    sharePdf(file, context)
+                } catch (e: Exception) {
+                    Log.e("ExportPDF", "Error saving PDF", e)
+                }
+            }.onFailure { e ->
+                Log.e("ExportPDF", "Error fetching PDF", e)
+            }
+        }
+    }
+
+    private fun sharePdf(file: File, context: Context) {
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        context.startActivity(Intent.createChooser(shareIntent, "Share PDF via"))
+    }
+
+
+
+
+    fun encodeFileToBase64(file: File): String {
+        val bytes = FileInputStream(file).use { it.readBytes() }
+        return Base64.encodeToString(bytes, Base64.DEFAULT)
+    }
+
+//    val pdfFile = File("/path/to/report.pdf")
+//    val base64Report = encodeFileToBase64(pdfFile)
+//
+//    val report = Reports(
+//        reportName = "Medical Report",
+//        reviewedBy = "Dr. John",
+//        attentionLevel = "High",
+//        reportFile = base64Report
+//    )
 
 
 }

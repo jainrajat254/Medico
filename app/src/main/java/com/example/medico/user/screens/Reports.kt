@@ -1,5 +1,7 @@
 package com.example.medico.user.screens
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,26 +12,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.medico.common.model.HealthReport
 import com.example.medico.common.navigation.UserBottomNavBar
+import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
+import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.utils.ReportCard
-
-val reports = listOf(
-    HealthReport("Blood Sugar(HbA1c", "Dr. Santosh Shukla", "Needs Attention !"),
-    HealthReport("Thyroid Profile", "Dr. B.N Ghosh", "Normal"),
-    HealthReport("Lipid Profile", "Dr. Raghav Sharma", "Needs Attention !"),
-    HealthReport("Platelets", "Dr. Raghav Sharma", "Needs Attention !")
-)
+import com.example.medico.common.viewModel.AuthViewModel
 
 @Composable
-fun HealthReports(navController: NavHostController) {
+fun HealthReports(
+    navController: NavHostController,
+    sharedPreferencesManager: SharedPreferencesManager,
+    vm: AuthViewModel
+) {
     Scaffold(
         bottomBar = {
             UserBottomNavBar(modifier = Modifier, navController = navController)
@@ -47,7 +52,29 @@ fun HealthReports(navController: NavHostController) {
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
             )
+            HealthReportsList(sharedPreferencesManager = sharedPreferencesManager, vm = vm)
+        }
+    }
+}
 
+@Composable
+fun HealthReportsList(sharedPreferencesManager: SharedPreferencesManager, vm: AuthViewModel) {
+    val id = sharedPreferencesManager.getUserId()
+    val reports by vm.reports.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(id) {
+        vm.getReports(id)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Top
+    ) {
+        if (reports.isEmpty()) {
+            NotAvailable(label = "No Reports Available")
+        } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -55,8 +82,8 @@ fun HealthReports(navController: NavHostController) {
                     ReportCard(
                         report = report,
                         showExportButton = true,
-                        onExportClick = { /* Handle Export */ },
-                        onViewFullReportClick = { /* Handle View Report */ }
+                        onExportClick = { vm.exportPdf(report.id, context) },
+                        onViewFullReportClick = { vm.downloadAndOpenPdf(report.id,context) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
