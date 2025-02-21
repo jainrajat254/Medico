@@ -2,33 +2,12 @@ package com.example.medico.doctor.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -41,13 +20,10 @@ import com.example.medico.R
 import com.example.medico.common.navigation.DocBottomNavBar
 import com.example.medico.common.navigation.Routes
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
-import com.example.medico.common.utils.BackgroundContent
-import com.example.medico.common.utils.CurrentPatientCard
-import com.example.medico.common.utils.MedicationCardDoc
-import com.example.medico.common.utils.NotAvailable
-import com.example.medico.common.utils.ReportCard
+import com.example.medico.common.utils.*
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.user.dto.AppointmentDTO
+import com.example.medico.user.dto.MedicationsDTO
 
 @Composable
 fun CurrentPatientInfo(
@@ -61,13 +37,17 @@ fun CurrentPatientInfo(
     val reports by vm.reports.collectAsState()
     val context = LocalContext.current
 
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedMedication by remember { mutableStateOf<MedicationsDTO?>(null) }
+
     LaunchedEffect(sharedPreferencesManager.getDocId()) {
         vm.doctorMedication(sharedPreferencesManager.getDocId(), userDetails.userId)
         vm.getReports(userDetails.userId)
     }
+
     Scaffold(
         floatingActionButton = {
-            FloatingActionButtonWithDropdown(navController,userDetails)
+            FloatingActionButtonWithDropdown(navController, userDetails)
         },
         bottomBar = { DocBottomNavBar(modifier = Modifier, navController = navController) }
     ) { paddingValues ->
@@ -88,10 +68,11 @@ fun CurrentPatientInfo(
                             navController.navigate(Routes.UserOverview.createRoutes(userDetails.userId)) {
                                 launchSingleTop = true
                             }
-                        },
-
-                        )
+                        }
+                    )
                 }
+
+                // Medications Section
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -102,6 +83,7 @@ fun CurrentPatientInfo(
                         color = Color.Black
                     )
                 }
+
                 if (medications.isEmpty()) {
                     item {
                         NotAvailable(label = "No Medications Available")
@@ -114,11 +96,16 @@ fun CurrentPatientInfo(
                             onUpdateClick = {
                                 navController.navigate(Routes.UpdateMed.createRoute(medication))
                             },
-                            onRemoveClick = { /* Handle removal */ }
+                            onRemoveClick = {
+                                selectedMedication = medication
+                                showDialog = true
+                            }
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
+
+                // Reports Section
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -129,6 +116,7 @@ fun CurrentPatientInfo(
                         color = Color.Black
                     )
                 }
+
                 if (reports.isEmpty()) {
                     item {
                         NotAvailable(label = "No Reports Available")
@@ -144,19 +132,39 @@ fun CurrentPatientInfo(
                     }
                 }
             }
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("Confirmation") },
+                    text = { Text("Are you sure you want to remove ${selectedMedication?.medicationName}?") },
+                    confirmButton = {
+                        Button(onClick = {
+                            showDialog = false
+                        }) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { showDialog = false }) {
+                            Text("No")
+                        }
+                    }
+                )
+            }
         }
     }
 }
 
+
 @Composable
 fun FloatingActionButtonWithDropdown(navController: NavController, userDetails: AppointmentDTO) {
     var isDropdownExpanded by remember { mutableStateOf(false) }
-    var selectedType by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 20.dp), // Adjust for bottom navbar spacing
+            .padding(bottom = 20.dp),
         contentAlignment = Alignment.BottomEnd
     ) {
         Column(horizontalAlignment = Alignment.End) {
@@ -177,7 +185,6 @@ fun FloatingActionButtonWithDropdown(navController: NavController, userDetails: 
                         DropdownMenuItem(
                             text = { Text(label, fontSize = 16.sp, fontWeight = FontWeight.Bold) },
                             onClick = {
-                                selectedType = label
                                 isDropdownExpanded = false
                                 navController.navigate(route)
                             }
@@ -202,5 +209,3 @@ fun FloatingActionButtonWithDropdown(navController: NavController, userDetails: 
         }
     }
 }
-
-

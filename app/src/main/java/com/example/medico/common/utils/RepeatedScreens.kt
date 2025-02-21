@@ -983,7 +983,7 @@ fun MedicationCardDoc(
     medication: MedicationsDTO,
     showActions: Boolean = false,
     onUpdateClick: (() -> Unit)? = null,
-    onRemoveClick: (() -> Unit)? = null,
+    onRemoveClick: (() -> Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
 
