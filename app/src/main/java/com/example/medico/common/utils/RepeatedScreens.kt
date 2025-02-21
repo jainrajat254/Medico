@@ -71,6 +71,7 @@ import coil.compose.AsyncImage
 import com.example.medico.R
 import com.example.medico.common.model.Districts
 import com.example.medico.doctor.viewModel.DoctorRegister
+import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.responses.MedicationResponse
 import com.example.medico.user.responses.ReportsResponse
 import java.util.Calendar
@@ -466,6 +467,7 @@ fun CustomTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     singleLine: Boolean = true,
+    enabled: Boolean = true
 ) {
     OutlinedTextField(
         value = value,
@@ -483,6 +485,7 @@ fun CustomTextField(
             fontSize = 16.sp,
             fontWeight = FontWeight.W500
         ),
+        enabled = enabled
     )
 }
 
@@ -867,8 +870,117 @@ fun GenderDropdown(
 }
 
 @Composable
-fun MedicationCard(
+fun MedicationCardUser(
     medication: MedicationResponse,
+    showActions: Boolean = false,
+    onUpdateClick: (() -> Unit)? = null,
+    onRemoveClick: (() -> Unit)? = null,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Placeholder for medication image
+            Image(
+                painter = painterResource(id = R.drawable.capsule),
+                contentDescription = "Medication Icon",
+                modifier = Modifier.size(48.dp)
+            )
+
+            // Medication Info
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = medication.medicationName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4771CC)
+                )
+
+                Text(
+                    text = "Dosage: ${medication.dosageType}",
+                    fontSize = 16.sp,
+                    color = Color.Gray
+                )
+
+                Text(
+                    text = "Type: ${medication.medicationType}",
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
+                )
+
+                Text(
+                    text = "Intake Method: ${medication.intakeMethod}",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+
+                Text(
+                    text = "Frequency: ${medication.frequency}",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+
+                Text(
+                    text = "Duration: ${medication.duration}",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+            }
+
+
+            if (showActions) {
+                Box {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert, // Three-dot menu
+                            contentDescription = "More Options",
+                            tint = Color.Black
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Update") },
+                            onClick = {
+                                expanded = false
+                                onUpdateClick?.invoke()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Remove") },
+                            onClick = {
+                                expanded = false
+                                onRemoveClick?.invoke()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MedicationCardDoc(
+    medication: MedicationsDTO,
     showActions: Boolean = false,
     onUpdateClick: (() -> Unit)? = null,
     onRemoveClick: (() -> Unit)? = null,
@@ -1074,13 +1186,11 @@ fun ReportCard(
 fun CurrentPatientCard(
     patientName: String,
     index: Int,
-    appointmentTime: String,
     showPersonalInfoOnly: Boolean = false,  // Toggle button visibility
     onRecordsClick: (() -> Unit)? = null,
     onDoneClick: (() -> Unit)? = null,
     onAbsentClick: (() -> Unit)? = null,
-    onPersonalInfoClick: (() -> Unit)? = null,
-    onAddMedicationsClick: (() -> Unit)? = null,
+    onPersonalInfoClick: (() -> Unit)? = null
 
     ) {
     Card(
@@ -1108,11 +1218,7 @@ fun CurrentPatientCard(
                     fontWeight = FontWeight.Medium,
                     fontSize = 16.sp
                 )
-                Text(
-                    text = appointmentTime,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp
-                )
+
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1140,19 +1246,11 @@ fun CurrentPatientCard(
                     // Show only the "Personal Info" button
                     Button(
                         onClick = { onPersonalInfoClick?.invoke() },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Personal Info", color = Color.White, fontSize = 12.sp)
-                    }
-                    Button(
-                        onClick = { onAddMedicationsClick?.invoke() },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3CADF6)),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text("Add Medication", color = Color.White, fontSize = 12.sp)
                     }
                 } else {
                     Button(

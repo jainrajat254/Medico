@@ -78,7 +78,7 @@ fun DocBottomNavBar(
     val doctorItems = listOf(
         BottomNavItem(Routes.DoctorHome.routes, R.drawable.baseline_home_24, "Home"),
         BottomNavItem(Routes.History.routes, R.drawable.baseline_history_24, "History"),
-        BottomNavItem(Routes.DoctorAppointments.routes, R.drawable.appointment, "Appointments"),
+        BottomNavItem(Routes.AllAppointmentsScreen.routes, R.drawable.appointment, "Appointments"),
         BottomNavItem(Routes.DocSettings.routes, R.drawable.settings, "Settings")
     )
 

@@ -359,6 +359,17 @@ class SharedPreferencesManager(context: Context) {
         return sharedPreferences.getString(PREFS_ID, null).toString()
     }
 
+    fun getDocId(): String {
+        return sharedPreferences.getString(DOC_PREFS_ID, null).toString()
+    }
+
+    fun getUserName(): String {
+        val firstName = sharedPreferences.getString(PREFS_FIRST_NAME, "") ?: ""
+        val lastName = sharedPreferences.getString(PREFS_LAST_NAME, "") ?: ""
+        return "$firstName $lastName".trim()
+    }
+
+
 
     fun getJwtToken(): String? {
         return sharedPreferences.getString(JWT_TOKEN_KEY, null)
@@ -366,26 +377,5 @@ class SharedPreferencesManager(context: Context) {
 
     private fun SharedPreferences.Editor.putUUID(key: String, uuid: UUID?) {
         putString(key, uuid?.toString())
-    }
-
-    private fun SharedPreferences.getUUID(key: String, default: UUID? = null): UUID? {
-        val uuidString = this.getString(key, default?.toString())
-        return uuidString?.let { UUID.fromString(it) }
-    }
-
-    fun saveUserAddressDetails(
-        state: String,
-        district: String,
-        city: String,
-        currentAddress: String,
-        permanentAddress: String,
-    ) {
-        sharedPreferences.edit().apply {
-            putString(PREFS_STATE, state)
-            putString(PREFS_DISTRICT, district)
-            putString(PREFS_CITY, city)
-            putString(PREFS_CURRENT_ADDRESS, currentAddress)
-            putString(PREFS_PERMANENT_ADDRESS, permanentAddress)
-        }
     }
 }

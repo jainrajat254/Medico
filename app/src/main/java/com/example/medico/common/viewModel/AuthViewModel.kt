@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Environment
-import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -12,29 +11,30 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.network.HttpException
+import com.example.medico.common.dto.EditPassword
+import com.example.medico.common.koin.ApiService
+import com.example.medico.common.model.LoginCredentials
 import com.example.medico.doctor.dto.EditDocAddressDetails
 import com.example.medico.doctor.dto.EditDocMedicalDetails
+import com.example.medico.doctor.dto.EditDocPersonalDetails
 import com.example.medico.doctor.model.DoctorDetails
 import com.example.medico.doctor.responses.DoctorLoginResponse
-import com.example.medico.doctor.dto.EditDocPersonalDetails
+import com.example.medico.user.dto.AppointmentDTO
 import com.example.medico.user.dto.EditUserPersonalDetails
-import com.example.medico.common.model.LoginCredentials
-import com.example.medico.user.responses.UserLoginResponse
-import com.example.medico.common.dto.EditPassword
-import com.example.medico.user.model.UserDetails
-import com.example.medico.common.koin.ApiService
-import com.example.medico.user.model.ExtraDetails
+import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.model.Appointments
+import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.model.Medications
+import com.example.medico.user.model.UserDetails
 import com.example.medico.user.responses.AppointmentsResponse
 import com.example.medico.user.responses.MedicationResponse
 import com.example.medico.user.responses.ReportsResponse
 import com.example.medico.user.responses.UserDetailsResponse
+import com.example.medico.user.responses.UserLoginResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -43,8 +43,17 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
     private val _appointments = MutableStateFlow<List<AppointmentsResponse>>(emptyList())
     val appointments: StateFlow<List<AppointmentsResponse>> = _appointments
 
+    private val _docAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
+    val docAppointments: StateFlow<List<AppointmentDTO>> = _docAppointments
+
     private val _medications = MutableStateFlow<List<MedicationResponse>>(emptyList())
     val medications: StateFlow<List<MedicationResponse>> = _medications
+
+    private val _updateMedication = MutableStateFlow(MedicationResponse("","","","","","","",""))
+    val updateMedication: StateFlow<MedicationResponse> = _updateMedication
+
+    private val _docMedications = MutableStateFlow<List<MedicationsDTO>>(emptyList())
+    val docMedications: StateFlow<List<MedicationsDTO>> = _docMedications
 
     private val _reports = MutableStateFlow<List<ReportsResponse>>(emptyList())
     val reports: StateFlow<List<ReportsResponse>> = _reports
@@ -392,7 +401,8 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
             val result = apiService.getReportFile(reportId)
             result.onSuccess { pdfData ->
                 try {
-                    val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    val downloadsDir =
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                     val file = File(downloadsDir, "Report_$reportId.pdf")
                     file.writeBytes(pdfData)
 
@@ -422,23 +432,34 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
         context.startActivity(Intent.createChooser(shareIntent, "Share PDF via"))
     }
 
-
-
-
-    fun encodeFileToBase64(file: File): String {
-        val bytes = FileInputStream(file).use { it.readBytes() }
-        return Base64.encodeToString(bytes, Base64.DEFAULT)
+    fun getDoctorAppointments(doctorId: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getDoctorAppointments(doctorId)
+                result.onSuccess { data ->
+                    _docAppointments.value = data
+                }.onFailure { e ->
+                    Log.e("Appointments", "Error fetching appointments", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Appointments", "Error fetching appointments", e)
+            }
+        }
     }
 
-//    val pdfFile = File("/path/to/report.pdf")
-//    val base64Report = encodeFileToBase64(pdfFile)
-//
-//    val report = Reports(
-//        reportName = "Medical Report",
-//        reviewedBy = "Dr. John",
-//        attentionLevel = "High",
-//        reportFile = base64Report
-//    )
-
+    fun doctorMedication(doctorId: String, userId: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.doctorMedication(doctorId,userId)
+                result.onSuccess { data ->
+                    _docMedications.value = data
+                }.onFailure { e ->
+                    Log.e("Medications", "Error fetching Medications", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Medications", "Error fetching Medications", e)
+            }
+        }
+    }
 
 }

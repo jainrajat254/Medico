@@ -18,14 +18,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,18 +35,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medico.common.utils.AttentionLevelDropdown
 import com.example.medico.common.utils.BackgroundContent
+import com.example.medico.user.dto.AppointmentDTO
 import com.example.medico.user.model.Reports
 import com.example.medico.user.viewModel.ReportsViewModel
 import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun AddReportScreen(navController: NavController) {
+fun AddReportScreen(navController: NavController, userDetails: AppointmentDTO) {
     val context = LocalContext.current
     var pdfUri by remember { mutableStateOf<Uri?>(null) }
     var reportName by remember { mutableStateOf("") }
@@ -155,7 +153,7 @@ fun AddReportScreen(navController: NavController) {
 
                         // 🔥 Upload Report
                         viewModel.addReports(
-                            id = "61532e84-b457-40c7-83fa-e164d7cb6693",
+                            id = userDetails.userId,
                             data = report // ✅ Pass the proper data
                         )
 

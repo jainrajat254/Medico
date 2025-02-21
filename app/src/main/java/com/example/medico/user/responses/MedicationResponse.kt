@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MedicationResponse(
-    val dosage: String,
     val dosageType: String,
     val duration: String,
     val frequency: String,

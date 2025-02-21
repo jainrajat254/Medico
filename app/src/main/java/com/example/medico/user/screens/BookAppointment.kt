@@ -1,5 +1,6 @@
 package com.example.medico.user.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -95,13 +96,15 @@ fun BookAppointment(
                             if (userId.isNotEmpty()) {
                                 val data = Appointments(
                                     doctorName = "${doctorDetails.firstName} ${doctorDetails.lastName}",
+                                    patientName = sharedPreferencesManager.getUserName(),
                                     specialization = doctorDetails.specialization,
                                     workspaceName = doctorDetails.workspaceName,
+                                    doctorId = doctorDetails.id,
                                     date = date,
                                     time = slot,
                                     userId = userId
                                 )
-
+                                Log.d("DOC ID",doctorDetails.id)
                                 vm.addAppointments(data) { isSuccess, message ->
                                     if (isSuccess) {
                                         Toast.makeText(context, "Appointment booked successfully!", Toast.LENGTH_SHORT).show()

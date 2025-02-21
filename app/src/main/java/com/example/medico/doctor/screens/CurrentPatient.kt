@@ -36,33 +36,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.medico.R
 import com.example.medico.common.navigation.DocBottomNavBar
 import com.example.medico.common.navigation.Routes
+import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.CurrentPatientCard
-import com.example.medico.common.utils.MedicationCard
+import com.example.medico.common.utils.MedicationCardDoc
 import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.utils.ReportCard
 import com.example.medico.common.viewModel.AuthViewModel
+import com.example.medico.user.dto.AppointmentDTO
 
 @Composable
 fun CurrentPatientInfo(
-    navController: NavController,
-    vm: AuthViewModel
+    userDetails: AppointmentDTO,
+    index: Int,
+    vm: AuthViewModel,
+    navController: NavHostController,
+    sharedPreferencesManager: SharedPreferencesManager,
 ) {
-    val id by remember { mutableStateOf("61532e84-b457-40c7-83fa-e164d7cb6693") }
-    val medications by vm.medications.collectAsState()
+    val medications by vm.docMedications.collectAsState()
     val reports by vm.reports.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(id) {
-        vm.getMedication(id)
-        vm.getReports(id)
+    LaunchedEffect(sharedPreferencesManager.getDocId()) {
+        vm.doctorMedication(sharedPreferencesManager.getDocId(), userDetails.userId)
+        vm.getReports(userDetails.userId)
     }
     Scaffold(
         floatingActionButton = {
-                FloatingActionButtonWithDropdown(navController)
+            FloatingActionButtonWithDropdown(navController,userDetails)
         },
         bottomBar = { DocBottomNavBar(modifier = Modifier, navController = navController) }
     ) { paddingValues ->
@@ -76,20 +81,16 @@ fun CurrentPatientInfo(
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
                     CurrentPatientCard(
-                        patientName = "John Doe",
-                        index = 1,
-                        appointmentTime = "10:30 AM",
+                        patientName = userDetails.patientName,
+                        index = index,
                         showPersonalInfoOnly = true,
                         onPersonalInfoClick = {
-                            navController.navigate(Routes.UserOverview.createRoutes(id)) {
+                            navController.navigate(Routes.UserOverview.createRoutes(userDetails.userId)) {
                                 launchSingleTop = true
                             }
                         },
-                        onAddMedicationsClick = {
-                            navController.navigate(Routes.MedAdd.routes)
-                        }
 
-                    )
+                        )
                 }
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
@@ -107,10 +108,12 @@ fun CurrentPatientInfo(
                     }
                 } else {
                     items(medications) { medication ->
-                        MedicationCard(
+                        MedicationCardDoc(
                             medication = medication,
                             showActions = true,
-                            onUpdateClick = { /* Handle update */ },
+                            onUpdateClick = {
+                                navController.navigate(Routes.UpdateMed.createRoute(medication))
+                            },
                             onRemoveClick = { /* Handle removal */ }
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -146,7 +149,7 @@ fun CurrentPatientInfo(
 }
 
 @Composable
-fun FloatingActionButtonWithDropdown(navController: NavController) {
+fun FloatingActionButtonWithDropdown(navController: NavController, userDetails: AppointmentDTO) {
     var isDropdownExpanded by remember { mutableStateOf(false) }
     var selectedType by remember { mutableStateOf("") }
 
@@ -166,8 +169,8 @@ fun FloatingActionButtonWithDropdown(navController: NavController) {
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     val typeOptions = mapOf(
-                        "Add Medication" to Routes.MedAdd.routes,
-                        "Add Report" to Routes.AddReport.routes
+                        "Add Medication" to Routes.MedAdd.createRoutes(userDetails = userDetails),
+                        "Add Report" to Routes.AddReport.createRoutes(userDetails = userDetails)
                     )
 
                     typeOptions.forEach { (label, route) ->

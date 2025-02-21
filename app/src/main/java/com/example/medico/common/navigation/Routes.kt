@@ -1,6 +1,9 @@
 package com.example.medico.common.navigation
 
+import android.util.Base64
 import com.example.medico.doctor.dto.DoctorDTO
+import com.example.medico.user.dto.AppointmentDTO
+import com.example.medico.user.dto.MedicationsDTO
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -15,7 +18,14 @@ sealed class Routes(var routes: String) {
     data object UserHome : Routes("user_home")
     data object Address : Routes("address")
     data object Medications : Routes("medications")
-    data object MedAdd : Routes("add_medications")
+    data object MedAdd : Routes("add_medications/{current_patient}") {
+        fun createRoutes(userDetails: AppointmentDTO): String {
+            val json = Json.encodeToString(userDetails)
+            val encodedJson =
+                Base64.encodeToString(json.toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
+            return "add_medications/$encodedJson"
+        }
+    }
     data object Records : Routes("records")
     data object Reports : Routes("reports")
     data object UserSettings : Routes("user_settings")
@@ -28,14 +38,19 @@ sealed class Routes(var routes: String) {
     data object HelpSupport : Routes("help_support")
 
     data object DoctorHome : Routes("doctor_home")
-    data object CurrentPatient : Routes("current_patient")
+    data object CurrentPatient : Routes("current_patient/{userDetails}/{index}") {
+        fun createRoutes(userDetails: AppointmentDTO, index: Int): String {
+            val json = Json.encodeToString(userDetails)
+            val encodedJson =
+                Base64.encodeToString(json.toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
+            return "current_patient/$encodedJson/$index"
+        }
+    }
     data object UserOverview : Routes("user_overview/{id}") {
         fun createRoutes(id: String) =
             "user_overview/$id"
     }
     data object DocSettings : Routes("doc_settings")
-    data object DoctorAppointments : Routes("doc_appointments")
-    data object Schedule : Routes("schedule")
     data object InsuranceDetails : Routes("insurance_details")
     data object FamilyDetails : Routes("family_details")
     data object DocPersonalDetails : Routes("doc_personal_details")
@@ -49,7 +64,27 @@ sealed class Routes(var routes: String) {
         fun createRoutes(doctorDetails: DoctorDTO) =
             "book_appointment/${Json.encodeToString(doctorDetails)}"
     }
-    data object AddReport : Routes("add_report")
+    data object AllAppointmentsScreen : Routes("all_appointments")
+
+    data object AddReport : Routes("add_report/{current_patient}") {
+        fun createRoutes(userDetails: AppointmentDTO): String {
+            val json = Json.encodeToString(userDetails)
+            val encodedJson =
+                Base64.encodeToString(json.toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
+            return "add_report/$encodedJson"
+        }
+    }
+
+
+    data object UpdateMed : Routes("update_med/{medication}") {
+        fun createRoute(medication: MedicationsDTO): String {
+            val json = Json.encodeToString(medication)
+            val encodedJson = Base64.encodeToString(json.toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
+            return "update_med/$encodedJson"
+        }
+    }
+
+
     data object DoctorRegister : Routes("doctor_register")
     data object DoctorLogin : Routes("doctor_login")
 }

@@ -9,7 +9,9 @@ import com.example.medico.doctor.dto.EditDocMedicalDetails
 import com.example.medico.doctor.dto.EditDocPersonalDetails
 import com.example.medico.doctor.model.DoctorDetails
 import com.example.medico.doctor.responses.DoctorLoginResponse
+import com.example.medico.user.dto.AppointmentDTO
 import com.example.medico.user.dto.EditUserPersonalDetails
+import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
@@ -308,6 +310,44 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
         }
     }
 
+    override suspend fun getDoctorAppointments(doctorId: String): Result<List<AppointmentDTO>> {
+        return try {
+            val response: List<AppointmentDTO> = client.get("$url/appointments/getDoctorAppointments/$doctorId") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun doctorMedication(doctorId: String, userId: String): Result<List<MedicationsDTO>> {
+        return try {
+            val response: List<MedicationsDTO> = client.get("$url/medications/doctorMedication/$doctorId/$userId") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateMedication(
+        medId: String,
+        data: Medications,
+    ): Result<Medications> {
+        return try {
+            val response: Medications = client.put("$url/medications/updateMedication/$medId") {
+                contentType(ContentType.Application.Json)
+                setBody(data)
+            }.body()
+
+            Log.d("data", "$data  $medId")
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     override suspend fun getAppointments(id: String): Result<List<AppointmentsResponse>> {
         return try {

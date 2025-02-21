@@ -40,6 +40,6 @@ val appModule = module {
     viewModel { AuthViewModel(get()) }
     viewModel { UserOverviewViewModel(get()) }
     viewModel { AppointmentsViewModel(get()) }
-    viewModel { AddMedications(get()) }
+    viewModel { AddMedications(get(),get()) }
     viewModel { ReportsViewModel(get(),get()) }
 }

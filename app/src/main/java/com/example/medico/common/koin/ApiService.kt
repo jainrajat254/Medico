@@ -8,7 +8,9 @@ import com.example.medico.doctor.dto.EditDocMedicalDetails
 import com.example.medico.doctor.dto.EditDocPersonalDetails
 import com.example.medico.doctor.model.DoctorDetails
 import com.example.medico.doctor.responses.DoctorLoginResponse
+import com.example.medico.user.dto.AppointmentDTO
 import com.example.medico.user.dto.EditUserPersonalDetails
+import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
@@ -43,4 +45,7 @@ interface ApiService {
     suspend fun addReports(request: Reports, id: String): Result<Reports>
     suspend fun getReports(id: String) : Result<List<ReportsResponse>>
     suspend fun getReportFile(reportId: String): Result<ByteArray>
+    suspend fun getDoctorAppointments(doctorId: String): Result<List<AppointmentDTO>>
+    suspend fun doctorMedication(doctorId: String, userId: String): Result<List<MedicationsDTO>>
+    suspend fun updateMedication(medId: String, data: Medications): Result<Medications>
 }

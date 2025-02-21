@@ -1,5 +1,6 @@
 package com.example.medico.common.navigation
 
+import android.util.Base64
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -13,15 +14,19 @@ import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.doctor.dto.DoctorDTO
 import com.example.medico.doctor.screens.AddMedicationPage
 import com.example.medico.doctor.screens.AddReportScreen
+import com.example.medico.doctor.screens.AllAppointmentsScreen
 import com.example.medico.doctor.screens.CurrentPatientInfo
 import com.example.medico.doctor.screens.DocAddressDetails
 import com.example.medico.doctor.screens.DocMedicalDetails
 import com.example.medico.doctor.screens.DocPersonalDetails
 import com.example.medico.doctor.screens.DoctorRegister
 import com.example.medico.doctor.screens.DoctorSettingsPage
+import com.example.medico.doctor.screens.HistoryScreen
 import com.example.medico.doctor.screens.HomeScreen
 import com.example.medico.doctor.screens.LoginDoc
 import com.example.medico.doctor.screens.UserOverview
+import com.example.medico.user.dto.AppointmentDTO
+import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.screens.AddressDetails
 import com.example.medico.user.screens.AppThemeScreen
 import com.example.medico.user.screens.BookAppointment
@@ -66,25 +71,28 @@ fun App() {
             UserBottomNavBar(modifier = Modifier, navController = navController)
         }
         composable(Routes.UserHome.routes) {
-            UserHomePage(navController, sharedPreferencesManager,vm)
+            UserHomePage(navController, sharedPreferencesManager, vm)
         }
         composable(Routes.Medications.routes) {
-            MedicationPage(navController,sharedPreferencesManager,vm)
+            MedicationPage(navController, sharedPreferencesManager, vm)
         }
-        composable(Routes.MedAdd.routes) {
-            AddMedicationPage(navController)
+        composable("add_medications/{userDetails}") { backStackEntry ->
+            val userJsonEncoded = backStackEntry.arguments?.getString("userDetails")
+            if (userJsonEncoded != null) {
+                val decodedJson =
+                    String(Base64.decode(userJsonEncoded, Base64.URL_SAFE or Base64.NO_WRAP))
+                val userDetails = Json.decodeFromString<AppointmentDTO>(decodedJson)
+                AddMedicationPage(navController = navController, userDetails = userDetails)
+            }
         }
         composable(Routes.Records.routes) {
             HealthRecords(navController)
         }
         composable(Routes.Reports.routes) {
-            HealthReports(navController,sharedPreferencesManager,vm)
+            HealthReports(navController, sharedPreferencesManager, vm)
         }
         composable(Routes.UserAppointments.routes) {
             DoctorAppointmentScreen(navController)
-        }
-        composable(Routes.DoctorAppointments.routes) {
-
         }
         composable(Routes.UserSettings.routes) {
             UserSettingsPage(navController, sharedPreferencesManager)
@@ -103,16 +111,52 @@ fun App() {
             DoctorRegister(navController, vm)
         }
 
-        composable(Routes.AddReport.routes) {
-            AddReportScreen(navController)
+        composable(Routes.AllAppointmentsScreen.routes) {
+            AllAppointmentsScreen(vm, navController, sharedPreferencesManager)
+        }
+
+        composable(Routes.History.routes) {
+            HistoryScreen(vm, navController, sharedPreferencesManager)
+        }
+
+        composable("update_med/{medication}") { backStackEntry ->
+            val encodedJson = backStackEntry.arguments?.getString("medication")
+            if (encodedJson != null) {
+                val decodedJson = String(Base64.decode(encodedJson, Base64.URL_SAFE or Base64.NO_WRAP))
+                val existingMedication = Json.decodeFromString<MedicationsDTO>(decodedJson)
+
+                AddMedicationPage(navController= navController, existingMedication = existingMedication) // Pass the existing medication
+            }
+        }
+
+        composable("add_report/{current_patient}") { backStackEntry ->
+            val userJsonEncoded = backStackEntry.arguments?.getString("current_patient")
+            if (userJsonEncoded != null) {
+                val decodedJson =
+                    String(Base64.decode(userJsonEncoded, Base64.URL_SAFE or Base64.NO_WRAP))
+                val userDetails = Json.decodeFromString<AppointmentDTO>(decodedJson)
+                AddReportScreen(navController,userDetails)
+            }
         }
 
         composable(Routes.DoctorHome.routes) {
-            HomeScreen(navController = navController)
+            HomeScreen(
+                navController = navController,
+                vm = vm,
+                sharedPreferencesManager = sharedPreferencesManager
+            )
         }
 
-        composable(Routes.CurrentPatient.routes) {
-            CurrentPatientInfo(navController = navController, vm = vm)
+        composable("current_patient/{userDetails}/{index}") { backStackEntry ->
+            val userJsonEncoded = backStackEntry.arguments?.getString("userDetails")
+            val index = backStackEntry.arguments?.getString("index")?.toIntOrNull()
+
+            if (userJsonEncoded != null && index != null) {
+                val decodedJson =
+                    String(Base64.decode(userJsonEncoded, Base64.URL_SAFE or Base64.NO_WRAP))
+                val userDetails = Json.decodeFromString<AppointmentDTO>(decodedJson)
+                CurrentPatientInfo(userDetails, index, vm, navController,sharedPreferencesManager)
+            }
         }
 
         composable(Routes.UserOverview.routes) { backStackEntry ->
@@ -122,20 +166,16 @@ fun App() {
             }
         }
 
-        composable(Routes.Schedule.routes) {
-            HomeScreen(navController = navController)
-        }
-
         composable(Routes.InsuranceDetails.routes) {
-            InsuranceDetails(vm,sharedPreferencesManager)
+            InsuranceDetails(vm, sharedPreferencesManager)
         }
 
         composable(Routes.FamilyDetails.routes) {
-            FamilyDetails(vm,sharedPreferencesManager)
+            FamilyDetails(vm, sharedPreferencesManager)
         }
 
         composable(Routes.Address.routes) {
-            AddressDetails(vm,sharedPreferencesManager)
+            AddressDetails(vm, sharedPreferencesManager)
         }
 
         composable(Routes.DoctorLogin.routes) {
@@ -162,7 +202,7 @@ fun App() {
             val doctorJson = backStackEntry.arguments?.getString("doctorDetails")
             if (doctorJson != null) {
                 val doctorDetails = Json.decodeFromString<DoctorDTO>(doctorJson)
-                BookAppointment(navController, doctorDetails, vm,sharedPreferencesManager)
+                BookAppointment(navController, doctorDetails, vm, sharedPreferencesManager)
             }
         }
 
@@ -174,7 +214,7 @@ fun App() {
             )
         }
         composable(Routes.DocPersonalDetails.routes) {
-            DocPersonalDetails(vm,sharedPreferencesManager)
+            DocPersonalDetails(vm, sharedPreferencesManager)
         }
         composable(Routes.ChangePassword.routes) {
             ChangePassword(
