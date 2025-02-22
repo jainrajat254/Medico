@@ -26,6 +26,7 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.MedicationCardUser
 import com.example.medico.common.utils.NotAvailable
+import com.example.medico.common.utils.OldMedicationCard
 import com.example.medico.common.viewModel.AuthViewModel
 
 @Composable
@@ -43,7 +44,7 @@ fun MedicationPage(
                     .fillMaxSize()
             ) {
                 Text(
-                    text = "Medications",
+                    text = "Past Medications",
                     textAlign = TextAlign.Center,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
@@ -60,7 +61,7 @@ fun MedicationPage(
 @Composable
 fun MedicationList(sharedPreferencesManager: SharedPreferencesManager, vm: AuthViewModel) {
     val id = sharedPreferencesManager.getUserId()
-    val medications by vm.medications.collectAsState()
+    val medications by vm.oldMedications.collectAsState()
 
     LaunchedEffect(id) {
         vm.getMedication(id)
@@ -78,7 +79,7 @@ fun MedicationList(sharedPreferencesManager: SharedPreferencesManager, vm: AuthV
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(medications) { medication ->
-                    MedicationCardUser(medication)
+                    OldMedicationCard(medication)
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }

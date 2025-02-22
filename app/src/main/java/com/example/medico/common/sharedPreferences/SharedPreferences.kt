@@ -369,6 +369,12 @@ class SharedPreferencesManager(context: Context) {
         return "$firstName $lastName".trim()
     }
 
+    fun getDocName(): String {
+        val firstName = sharedPreferences.getString(DOC_PREFS_FIRST_NAME, "") ?: ""
+        val lastName = sharedPreferences.getString(DOC_PREFS_LAST_NAME, "") ?: ""
+        return "$firstName $lastName".trim()
+    }
+
 
 
     fun getJwtToken(): String? {

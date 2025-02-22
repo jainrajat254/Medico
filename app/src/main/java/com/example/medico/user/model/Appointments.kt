@@ -11,5 +11,6 @@ data class Appointments(
     val date: String,
     val doctorId: String,
     val time: String,
-    val userId: String? = null
+    val userId: String,
+    val appointmentBookingTime: String? = null
 )

@@ -12,6 +12,7 @@ import com.example.medico.doctor.responses.DoctorLoginResponse
 import com.example.medico.user.dto.AppointmentDTO
 import com.example.medico.user.dto.EditUserPersonalDetails
 import com.example.medico.user.dto.MedicationsDTO
+import com.example.medico.user.dto.OldMedicationsDTO
 import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
@@ -356,6 +357,17 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
                 contentType(ContentType.Application.Json)
             }.body()
 
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun oldMedications(userId: String): Result<List<OldMedicationsDTO>> {
+        return try {
+            val response: List<OldMedicationsDTO> = client.get("$url/medications/oldMedications/$userId") {
+                contentType(ContentType.Application.Json)
+            }.body()
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

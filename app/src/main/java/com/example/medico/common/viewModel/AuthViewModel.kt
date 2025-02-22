@@ -22,6 +22,7 @@ import com.example.medico.doctor.responses.DoctorLoginResponse
 import com.example.medico.user.dto.AppointmentDTO
 import com.example.medico.user.dto.EditUserPersonalDetails
 import com.example.medico.user.dto.MedicationsDTO
+import com.example.medico.user.dto.OldMedicationsDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.model.Medications
@@ -55,6 +56,9 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
 
     private val _docMedications = MutableStateFlow<List<MedicationsDTO>>(emptyList())
     val docMedications: StateFlow<List<MedicationsDTO>> = _docMedications
+
+    private val _oldMedications = MutableStateFlow<List<OldMedicationsDTO>>(emptyList())
+    val oldMedications: StateFlow<List<OldMedicationsDTO>> = _oldMedications
 
     private val _reports = MutableStateFlow<List<ReportsResponse>>(emptyList())
     val reports: StateFlow<List<ReportsResponse>> = _reports
@@ -351,6 +355,21 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
                 val result = apiService.getMedications(id)
                 result.onSuccess { data ->
                     _medications.value = data  // Store the fetched data in StateFlow
+                }.onFailure { e ->
+                    Log.e("Medications", "Error fetching medications", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Medications", "Unexpected error", e)
+            }
+        }
+    }
+
+    fun oldMedications(userId: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.oldMedications(userId)
+                result.onSuccess { data ->
+                    _oldMedications.value = data
                 }.onFailure { e ->
                     Log.e("Medications", "Error fetching medications", e)
                 }

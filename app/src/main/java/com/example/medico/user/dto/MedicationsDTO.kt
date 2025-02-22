@@ -11,5 +11,5 @@ data class MedicationsDTO(
     val intakeMethod: String,
     val medicationName: String,
     val medicationType: String,
-    val time: String
+    val time: String? = null
 )

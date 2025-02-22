@@ -72,6 +72,7 @@ import com.example.medico.R
 import com.example.medico.common.model.Districts
 import com.example.medico.doctor.viewModel.DoctorRegister
 import com.example.medico.user.dto.MedicationsDTO
+import com.example.medico.user.dto.OldMedicationsDTO
 import com.example.medico.user.responses.MedicationResponse
 import com.example.medico.user.responses.ReportsResponse
 import java.util.Calendar
@@ -869,6 +870,65 @@ fun GenderDropdown(
     )
 }
 
+
+@Composable
+fun OldMedicationCard(
+    medication: OldMedicationsDTO
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Placeholder for medication image
+            Image(
+                painter = painterResource(id = R.drawable.capsule),
+                contentDescription = "Medication Icon",
+                modifier = Modifier.size(48.dp)
+            )
+
+            // Medication Info
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = medication.medicationName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4771CC)
+                )
+
+                Text(
+                    text = "Recommended By: ${medication.doctorName}",
+                    fontSize = 16.sp,
+                    color = Color.Gray
+                )
+
+                Text(
+                    text = "Start Date: ${medication.startDate}",
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
+                )
+
+                Text(
+                    text = "End Date: ${medication.endDate}",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+            }
+        }
+    }
+}
 @Composable
 fun MedicationCardUser(
     medication: MedicationResponse,

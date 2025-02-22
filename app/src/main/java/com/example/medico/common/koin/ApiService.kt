@@ -11,6 +11,7 @@ import com.example.medico.doctor.responses.DoctorLoginResponse
 import com.example.medico.user.dto.AppointmentDTO
 import com.example.medico.user.dto.EditUserPersonalDetails
 import com.example.medico.user.dto.MedicationsDTO
+import com.example.medico.user.dto.OldMedicationsDTO
 import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
@@ -49,4 +50,5 @@ interface ApiService {
     suspend fun doctorMedication(doctorId: String, userId: String): Result<List<MedicationsDTO>>
     suspend fun updateMedication(medId: String, data: Medications): Result<Medications>
     suspend fun removeMedications(medId: String): Result<String>
+    suspend fun oldMedications(userId: String): Result<List<OldMedicationsDTO>>
 }

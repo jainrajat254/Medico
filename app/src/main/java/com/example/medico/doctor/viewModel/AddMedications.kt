@@ -24,14 +24,11 @@ class AddMedications(
             "",
             "",
             "",
-            sharedPreferencesManager.getDocId()
+            sharedPreferencesManager.getDocId(),
+            sharedPreferencesManager.getDocName()
         )
     )
     val medicationState: StateFlow<Medications> = _medicationState
-
-    fun setMedicationForEdit(medication: Medications) {
-        _medicationState.value = medication
-    }
 
     fun addMedications(
         id: String,
@@ -88,7 +85,7 @@ class AddMedications(
         intakeMethod: String = _medicationState.value.intakeMethod,
         frequency: String = _medicationState.value.frequency,
         duration: String = _medicationState.value.duration,
-        time: String = _medicationState.value.time
+        time: String? = _medicationState.value.time
     ) {
         _medicationState.value = _medicationState.value.copy(
             medicationName = medicationName,

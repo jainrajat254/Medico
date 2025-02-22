@@ -43,7 +43,7 @@ fun BookAppointment(
 ) {
 
     val context = LocalContext.current
-
+    val userId = sharedPreferencesManager.getUserId()
     var date by remember { mutableStateOf("") }
     var slot by remember { mutableStateOf("") }
 
@@ -91,8 +91,7 @@ fun BookAppointment(
                 item {
                     Button(
                         onClick = {
-                            val userId = sharedPreferencesManager.getUserId()
-
+                            Log.d("USERID :", userId)
                             if (userId.isNotEmpty()) {
                                 val data = Appointments(
                                     doctorName = "${doctorDetails.firstName} ${doctorDetails.lastName}",

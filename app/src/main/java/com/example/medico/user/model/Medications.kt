@@ -10,6 +10,7 @@ data class Medications(
     val intakeMethod: String,
     val medicationName: String,
     val medicationType: String,
-    val time: String,
-    val doctorId: String
+    val time: String? = null,
+    val doctorId: String,
+    val doctorName: String
 )
