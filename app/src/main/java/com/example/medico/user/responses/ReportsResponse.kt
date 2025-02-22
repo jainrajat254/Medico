@@ -8,5 +8,6 @@ data class ReportsResponse(
     val id: String,
     val report: ByteArray?,
     val reportName: String,
-    val reviewedBy: String
+    val reviewedBy: String,
+    val date: String
 )

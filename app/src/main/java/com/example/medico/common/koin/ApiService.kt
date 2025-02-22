@@ -48,4 +48,5 @@ interface ApiService {
     suspend fun getDoctorAppointments(doctorId: String): Result<List<AppointmentDTO>>
     suspend fun doctorMedication(doctorId: String, userId: String): Result<List<MedicationsDTO>>
     suspend fun updateMedication(medId: String, data: Medications): Result<Medications>
+    suspend fun removeMedications(medId: String): Result<String>
 }

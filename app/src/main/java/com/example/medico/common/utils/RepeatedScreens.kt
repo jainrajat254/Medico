@@ -1098,7 +1098,7 @@ fun ReportCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp)
+            .wrapContentHeight()
             .border(
                 width = 2.dp,
                 color = Color(0xFF4771CC),
@@ -1133,6 +1133,12 @@ fun ReportCard(
                     fontWeight = FontWeight.Medium,
                     color = Color.Gray
                 )
+            )
+
+            Text(
+                "Date: ${report.date}",
+                color = Color.Gray,
+                fontSize = 12.sp
             )
 
             Spacer(modifier = Modifier.height(8.dp))

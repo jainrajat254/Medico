@@ -33,6 +33,7 @@ import com.example.medico.user.responses.UserDetailsResponse
 import com.example.medico.user.responses.UserLoginResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
@@ -57,6 +58,10 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
 
     private val _reports = MutableStateFlow<List<ReportsResponse>>(emptyList())
     val reports: StateFlow<List<ReportsResponse>> = _reports
+
+    private val _isRemovingMedication = MutableStateFlow(false)
+    val isRemovingMedication: StateFlow<Boolean> = _isRemovingMedication.asStateFlow()
+
 
     fun registerUser(
         user: UserDetails,
@@ -462,4 +467,16 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
         }
     }
 
+    fun removeMedication(medId: String) {
+        viewModelScope.launch {
+            _isRemovingMedication.value = true
+            try {
+                apiService.removeMedications(medId)
+            } catch (e: Exception) {
+                println("Error: ${e.message}")
+            } finally {
+                _isRemovingMedication.value = false
+            }
+        }
+    }
 }

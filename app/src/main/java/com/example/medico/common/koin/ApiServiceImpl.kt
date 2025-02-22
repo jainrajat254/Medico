@@ -25,6 +25,7 @@ import com.example.medico.user.responses.UserDetailsResponse
 import com.example.medico.user.responses.UserLoginResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -348,6 +349,19 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
             Result.failure(e)
         }
     }
+
+    override suspend fun removeMedications(medId: String): Result<String> {
+        return try {
+            val response: String = client.delete("$url/medications/remove/$medId") {
+                contentType(ContentType.Application.Json)
+            }.body()
+
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
     override suspend fun getAppointments(id: String): Result<List<AppointmentsResponse>> {
         return try {

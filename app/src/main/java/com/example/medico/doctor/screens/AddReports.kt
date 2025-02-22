@@ -142,7 +142,7 @@ fun AddReportScreen(navController: NavController, userDetails: AppointmentDTO) {
                             reportName = reportName,
                             attentionLevel = attentionLevel,
                             reviewedBy = reportsState.reviewedBy,
-                            reportFile = pdfByteArray
+                            reportFile = pdfByteArray,
                         )
 
                         // ✅ Ensure all fields are set before making API call
