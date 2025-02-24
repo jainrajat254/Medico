@@ -3,6 +3,7 @@ package com.example.medico.user.screens
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -49,6 +51,7 @@ import com.example.medico.common.utils.BackgroundContentHome
 import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.user.responses.AppointmentsResponse
+import com.example.medico.user.responses.MedicationResponse
 
 
 val medicines = listOf(
@@ -97,7 +100,11 @@ fun UserHomePage(
             ) {
 
                 item {
-                    MedicationCard()
+                    CurrentMedicationList(
+                        sharedPreferencesManager = sharedPreferencesManager,
+                        vm = vm,
+                        navController
+                    )
                 }
 
                 item {
@@ -121,23 +128,40 @@ fun UserHomePage(
 }
 
 @Composable
-private fun MedicationCard() {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(medicines) { medicine ->
-            MedicationItem(medicine)
+fun CurrentMedicationList(
+    sharedPreferencesManager: SharedPreferencesManager,
+    vm: AuthViewModel,
+    navController: NavController,
+) {
+    val id = sharedPreferencesManager.getUserId()
+    val medications by vm.medications.collectAsState()
+
+    LaunchedEffect(id) {
+        id.let { vm.getMedication(it) }
+    }
+
+    if (medications.isEmpty()) {
+        NotAvailable(label = "No medication to show")
+    } else {
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(medications) { medication ->
+                MedicationItem(medication, navController)
+                Spacer(modifier = Modifier.height(16.dp)) // 🚨 `Spacer` inside `items` has no effect
+            }
         }
     }
+
 }
 
 @Composable
-fun MedicationItem(medication: Medicines) {
+fun MedicationItem(medication: MedicationResponse, navController: NavController) {
     Card(
         modifier = Modifier
             .width(300.dp)
-            .height(130.dp)
+            .wrapContentHeight()
             .border(
                 width = 2.dp,
                 color = Color(0xFF4771CC),
@@ -157,7 +181,7 @@ fun MedicationItem(medication: Medicines) {
         ) {
             // Title
             Text(
-                text = "Next Medication",
+                text = "Current Medication",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Start,
@@ -175,22 +199,24 @@ fun MedicationItem(medication: Medicines) {
 
             // Medication Name
             Text(
-                text = medication.name,
+                text = medication.medicationName,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF4771CC),
                 textAlign = TextAlign.Start,
                 modifier = Modifier.padding(bottom = 8.dp)
+                    .clickable {
+                        navController.navigate(Routes.CurrentMed.routes)
+                    }
             )
-
-            // Time
             Text(
-                text = medication.time,
+                text = "Prescribed by: ${medication.doctorName}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Gray,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
             )
+
         }
     }
 }

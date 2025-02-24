@@ -39,7 +39,7 @@ interface ApiService {
     suspend fun getPersonalInfoId(id: String): Result<String>
     suspend fun getDoctors() : Result<List<DoctorDTO>>
     suspend fun getDetails(id: String) : Result<UserDTO>
-    suspend fun addAppointments(request: Appointments) : Result<Appointments>
+    suspend fun addAppointments(request: Appointments, id: String) : Result<Appointments>
     suspend fun getAppointments(id: String) : Result<List<AppointmentsResponse>>
     suspend fun addMedications(request: Medications, id: String) : Result<Medications>
     suspend fun getMedications(id: String) : Result<List<MedicationResponse>>

@@ -26,6 +26,7 @@ sealed class Routes(var routes: String) {
             return "add_medications/$encodedJson"
         }
     }
+    data object CurrentMed : Routes("currentMed")
     data object Records : Routes("records")
     data object Reports : Routes("reports")
     data object UserSettings : Routes("user_settings")
@@ -49,6 +50,11 @@ sealed class Routes(var routes: String) {
     data object UserOverview : Routes("user_overview/{id}") {
         fun createRoutes(id: String) =
             "user_overview/$id"
+    }
+
+    data object AllMedications : Routes("all_medications/{id}") {
+        fun createRoutes(id: String) =
+            "all_medications/$id"
     }
     data object DocSettings : Routes("doc_settings")
     data object InsuranceDetails : Routes("insurance_details")

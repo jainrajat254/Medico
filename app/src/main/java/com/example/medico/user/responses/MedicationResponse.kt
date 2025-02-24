@@ -11,5 +11,8 @@ data class MedicationResponse(
     val intakeMethod: String,
     val medicationName: String,
     val medicationType: String,
-    val time: String? = "N/A"
+    val time: String? = "N/A",
+    val doctorName: String,
+    val doctorId: String,
+    val startDate: String
 )

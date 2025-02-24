@@ -47,6 +47,7 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.CurrentPatientCard
 import com.example.medico.common.utils.MedicationCardDoc
+import com.example.medico.common.utils.MedicationCardUser
 import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.utils.ReportCard
 import com.example.medico.common.viewModel.AuthViewModel
@@ -133,8 +134,19 @@ fun CurrentPatientInfo(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Button(onClick = {
+                            navController.navigate(Routes.AllMedications.createRoutes(userDetails.userId))
+                        }) {
+                            Text(text = "Show all medications")
+                        }
+                    }
+                }
 
-                // Reports Section
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(

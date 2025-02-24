@@ -25,7 +25,6 @@ import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.dto.OldMedicationsDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
-import com.example.medico.user.model.Medications
 import com.example.medico.user.model.UserDetails
 import com.example.medico.user.responses.AppointmentsResponse
 import com.example.medico.user.responses.MedicationResponse
@@ -51,7 +50,7 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
     private val _medications = MutableStateFlow<List<MedicationResponse>>(emptyList())
     val medications: StateFlow<List<MedicationResponse>> = _medications
 
-    private val _updateMedication = MutableStateFlow(MedicationResponse("","","","","","","",""))
+    private val _updateMedication = MutableStateFlow(MedicationResponse("","","","","","","","","","",""))
     val updateMedication: StateFlow<MedicationResponse> = _updateMedication
 
     private val _docMedications = MutableStateFlow<List<MedicationsDTO>>(emptyList())
@@ -295,10 +294,10 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
         }
     }
 
-    fun addAppointments(appointmentRequest: Appointments, onResult: (Boolean, String) -> Unit) {
+    fun addAppointments(appointmentRequest: Appointments,id:String, onResult: (Boolean, String) -> Unit) {
         viewModelScope.launch {
             try {
-                val result = apiService.addAppointments(appointmentRequest)
+                val result = apiService.addAppointments(appointmentRequest,id)
 
                 result.onSuccess { response ->
                     Log.d("Appointments", "Appointment booked successfully: $response")

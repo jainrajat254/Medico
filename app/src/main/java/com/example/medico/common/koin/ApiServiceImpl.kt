@@ -232,9 +232,9 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
         }
     }
 
-    override suspend fun addAppointments(request: Appointments): Result<Appointments> {
+    override suspend fun addAppointments(request: Appointments, id: String): Result<Appointments> {
         return try {
-            val response: Appointments = client.post("$url/appointments/addAppointments") {
+            val response: Appointments = client.post("$url/appointments/addAppointments/$id") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.body()

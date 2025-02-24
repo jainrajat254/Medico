@@ -15,6 +15,7 @@ import com.example.medico.doctor.dto.DoctorDTO
 import com.example.medico.doctor.screens.AddMedicationPage
 import com.example.medico.doctor.screens.AddReportScreen
 import com.example.medico.doctor.screens.AllAppointmentsScreen
+import com.example.medico.doctor.screens.AllMedications
 import com.example.medico.doctor.screens.CurrentPatientInfo
 import com.example.medico.doctor.screens.DocAddressDetails
 import com.example.medico.doctor.screens.DocMedicalDetails
@@ -31,6 +32,7 @@ import com.example.medico.user.screens.AddressDetails
 import com.example.medico.user.screens.AppThemeScreen
 import com.example.medico.user.screens.BookAppointment
 import com.example.medico.user.screens.ChangePassword
+import com.example.medico.user.screens.CurrentMedications
 import com.example.medico.user.screens.DoctorAppointmentScreen
 import com.example.medico.user.screens.DoctorOverview
 import com.example.medico.user.screens.FamilyDetails
@@ -87,6 +89,9 @@ fun App() {
         }
         composable(Routes.Records.routes) {
             HealthRecords(navController)
+        }
+        composable(Routes.CurrentMed.routes) {
+            CurrentMedications(sharedPreferencesManager,vm,navController)
         }
         composable(Routes.Reports.routes) {
             HealthReports(navController, sharedPreferencesManager, vm)
@@ -163,6 +168,13 @@ fun App() {
             val id = backStackEntry.arguments?.getString("id")
             if (id != null) {
                 UserOverview(id, ovm)
+            }
+        }
+
+        composable(Routes.AllMedications.routes) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")
+            if (id != null) {
+                AllMedications(id, vm, navController)
             }
         }
 

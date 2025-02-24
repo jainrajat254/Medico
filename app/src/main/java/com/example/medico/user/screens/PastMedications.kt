@@ -24,7 +24,6 @@ import androidx.navigation.NavHostController
 import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
-import com.example.medico.common.utils.MedicationCardUser
 import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.utils.OldMedicationCard
 import com.example.medico.common.viewModel.AuthViewModel
@@ -52,19 +51,19 @@ fun MedicationPage(
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
                 )
-                MedicationList(sharedPreferencesManager, vm)
+                OldMedicationList(sharedPreferencesManager, vm)
             }
         }
     }
 }
 
 @Composable
-fun MedicationList(sharedPreferencesManager: SharedPreferencesManager, vm: AuthViewModel) {
+fun OldMedicationList(sharedPreferencesManager: SharedPreferencesManager, vm: AuthViewModel) {
     val id = sharedPreferencesManager.getUserId()
     val medications by vm.oldMedications.collectAsState()
 
     LaunchedEffect(id) {
-        vm.getMedication(id)
+        vm.oldMedications(id)
     }
 
     Column(

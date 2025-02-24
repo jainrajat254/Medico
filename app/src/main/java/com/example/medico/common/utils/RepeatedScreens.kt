@@ -468,7 +468,7 @@ fun CustomTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     singleLine: Boolean = true,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     OutlinedTextField(
         value = value,
@@ -873,7 +873,7 @@ fun GenderDropdown(
 
 @Composable
 fun OldMedicationCard(
-    medication: OldMedicationsDTO
+    medication: OldMedicationsDTO,
 ) {
     Card(
         modifier = Modifier
@@ -909,7 +909,7 @@ fun OldMedicationCard(
                 )
 
                 Text(
-                    text = "Recommended By: ${medication.doctorName}",
+                    text = "Prescribed by: \n${medication.doctorName}",
                     fontSize = 16.sp,
                     color = Color.Gray
                 )
@@ -929,6 +929,7 @@ fun OldMedicationCard(
         }
     }
 }
+
 @Composable
 fun MedicationCardUser(
     medication: MedicationResponse,
@@ -1000,6 +1001,12 @@ fun MedicationCardUser(
                     fontSize = 14.sp,
                     color = Color.Black
                 )
+
+                Text(
+                    text = "Start Date: ${medication.startDate}",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
             }
 
 
@@ -1043,7 +1050,7 @@ fun MedicationCardDoc(
     medication: MedicationsDTO,
     showActions: Boolean = false,
     onUpdateClick: (() -> Unit)? = null,
-    onRemoveClick: (() -> Unit)? = null
+    onRemoveClick: (() -> Unit)? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -1256,7 +1263,7 @@ fun CurrentPatientCard(
     onRecordsClick: (() -> Unit)? = null,
     onDoneClick: (() -> Unit)? = null,
     onAbsentClick: (() -> Unit)? = null,
-    onPersonalInfoClick: (() -> Unit)? = null
+    onPersonalInfoClick: (() -> Unit)? = null,
 
     ) {
     Card(

@@ -43,7 +43,6 @@ fun BookAppointment(
 ) {
 
     val context = LocalContext.current
-    val userId = sharedPreferencesManager.getUserId()
     var date by remember { mutableStateOf("") }
     var slot by remember { mutableStateOf("") }
 
@@ -91,6 +90,7 @@ fun BookAppointment(
                 item {
                     Button(
                         onClick = {
+                            val userId = sharedPreferencesManager.getUserId()
                             Log.d("USERID :", userId)
                             if (userId.isNotEmpty()) {
                                 val data = Appointments(
@@ -101,10 +101,9 @@ fun BookAppointment(
                                     doctorId = doctorDetails.id,
                                     date = date,
                                     time = slot,
-                                    userId = userId
                                 )
                                 Log.d("DOC ID",doctorDetails.id)
-                                vm.addAppointments(data) { isSuccess, message ->
+                                vm.addAppointments(data, id = userId) { isSuccess, message ->
                                     if (isSuccess) {
                                         Toast.makeText(context, "Appointment booked successfully!", Toast.LENGTH_SHORT).show()
                                         navController.navigate(Routes.UserHome.routes) {
