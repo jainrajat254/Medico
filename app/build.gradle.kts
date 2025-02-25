@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation) // Content negotiation
     implementation(libs.ktor.serialization.kotlinx.json) // JSON Serialization
 
+    implementation(libs.gson)
+
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 

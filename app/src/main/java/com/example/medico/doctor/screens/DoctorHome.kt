@@ -26,6 +26,8 @@ import com.example.medico.common.utils.CurrentPatientCard
 import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.user.dto.AppointmentDTO
+import kotlinx.coroutines.flow.map
+
 
 @Composable
 fun HomeScreen(
@@ -33,29 +35,25 @@ fun HomeScreen(
     vm: AuthViewModel,
     sharedPreferencesManager: SharedPreferencesManager,
 ) {
-    val id = sharedPreferencesManager.getDocId()
+    val id = sharedPreferencesManager.getDocId() // Keeping only docId from SharedPreferences
     var refreshAppointments by remember { mutableStateOf(false) }
 
-    var idx by rememberSaveable { mutableIntStateOf(sharedPreferencesManager.getIndex()) }
-
+    // Fetch appointments on launch and refresh
     LaunchedEffect(id, refreshAppointments) {
-        if (sharedPreferencesManager.isNewDay()) {
-            idx = 1  // ✅ Reset index for new day
-            sharedPreferencesManager.saveIndex(1)
-            sharedPreferencesManager.saveLastOpenedDate()  // ✅ Update stored date
-        }
         vm.getTodaysAppointments(id)
-        refreshAppointments = false  // Reset after fetching
+        vm.getTodaysAbsentAppointments(id)
+        refreshAppointments = false
     }
 
     val todayAppointments by vm.todaysAppointments.collectAsStateWithLifecycle()
+    val absentAppointments by vm.absentAppointments.collectAsStateWithLifecycle()
+
     var showDialog by remember { mutableStateOf(false) }
     var selectedAppointment by remember { mutableStateOf<AppointmentDTO?>(null) }
+    var actionType by remember { mutableStateOf("") }
 
     Scaffold(bottomBar = {
-        DocBottomNavBar(
-            navController = navController, modifier = Modifier
-        )
+        DocBottomNavBar(navController = navController, modifier = Modifier)
     }) { paddingValues ->
         BackgroundContentHome(paddingValues = paddingValues, name = "Doctor") {
             LazyColumn(
@@ -64,36 +62,77 @@ fun HomeScreen(
                     .padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(bottom = 4.dp)
             ) {
-                if (todayAppointments.isNotEmpty()) {
-                    itemsIndexed(todayAppointments) { index, appointment ->
+                val sortedAppointments = todayAppointments.sortedBy { it.queueIndex }
+
+                if (sortedAppointments.isNotEmpty()) {
+                    itemsIndexed(sortedAppointments) { index, appointment ->
                         Spacer(modifier = Modifier.padding(top = if (index == 0) 24.dp else 18.dp))
+
                         if (index == 0) {
                             CurrentPatientCard(
                                 patientName = appointment.patientName,
-                                index = idx,  // ✅ Using idx instead of index
+                                index = appointment.queueIndex,
                                 showPersonalInfoOnly = false,
                                 onRecordsClick = {
                                     navController.navigate(
                                         Routes.CurrentPatient.createRoutes(
-                                            userDetails = appointment, index = idx
+                                            userDetails = appointment, index = appointment.queueIndex
                                         )
                                     )
                                 },
                                 onDoneClick = {
                                     selectedAppointment = appointment
+                                    actionType = "Done"
                                     showDialog = true
                                 },
-                                onAbsentClick = { /* Handle Absent */ }
+                                onAbsentClick = {
+                                    selectedAppointment = appointment
+                                    actionType = "Absent"
+                                    showDialog = true
+                                }
                             )
                         } else {
                             OtherPatientCard(
                                 patientName = appointment.patientName,
-                                index = idx + index  // ✅ Keep incrementing idx instead of index+1
+                                index = appointment.queueIndex
                             )
                         }
                     }
                 } else {
                     item { NotAvailable(label = "No Appointments for Today") }
+                }
+
+                if (absentAppointments.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "Absent Appointments",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
+                    }
+                    item{ Spacer(modifier = Modifier.padding(top = 8.dp)) }
+                    itemsIndexed(absentAppointments) { _, appointment ->
+                        CurrentPatientCard(
+                            patientName = appointment.patientName,
+                            index = appointment.queueIndex, // Using queueIndex directly
+                            showPersonalInfoOnly = false,
+                            onRecordsClick = {
+                                navController.navigate(
+                                    Routes.CurrentPatient.createRoutes(
+                                        userDetails = appointment, index = appointment.queueIndex
+                                    )
+                                )
+                            },
+                            onDoneClick = {
+                                selectedAppointment = appointment
+                                actionType = "Done"
+                                showDialog = true
+                            },
+                            showAbsent = false
+                        )
+                            Spacer(modifier = Modifier.padding(top = 18.dp))
+                    }
                 }
             }
         }
@@ -101,12 +140,17 @@ fun HomeScreen(
 
     if (showDialog && selectedAppointment != null) {
         ConfirmationDialog(
+            actionType = actionType,
             onConfirm = {
-                vm.markAppointmentAsDone(selectedAppointment!!)
+                selectedAppointment?.let {
+                    if (actionType == "Done") {
+                        vm.markAppointmentAsDone(it)
+                    } else {
+                        vm.markAppointmentAsAbsent(it)
+                    }
+                    refreshAppointments = true // Refresh list after action
+                }
                 showDialog = false
-                idx++  // ✅ Increment idx
-                sharedPreferencesManager.saveIndex(idx)  // ✅ Save new index
-                refreshAppointments = true  // ✅ Trigger data reload
             },
             onDismiss = { showDialog = false }
         )
@@ -116,16 +160,22 @@ fun HomeScreen(
 
 
 @Composable
-fun ConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(onDismissRequest = onDismiss,
-        title = { Text("Confirm Completion") },
-        text = { Text("Are you sure you want to mark this appointment as done?") },
+fun ConfirmationDialog(
+    actionType: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Confirm $actionType") },
+        text = { Text("Are you sure you want to mark this appointment as $actionType?") },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("OK") }
+            TextButton(onClick = onConfirm) { Text("Yes") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
-        })
+        }
+    )
 }
 
 

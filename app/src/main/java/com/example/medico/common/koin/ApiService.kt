@@ -65,7 +65,9 @@ interface ApiService {
     suspend fun oldMedications(userId: String): Result<List<OldMedicationsDTO>>
 
     suspend fun markAppointmentAsDone(appointmentId: String): Boolean
+    suspend fun markAppointmentAsAbsent(appointmentId: String): Boolean
     suspend fun getTodaysAppointments(doctorId: String): Result<List<AppointmentDTO>>
+    suspend fun getTodaysAbsentAppointments(doctorId: String): Result<List<AppointmentDTO>>
     suspend fun getPastAppointments(doctorId: String): Result<List<AppointmentDTO>>
     suspend fun getFutureAppointments(doctorId: String): Result<List<AppointmentDTO>>
 

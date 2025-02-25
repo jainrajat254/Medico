@@ -160,15 +160,13 @@ fun CurrentMedicationList(
 fun MedicationItem(medication: MedicationResponse, navController: NavController) {
     Card(
         modifier = Modifier
-            .width(300.dp)
+            .width(280.dp)
             .wrapContentHeight()
             .border(
-                width = 2.dp,
-                color = Color(0xFF4771CC),
-                shape = RoundedCornerShape(16.dp)
+                width = 2.dp, color = Color(0xFF4771CC), shape = RoundedCornerShape(12.dp)
             )
-            .shadow(8.dp, RoundedCornerShape(16.dp)),
-        shape = RoundedCornerShape(16.dp),
+            .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
             contentColor = Color.Black
@@ -176,15 +174,14 @@ fun MedicationItem(medication: MedicationResponse, navController: NavController)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
             // Title
             Text(
                 text = "Current Medication",
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Start,
                 color = Color(0xFF333333)
             )
 
@@ -192,31 +189,29 @@ fun MedicationItem(medication: MedicationResponse, navController: NavController)
             HorizontalDivider(
                 color = Color(0xFFCCCCCC),
                 thickness = 1.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = 6.dp)
             )
 
-            // Medication Name
+            // Medication Name (Clickable)
             Text(
                 text = medication.medicationName,
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF4771CC),
-                textAlign = TextAlign.Start,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier
+                    .padding(bottom = 6.dp)
                     .clickable {
                         navController.navigate(Routes.CurrentMed.routes)
                     }
             )
+
+            // Prescribed By
             Text(
                 text = "Prescribed by: ${medication.doctorName}",
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Gray,
-                textAlign = TextAlign.Start,
+                color = Color.Gray
             )
-
         }
     }
 }
@@ -256,80 +251,99 @@ fun AppointmentsList(sharedPreferencesManager: SharedPreferencesManager, vm: Aut
 fun AppointmentCard(appointment: AppointmentsResponse) {
     Card(
         modifier = Modifier
-            .size(320.dp, 230.dp)
-            .padding(top = 30.dp)
+            .width(300.dp)
+            .wrapContentHeight()
+            .padding(top = 20.dp)
             .border(
-                width = 2.dp,
-                color = Color(0xFF4771CC),
-                shape = RoundedCornerShape(16.dp)
+                width = 2.dp, color = Color(0xFF4771CC), shape = RoundedCornerShape(12.dp)
             )
-            .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp)),
-        shape = RoundedCornerShape(16.dp),
+            .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-            contentColor = Color.Black
+            containerColor = Color.White, contentColor = Color.Black
         )
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
+            // Title
             Text(
-                text = "Appointments",
-                fontSize = 20.sp,
+                text = "Appointment",
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Start,
                 color = Color(0xFF333333),
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            HorizontalDivider(
-                color = Color(0xFFCCCCCC),
-                thickness = 1.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
-            Text(
-                text = "Dr. ${appointment.doctorName}",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4771CC),
-                textAlign = TextAlign.Start,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            Text(
-                text = appointment.workspaceName,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Gray,
-                textAlign = TextAlign.Start,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            Text(
-                text = appointment.specialization,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.padding(top = 8.dp)
+            HorizontalDivider(
+                color = Color(0xFFCCCCCC),
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 6.dp)
             )
 
+            // Doctor Name and Queue Index
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Dr. ${appointment.doctorName}",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4771CC)
+                )
+
+                Text(
+                    text = "#${appointment.queueIndex}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4771CC)
+                )
+            }
+
+            // Workspace Name
             Text(
-                text = appointment.date,
+                text = appointment.workspaceName,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFF666666),
-                textAlign = TextAlign.End,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+            )
+
+            // Specialization
+            Text(
+                text = appointment.specialization,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+
+            // Date and Time Row
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 4.dp)
-            )
+                    .padding(top = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = appointment.date,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF666666)
+                )
+
+                Text(
+                    text = appointment.time, // Added Time Display
+                    fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF666666)
+                )
+            }
         }
     }
 }
+
 
 @Composable
 fun HealthCardsRow() {
@@ -372,9 +386,7 @@ fun HealthCard(
         modifier = Modifier
             .size(167.dp, 150.dp)
             .border(
-                width = 2.dp,
-                color = Color(0xFF4771CC),
-                shape = RoundedCornerShape(16.dp)
+                width = 2.dp, color = Color(0xFF4771CC), shape = RoundedCornerShape(16.dp)
             )
             .shadow(10.dp),
         shape = RoundedCornerShape(16.dp),

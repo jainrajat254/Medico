@@ -14,7 +14,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.medico.common.navigation.DocBottomNavBar
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
@@ -44,7 +44,7 @@ fun HistoryScreen(
         vm.getPastAppointments(id)
     }
 
-    val pastAppointments by vm.pastAppointments.collectAsState()
+    val pastAppointments by vm.pastAppointments.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = { DocBottomNavBar(modifier = Modifier, navController = navController) }
@@ -63,11 +63,10 @@ fun HistoryScreen(
                 )
 
                 if (pastAppointments.isNotEmpty()) {
-                    // ✅ Sorting and grouping BEFORE LazyColumn for efficiency
                     val groupedAppointments = remember(pastAppointments) {
                         pastAppointments
-                            .sortedBy { it.appointmentBookingTime }
-                            .groupBy { it.date }
+                            .groupBy { it.date } // Group by date
+                            .toSortedMap(compareByDescending { it }) // Sort dates in descending order
                     }
 
                     LazyColumn(
@@ -76,7 +75,7 @@ fun HistoryScreen(
                     ) {
                         groupedAppointments.forEach { (date, appointmentsForDate) ->
                             item {
-                                var expanded by remember { mutableStateOf(false) } // ✅ Per date toggle state
+                                var expanded by remember { mutableStateOf(false) }
 
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     Text(
@@ -94,8 +93,8 @@ fun HistoryScreen(
                                     }
 
                                     if (expanded) {
-                                        appointmentsForDate.forEachIndexed { index, appointment ->
-                                            AppointmentCard(appointment, index + 1)
+                                        appointmentsForDate.sortedBy { it.queueIndex }.forEachIndexed { index, appointment ->
+                                            AppointmentCard(appointment, appointment.queueIndex, appointment.status)
                                             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                                         }
                                     }
@@ -110,4 +109,3 @@ fun HistoryScreen(
         }
     }
 }
-

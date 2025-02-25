@@ -2,15 +2,20 @@ package com.example.medico.doctor.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,8 +38,7 @@ import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.user.dto.AppointmentDTO
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.example.medico.user.dto.AppointmentStatus
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -94,7 +99,11 @@ fun AllAppointmentsScreen(
 
                                     if (expanded) {
                                         appointmentsForDate.forEachIndexed { index, appointment ->
-                                            AppointmentCard(appointment, index + 1)
+                                            AppointmentCard(
+                                                appointment,
+                                                appointment.queueIndex,
+                                                appointment.status
+                                            )
                                             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                                         }
                                     }
@@ -111,15 +120,40 @@ fun AllAppointmentsScreen(
 }
 
 @Composable
-fun AppointmentCard(appointment: AppointmentDTO, queueNumber: Int) {
+fun AppointmentCard(appointment: AppointmentDTO, queueNumber: Int, status: AppointmentStatus) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp) // Softer rounded corners
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Patient: ${appointment.patientName}", fontWeight = FontWeight.Bold)
-            Text(text = "Queue Number: $queueNumber", fontWeight = FontWeight.Bold)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "$queueNumber → ${appointment.patientName}", // ✅ Proper arrow usage
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = status.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }, // ✅ Better status formatting
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                color = when (status) { // ✅ Status-based color coding
+                    AppointmentStatus.BOOKED -> MaterialTheme.colorScheme.primary
+                    AppointmentStatus.COMPLETED -> Color(0xFF4CAF50) // Green
+                    AppointmentStatus.ABSENT -> Color(0xFFFF9800) // Orange
+                }
+            )
         }
     }
 }
+
+

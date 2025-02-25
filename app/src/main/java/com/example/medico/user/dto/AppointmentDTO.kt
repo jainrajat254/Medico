@@ -11,17 +11,15 @@ data class AppointmentDTO(
     val patientName: String,
     val time: String,
     val userId: String,
-    @SerialName("appointmentStatus") var status: AppointmentStatus, // Map to backend field
+    val queueIndex: Int,
+    @SerialName("appointmentStatus") var status: AppointmentStatus,
 )
- {
-    val isCompleted: Boolean
-        get() = status == AppointmentStatus.COMPLETED // ✅ This ensures filtering works correctly
-}
+
 
 
 @Serializable
 enum class AppointmentStatus {
     @SerialName("BOOKED") BOOKED,
     @SerialName("COMPLETED") COMPLETED,
-    @SerialName("RESCHEDULED") RESCHEDULED
+    @SerialName("ABSENT") ABSENT
 }

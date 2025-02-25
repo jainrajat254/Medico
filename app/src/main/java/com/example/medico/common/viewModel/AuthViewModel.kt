@@ -7,7 +7,6 @@ import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -72,16 +71,14 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
     private val _todaysAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
     val todaysAppointments: StateFlow<List<AppointmentDTO>> = _todaysAppointments
 
+    private val _absentAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
+    val absentAppointments: StateFlow<List<AppointmentDTO>> = _absentAppointments
+
     private val _pastAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
     val pastAppointments: StateFlow<List<AppointmentDTO>> = _pastAppointments
 
     private val _futureAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
     val futureAppointments: StateFlow<List<AppointmentDTO>> = _futureAppointments
-
-    private fun getCurrentDate(): String {
-        return LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"))
-    }
-
 
     fun registerUser(
         user: UserDetails,
@@ -342,10 +339,13 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
                 val result = apiService.getAppointments(id)
                 result.onSuccess { data ->
                     val today = LocalDate.now()
+                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Ensure correct format
 
                     val filteredSortedData = data
-                        .filter { parseDate(it.date) >= today }
-                        .sortedBy { parseDate(it.date) }
+                        .map { it.copy(date = LocalDate.parse(it.date, formatter).toString()) } // Convert to LocalDate
+                        .filter { LocalDate.parse(it.date) >= today } // Compare as LocalDate
+                        .sortedBy { LocalDate.parse(it.date) }
+                        .sortedBy { it.time }
 
                     _appointments.value = filteredSortedData
                 }.onFailure { e ->
@@ -354,17 +354,6 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
             } catch (e: Exception) {
                 Log.e("Appointments", "Unexpected error", e)
             }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun parseDate(dateStr: String): LocalDate {
-        val formatter = DateTimeFormatter.ofPattern("d/M/yyyy") // Allows single-digit days/months
-        return try {
-            LocalDate.parse(dateStr, formatter)
-        } catch (e: Exception) {
-            Log.e("Appointments", "Invalid date format: $dateStr", e)
-            LocalDate.MIN // Default to an old date if parsing fails
         }
     }
 
@@ -481,7 +470,7 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
             try {
                 val result = apiService.getTodaysAppointments(docId)
                 result.onSuccess { data ->
-                    _todaysAppointments.value = data
+                    _todaysAppointments.value = data.sortedBy { it.queueIndex } // Sorting by queueIndex
                 }.onFailure { e ->
                     Log.e("Appointments", "Error fetching today's appointments", e)
                 }
@@ -491,18 +480,36 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
         }
     }
 
+    fun getTodaysAbsentAppointments(docId: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getTodaysAbsentAppointments(docId)
+                result.onSuccess { data ->
+                    _absentAppointments.value = data.sortedBy { it.queueIndex }
+                }.onFailure { e ->
+                    Log.e("Appointments", "Error fetching today's absent appointments", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Appointments", "Error fetching today's absent appointments", e)
+            }
+        }
+    }
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getPastAppointments(doctorId: String) {
         viewModelScope.launch {
             try {
                 val result = apiService.getPastAppointments(doctorId)
                 result.onSuccess { data ->
-                    val formatterInput = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Assuming input format
-                    val formatterOutput = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Desired format
+                    val formatterInput = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Input format
+                    val formatterOutput = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Desired output format
 
                     _pastAppointments.value = data.map { appointment ->
                         appointment.copy(date = LocalDate.parse(appointment.date, formatterInput).format(formatterOutput))
                     }
+                        .sortedBy { it.queueIndex } // Sort inside each date group by queueIndex
+                        .sortedByDescending { it.date } // Sort by date in descending order
                 }.onFailure { e ->
                     Log.e("Appointments", "Error fetching past appointments", e)
                 }
@@ -512,6 +519,8 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
         }
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getFutureAppointments(doctorId: String) {
         viewModelScope.launch {
             try {
@@ -522,7 +531,7 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
 
                     _futureAppointments.value = data.map { appointment ->
                         appointment.copy(date = LocalDate.parse(appointment.date, formatterInput).format(formatterOutput))
-                    }
+                    }.sortedBy { it.date }.sortedBy { it.queueIndex }
                 }.onFailure { e ->
                     Log.e("Appointments", "Error fetching future appointments", e)
                 }
@@ -542,6 +551,19 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
                 }
             } catch (e: Exception) {
                 Log.e("Appointments", "Error marking appointment as done", e)
+            }
+        }
+    }
+
+    fun markAppointmentAsAbsent(appointment: AppointmentDTO) {
+        viewModelScope.launch {
+            try {
+                val isSuccess = apiService.markAppointmentAsAbsent(appointment.id)
+                if (isSuccess) {
+                    appointment.status = AppointmentStatus.ABSENT  // ✅ Just change status
+                }
+            } catch (e: Exception) {
+                Log.e("Appointments", "Error marking appointment as absent", e)
             }
         }
     }

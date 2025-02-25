@@ -12,4 +12,5 @@ data class AppointmentsResponse(
     val date: String,
     val doctorId: String,
     val time: String,
+    val queueIndex: Int
 )
