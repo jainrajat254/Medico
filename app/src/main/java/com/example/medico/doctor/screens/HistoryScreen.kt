@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,9 +30,6 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.viewModel.AuthViewModel
-import com.example.medico.user.dto.AppointmentDTO
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -43,36 +39,15 @@ fun HistoryScreen(
     sharedPreferencesManager: SharedPreferencesManager,
 ) {
     val id = sharedPreferencesManager.getDocId()
+
     LaunchedEffect(id) {
-        vm.getDoctorAppointments(id)
+        vm.getPastAppointments(id)
     }
-    val appointments by vm.docAppointments.collectAsState()
 
-    // Get current date
-    val today = LocalDate.now()
-
-    // Define correct date format
-    val formatter = DateTimeFormatter.ofPattern("d/M/yyyy") // Fix for single-digit day/month
-
-    // Sort by booking time and filter only upcoming appointments (from tomorrow onward)
-    val pastAppointments = appointments
-        .mapNotNull { appointment ->
-            try {
-                val appointmentDate = LocalDate.parse(appointment.date, formatter)
-                if (appointmentDate.isBefore(today)) appointment else null
-            } catch (e: Exception) {
-                null // Ignore parsing errors
-            }
-        }
-        .sortedBy { it.appointmentBookingTime }
-
-    // Group by date
-    val groupedAppointments = pastAppointments.groupBy { it.date }
+    val pastAppointments by vm.pastAppointments.collectAsState()
 
     Scaffold(
-        bottomBar = {
-            DocBottomNavBar(modifier = Modifier, navController = navController)
-        }
+        bottomBar = { DocBottomNavBar(modifier = Modifier, navController = navController) }
     ) { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
             Column(
@@ -87,14 +62,21 @@ fun HistoryScreen(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 60.dp, top = 20.dp)
-                ) {
-                    if (groupedAppointments.isNotEmpty()) {
+                if (pastAppointments.isNotEmpty()) {
+                    // ✅ Sorting and grouping BEFORE LazyColumn for efficiency
+                    val groupedAppointments = remember(pastAppointments) {
+                        pastAppointments
+                            .sortedBy { it.appointmentBookingTime }
+                            .groupBy { it.date }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 60.dp, top = 20.dp)
+                    ) {
                         groupedAppointments.forEach { (date, appointmentsForDate) ->
                             item {
-                                var expanded by remember { mutableStateOf(false) }
+                                var expanded by remember { mutableStateOf(false) } // ✅ Per date toggle state
 
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     Text(
@@ -120,9 +102,9 @@ fun HistoryScreen(
                                 }
                             }
                         }
-                    } else {
-                        item { NotAvailable(label = "No Past Appointments") }
                     }
+                } else {
+                    NotAvailable(label = "No Past Appointments")
                 }
             }
         }

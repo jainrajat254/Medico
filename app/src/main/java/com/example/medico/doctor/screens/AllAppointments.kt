@@ -44,30 +44,11 @@ fun AllAppointmentsScreen(
 ) {
     val id = sharedPreferencesManager.getDocId()
     LaunchedEffect(id) {
-        vm.getDoctorAppointments(id)
+        vm.getFutureAppointments(id)
     }
-    val appointments by vm.docAppointments.collectAsState()
+    val appointments by vm.futureAppointments.collectAsState()
 
-    // Get current date
-    val today = LocalDate.now()
-
-    // Define correct date format
-    val formatter = DateTimeFormatter.ofPattern("d/M/yyyy") // Fix for single-digit day/month
-
-    // Sort by booking time and filter only upcoming appointments (from tomorrow onward)
-    val upcomingAppointments = appointments
-        .mapNotNull { appointment ->
-            try {
-                val appointmentDate = LocalDate.parse(appointment.date, formatter)
-                if (appointmentDate.isAfter(today)) appointment else null
-            } catch (e: Exception) {
-                null // Ignore parsing errors
-            }
-        }
-        .sortedBy { it.appointmentBookingTime }
-
-    // Group by date
-    val groupedAppointments = upcomingAppointments.groupBy { it.date }
+    val groupedAppointments = appointments.groupBy { it.date }
 
     Scaffold(
         bottomBar = {

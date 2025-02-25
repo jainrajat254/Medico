@@ -7,6 +7,7 @@ import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,12 +15,14 @@ import coil.network.HttpException
 import com.example.medico.common.dto.EditPassword
 import com.example.medico.common.koin.ApiService
 import com.example.medico.common.model.LoginCredentials
+import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.doctor.dto.EditDocAddressDetails
 import com.example.medico.doctor.dto.EditDocMedicalDetails
 import com.example.medico.doctor.dto.EditDocPersonalDetails
 import com.example.medico.doctor.model.DoctorDetails
 import com.example.medico.doctor.responses.DoctorLoginResponse
 import com.example.medico.user.dto.AppointmentDTO
+import com.example.medico.user.dto.AppointmentStatus
 import com.example.medico.user.dto.EditUserPersonalDetails
 import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.dto.OldMedicationsDTO
@@ -39,18 +42,16 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class AuthViewModel(private val apiService: ApiService) : ViewModel() {
+class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager: SharedPreferencesManager) : ViewModel() {
 
     private val _appointments = MutableStateFlow<List<AppointmentsResponse>>(emptyList())
     val appointments: StateFlow<List<AppointmentsResponse>> = _appointments
 
-    private val _docAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
-    val docAppointments: StateFlow<List<AppointmentDTO>> = _docAppointments
-
     private val _medications = MutableStateFlow<List<MedicationResponse>>(emptyList())
     val medications: StateFlow<List<MedicationResponse>> = _medications
 
-    private val _updateMedication = MutableStateFlow(MedicationResponse("","","","","","","","","","",""))
+    private val _updateMedication =
+        MutableStateFlow(MedicationResponse("", "", "", "", "", "", "", "", "", "", ""))
     val updateMedication: StateFlow<MedicationResponse> = _updateMedication
 
     private val _docMedications = MutableStateFlow<List<MedicationsDTO>>(emptyList())
@@ -64,6 +65,22 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
 
     private val _isRemovingMedication = MutableStateFlow(false)
     val isRemovingMedication: StateFlow<Boolean> = _isRemovingMedication.asStateFlow()
+
+    private val _completedAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
+    val completedAppointments: StateFlow<List<AppointmentDTO>> = _completedAppointments
+
+    private val _todaysAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
+    val todaysAppointments: StateFlow<List<AppointmentDTO>> = _todaysAppointments
+
+    private val _pastAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
+    val pastAppointments: StateFlow<List<AppointmentDTO>> = _pastAppointments
+
+    private val _futureAppointments = MutableStateFlow<List<AppointmentDTO>>(emptyList())
+    val futureAppointments: StateFlow<List<AppointmentDTO>> = _futureAppointments
+
+    private fun getCurrentDate(): String {
+        return LocalDate.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"))
+    }
 
 
     fun registerUser(
@@ -294,10 +311,14 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
         }
     }
 
-    fun addAppointments(appointmentRequest: Appointments,id:String, onResult: (Boolean, String) -> Unit) {
+    fun addAppointments(
+        appointmentRequest: Appointments,
+        id: String,
+        onResult: (Boolean, String) -> Unit,
+    ) {
         viewModelScope.launch {
             try {
-                val result = apiService.addAppointments(appointmentRequest,id)
+                val result = apiService.addAppointments(appointmentRequest, id)
 
                 result.onSuccess { response ->
                     Log.d("Appointments", "Appointment booked successfully: $response")
@@ -455,25 +476,82 @@ class AuthViewModel(private val apiService: ApiService) : ViewModel() {
         context.startActivity(Intent.createChooser(shareIntent, "Share PDF via"))
     }
 
-    fun getDoctorAppointments(doctorId: String) {
+    fun getTodaysAppointments(docId: String) {
         viewModelScope.launch {
             try {
-                val result = apiService.getDoctorAppointments(doctorId)
+                val result = apiService.getTodaysAppointments(docId)
                 result.onSuccess { data ->
-                    _docAppointments.value = data
+                    _todaysAppointments.value = data
                 }.onFailure { e ->
-                    Log.e("Appointments", "Error fetching appointments", e)
+                    Log.e("Appointments", "Error fetching today's appointments", e)
                 }
             } catch (e: Exception) {
-                Log.e("Appointments", "Error fetching appointments", e)
+                Log.e("Appointments", "Error fetching today's appointments", e)
             }
         }
     }
 
+
+    fun getPastAppointments(doctorId: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getPastAppointments(doctorId)
+                result.onSuccess { data ->
+                    val formatterInput = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Assuming input format
+                    val formatterOutput = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Desired format
+
+                    _pastAppointments.value = data.map { appointment ->
+                        appointment.copy(date = LocalDate.parse(appointment.date, formatterInput).format(formatterOutput))
+                    }
+                }.onFailure { e ->
+                    Log.e("Appointments", "Error fetching past appointments", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Appointments", "Error fetching past appointments", e)
+            }
+        }
+    }
+
+    fun getFutureAppointments(doctorId: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getFutureAppointments(doctorId)
+                result.onSuccess { data ->
+                    val formatterInput = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Assuming input format
+                    val formatterOutput = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Desired format
+
+                    _futureAppointments.value = data.map { appointment ->
+                        appointment.copy(date = LocalDate.parse(appointment.date, formatterInput).format(formatterOutput))
+                    }
+                }.onFailure { e ->
+                    Log.e("Appointments", "Error fetching future appointments", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Appointments", "Error fetching future appointments", e)
+            }
+        }
+    }
+
+
+    fun markAppointmentAsDone(appointment: AppointmentDTO) {
+        viewModelScope.launch {
+            try {
+                val isSuccess = apiService.markAppointmentAsDone(appointment.id)
+                if (isSuccess) {
+                    appointment.status = AppointmentStatus.COMPLETED  // ✅ Just change status
+                }
+            } catch (e: Exception) {
+                Log.e("Appointments", "Error marking appointment as done", e)
+            }
+        }
+    }
+
+
+
     fun doctorMedication(doctorId: String, userId: String) {
         viewModelScope.launch {
             try {
-                val result = apiService.doctorMedication(doctorId,userId)
+                val result = apiService.doctorMedication(doctorId, userId)
                 result.onSuccess { data ->
                     _docMedications.value = data
                 }.onFailure { e ->

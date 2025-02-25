@@ -28,27 +28,45 @@ interface ApiService {
     suspend fun login(user: LoginCredentials): Result<UserLoginResponse>
     suspend fun registerUser(data: UserDetails): UserDetails
     suspend fun loginDoc(user: LoginCredentials): DoctorLoginResponse
-    suspend fun registerUser(data : DoctorDetails): DoctorDetails
+    suspend fun registerUser(data: DoctorDetails): DoctorDetails
     suspend fun editDetails(data: EditUserPersonalDetails, id: String): Result<UserDetails>
-    suspend fun editDocPersonalDetails(data: EditDocPersonalDetails, id: String): Result<DoctorLoginResponse>
+    suspend fun editDocPersonalDetails(
+        data: EditDocPersonalDetails,
+        id: String,
+    ): Result<DoctorLoginResponse>
+
     suspend fun editPassword(data: EditPassword, id: String): Result<UserDetails>
-    suspend fun editDocAddressDetails(data: EditDocAddressDetails, id: String): Result<DoctorLoginResponse>
-    suspend fun editDocMedicalDetails(data: EditDocMedicalDetails, id: String): Result<DoctorLoginResponse>
+    suspend fun editDocAddressDetails(
+        data: EditDocAddressDetails,
+        id: String,
+    ): Result<DoctorLoginResponse>
+
+    suspend fun editDocMedicalDetails(
+        data: EditDocMedicalDetails,
+        id: String,
+    ): Result<DoctorLoginResponse>
+
     suspend fun addExtraDetails(data: ExtraDetails, id: String): Result<UserDetailsResponse>
     suspend fun getExtraDetails(id: String): Result<UserDetailsResponse>
     suspend fun getPersonalInfoId(id: String): Result<String>
-    suspend fun getDoctors() : Result<List<DoctorDTO>>
-    suspend fun getDetails(id: String) : Result<UserDTO>
-    suspend fun addAppointments(request: Appointments, id: String) : Result<Appointments>
-    suspend fun getAppointments(id: String) : Result<List<AppointmentsResponse>>
-    suspend fun addMedications(request: Medications, id: String) : Result<Medications>
-    suspend fun getMedications(id: String) : Result<List<MedicationResponse>>
+    suspend fun getDoctors(): Result<List<DoctorDTO>>
+    suspend fun getDetails(id: String): Result<UserDTO>
+    suspend fun addAppointments(request: Appointments, id: String): Result<Appointments>
+    suspend fun getAppointments(id: String): Result<List<AppointmentsResponse>>
+    suspend fun addMedications(request: Medications, id: String): Result<Medications>
+    suspend fun getMedications(id: String): Result<List<MedicationResponse>>
     suspend fun addReports(request: Reports, id: String): Result<Reports>
-    suspend fun getReports(id: String) : Result<List<ReportsResponse>>
+    suspend fun getReports(id: String): Result<List<ReportsResponse>>
     suspend fun getReportFile(reportId: String): Result<ByteArray>
     suspend fun getDoctorAppointments(doctorId: String): Result<List<AppointmentDTO>>
     suspend fun doctorMedication(doctorId: String, userId: String): Result<List<MedicationsDTO>>
     suspend fun updateMedication(medId: String, data: Medications): Result<Medications>
     suspend fun removeMedications(medId: String): Result<String>
     suspend fun oldMedications(userId: String): Result<List<OldMedicationsDTO>>
+
+    suspend fun markAppointmentAsDone(appointmentId: String): Boolean
+    suspend fun getTodaysAppointments(doctorId: String): Result<List<AppointmentDTO>>
+    suspend fun getPastAppointments(doctorId: String): Result<List<AppointmentDTO>>
+    suspend fun getFutureAppointments(doctorId: String): Result<List<AppointmentDTO>>
+
 }

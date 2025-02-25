@@ -62,12 +62,12 @@ fun CurrentPatientInfo(
     navController: NavHostController,
     sharedPreferencesManager: SharedPreferencesManager,
 ) {
-    val medications by vm.docMedications.collectAsState()
-    val reports by vm.reports.collectAsState()
+    val medications by remember { vm.docMedications }.collectAsState()
+    val reports by remember { vm.reports }.collectAsState()
     val context = LocalContext.current
 
     var showDialog by remember { mutableStateOf(false) }
-    val isRemovingMedication by vm.isRemovingMedication.collectAsState()
+    val isRemovingMedication by remember{ vm.isRemovingMedication }.collectAsState()
     var selectedMedication by remember { mutableStateOf<MedicationsDTO?>(null) }
 
     LaunchedEffect(sharedPreferencesManager.getDocId()) {
@@ -102,7 +102,6 @@ fun CurrentPatientInfo(
                     )
                 }
 
-                // Medications Section
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(

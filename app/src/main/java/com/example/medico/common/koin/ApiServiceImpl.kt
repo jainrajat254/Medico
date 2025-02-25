@@ -10,6 +10,7 @@ import com.example.medico.doctor.dto.EditDocPersonalDetails
 import com.example.medico.doctor.model.DoctorDetails
 import com.example.medico.doctor.responses.DoctorLoginResponse
 import com.example.medico.user.dto.AppointmentDTO
+import com.example.medico.user.dto.AppointmentStatus
 import com.example.medico.user.dto.EditUserPersonalDetails
 import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.dto.OldMedicationsDTO
@@ -30,13 +31,17 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlinx.serialization.Serializable
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
@@ -313,14 +318,7 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
     }
 
     override suspend fun getDoctorAppointments(doctorId: String): Result<List<AppointmentDTO>> {
-        return try {
-            val response: List<AppointmentDTO> = client.get("$url/appointments/getDoctorAppointments/$doctorId") {
-                contentType(ContentType.Application.Json)
-            }.body()
-            Result.success(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        TODO("Not yet implemented")
     }
 
     override suspend fun doctorMedication(doctorId: String, userId: String): Result<List<MedicationsDTO>> {
@@ -385,5 +383,57 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
             Result.failure(e)
         }
     }
+
+    override suspend fun getTodaysAppointments(doctorId: String): Result<List<AppointmentDTO>> {
+        return try {
+            val response: List<AppointmentDTO> = client.get("$url/appointments/today/$doctorId") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getPastAppointments(doctorId: String): Result<List<AppointmentDTO>> {
+        return try {
+            val response: List<AppointmentDTO> = client.get("$url/appointments/past/$doctorId") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getFutureAppointments(doctorId: String): Result<List<AppointmentDTO>> {
+        return try {
+            val response: List<AppointmentDTO> = client.get("$url/appointments/future/$doctorId") {
+                contentType(ContentType.Application.Json)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    override suspend fun markAppointmentAsDone(appointmentId: String): Boolean {
+        return try {
+            val response = client.patch("$url/appointments/$appointmentId/done") {
+                contentType(ContentType.Application.Json)
+                setBody(AppointmentStatusRequest(AppointmentStatus.COMPLETED)) // ✅ Send ENUM
+            }
+            Log.d("API_RESPONSE", "Response Code: ${response.status}")
+            response.status == HttpStatusCode.OK
+        } catch (e: Exception) {
+            Log.e("API_ERROR", "Error marking appointment as done", e)
+            false
+        }
+    }
 }
+
+@Serializable
+data class AppointmentStatusRequest(val status: AppointmentStatus) // ✅ Now uses Enum
+
 

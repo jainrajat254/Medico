@@ -7,6 +7,9 @@ import com.example.medico.doctor.responses.DoctorLoginResponse
 import com.example.medico.user.responses.UserLoginResponse
 import com.example.medico.common.navigation.Routes
 import com.example.medico.user.responses.UserDetailsResponse
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 class SharedPreferencesManager(context: Context) {
@@ -375,6 +378,24 @@ class SharedPreferencesManager(context: Context) {
         return "$firstName $lastName".trim()
     }
 
+    fun saveIndex(index: Int) {
+        sharedPreferences.edit().putInt("index", index).apply()
+    }
+
+    fun getIndex(): Int {
+        return sharedPreferences.getInt("index", 1)  // Default to 1
+    }
+
+    fun saveLastOpenedDate() {
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        sharedPreferences.edit().putString("last_opened_date", today).apply()
+    }
+
+    fun isNewDay(): Boolean {
+        val lastOpened = sharedPreferences.getString("last_opened_date", null)
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        return lastOpened == null || lastOpened != today
+    }
 
 
     fun getJwtToken(): String? {

@@ -37,7 +37,7 @@ val appModule = module {
     viewModel { DoctorDetails(get()) }
     viewModel { UserDetails(get()) }
     viewModel { DoctorRegister(get()) }  // Ensure this is correctly added
-    viewModel { AuthViewModel(get()) }
+    viewModel { AuthViewModel(get(),get()) }
     viewModel { UserOverviewViewModel(get()) }
     viewModel { AppointmentsViewModel(get()) }
     viewModel { AddMedications(get(),get()) }
