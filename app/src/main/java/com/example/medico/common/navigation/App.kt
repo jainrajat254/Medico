@@ -13,6 +13,7 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.doctor.dto.DoctorDTO
 import com.example.medico.doctor.screens.AddMedicationPage
+import com.example.medico.doctor.screens.AddRecordScreen
 import com.example.medico.doctor.screens.AddReportScreen
 import com.example.medico.doctor.screens.AllAppointmentsScreen
 import com.example.medico.doctor.screens.AllMedications
@@ -36,13 +37,13 @@ import com.example.medico.user.screens.CurrentMedications
 import com.example.medico.user.screens.DoctorAppointmentScreen
 import com.example.medico.user.screens.DoctorOverview
 import com.example.medico.user.screens.FamilyDetails
-import com.example.medico.user.screens.HealthRecords
 import com.example.medico.user.screens.HealthReports
 import com.example.medico.user.screens.HelpSupportScreen
 import com.example.medico.user.screens.InsuranceDetails
 import com.example.medico.user.screens.LoginPage
 import com.example.medico.user.screens.MedicationPage
 import com.example.medico.user.screens.NotificationsScreen
+import com.example.medico.user.screens.Records
 import com.example.medico.user.screens.Register
 import com.example.medico.user.screens.UserHomePage
 import com.example.medico.user.screens.UserPersonalDetails
@@ -86,9 +87,6 @@ fun App() {
                 val userDetails = Json.decodeFromString<AppointmentDTO>(decodedJson)
                 AddMedicationPage(navController = navController, userDetails = userDetails)
             }
-        }
-        composable(Routes.Records.routes) {
-            HealthRecords(navController)
         }
         composable(Routes.CurrentMed.routes) {
             CurrentMedications(sharedPreferencesManager,vm,navController)
@@ -144,6 +142,16 @@ fun App() {
             }
         }
 
+        composable("add_record/{current_patient}") { backStackEntry ->
+            val userJsonEncoded = backStackEntry.arguments?.getString("current_patient")
+            if (userJsonEncoded != null) {
+                val decodedJson =
+                    String(Base64.decode(userJsonEncoded, Base64.URL_SAFE or Base64.NO_WRAP))
+                val userDetails = Json.decodeFromString<AppointmentDTO>(decodedJson)
+                AddRecordScreen(navController,userDetails)
+            }
+        }
+
         composable(Routes.DoctorHome.routes) {
             HomeScreen(
                 navController = navController,
@@ -188,6 +196,10 @@ fun App() {
 
         composable(Routes.Address.routes) {
             AddressDetails(vm, sharedPreferencesManager)
+        }
+
+        composable(Routes.Records.routes) {
+            Records(navController,sharedPreferencesManager, vm)
         }
 
         composable(Routes.DoctorLogin.routes) {

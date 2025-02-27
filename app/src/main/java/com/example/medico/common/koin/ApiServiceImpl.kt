@@ -19,10 +19,12 @@ import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.model.Medications
+import com.example.medico.user.model.Records
 import com.example.medico.user.model.Reports
 import com.example.medico.user.model.UserDetails
 import com.example.medico.user.responses.AppointmentsResponse
 import com.example.medico.user.responses.MedicationResponse
+import com.example.medico.user.responses.RecordsResponse
 import com.example.medico.user.responses.ReportsResponse
 import com.example.medico.user.responses.UserDetailsResponse
 import com.example.medico.user.responses.UserLoginResponse
@@ -45,7 +47,7 @@ import kotlinx.serialization.Serializable
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val url = "https://ca96-2409-40d2-1276-2a48-a9cc-6e7a-e9f7-fbba.ngrok-free.app"
+    private val url = "https://c67c-2409-40d2-12b4-91c8-6cc3-d7d-5683-68aa.ngrok-free.app"
 
     override suspend fun login(user: LoginCredentials): Result<UserLoginResponse> {
         return try {
@@ -454,6 +456,51 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
         } catch (e: Exception) {
             Log.e("API_ERROR", "Error marking appointment as absent", e)
             false
+        }
+    }
+
+    override suspend fun addRecords(record: Records, userId: String): Result<Records> {
+        return try {
+            val response: Records = client.post("$url/records/addRecord/$userId") {
+                setBody(MultiPartFormDataContent(
+                    formData {
+                        append("recordName", record.recordName)
+                        append("reviewedBy", record.reviewedBy)
+                        append("review", record.review)
+                        append("recordFile", record.recordFile, Headers.build {
+                            append(HttpHeaders.ContentType, "application/pdf")
+                            append(HttpHeaders.ContentDisposition, "filename=record.pdf")
+                        })
+                    }
+                ))
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getRecords(id: String): Result<List<RecordsResponse>> {
+        return try {
+            val response: List<RecordsResponse> = client.get("$url/records/getRecord/$id") {
+                contentType(ContentType.Application.Json)
+            }.body<List<RecordsResponse>>() // Explicitly specify List
+
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    override suspend fun getRecordFile(recordId: String): Result<ByteArray> {
+        return try {
+            val response: ByteArray = client.get("$url/records/getRecordFile/$recordId") {
+                contentType(ContentType.Application.OctetStream)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

@@ -44,31 +44,4 @@ class ReportsViewModel(
             }
         }
     }
-
-
-    fun updateMedicationState(
-        reportName: String? = null,
-        attentionLevel: String? = null,
-        reportFile: ByteArray? = null,
-        reviewedBy: String? = null
-    ) {
-        if (reportFile == null || reportFile.isEmpty()) {
-            Log.e("UpdateState", "Error: reportFile is missing or empty!")
-        }
-
-        _reportsState.value = _reportsState.value.copy(
-            reportName = reportName ?: _reportsState.value.reportName,
-            reviewedBy = reviewedBy ?: _reportsState.value.reviewedBy,
-            attentionLevel = attentionLevel ?: _reportsState.value.attentionLevel,
-            reportFile = reportFile ?: _reportsState.value.reportFile
-        )
-
-        // ✅ Log updated state
-        Log.d("UpdateState", "Updated reportName: ${_reportsState.value.reportName}")
-        Log.d("UpdateState", "Updated reviewedBy: ${_reportsState.value.reviewedBy}")
-        Log.d("UpdateState", "Updated attentionLevel: ${_reportsState.value.attentionLevel}")
-        Log.d("UpdateState", "Updated reportFile size: ${_reportsState.value.reportFile?.size} bytes")
-    }
-
-
 }

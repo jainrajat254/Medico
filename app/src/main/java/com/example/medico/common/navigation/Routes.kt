@@ -17,6 +17,7 @@ sealed class Routes(var routes: String) {
     data object UserRegister : Routes("user_register")
     data object UserHome : Routes("user_home")
     data object Address : Routes("address")
+    data object Records : Routes("records")
     data object Medications : Routes("medications")
     data object MedAdd : Routes("add_medications/{current_patient}") {
         fun createRoutes(userDetails: AppointmentDTO): String {
@@ -27,7 +28,14 @@ sealed class Routes(var routes: String) {
         }
     }
     data object CurrentMed : Routes("currentMed")
-    data object Records : Routes("records")
+    data object AddRecord : Routes("add_record/{current_patient}") {
+        fun createRoutes(userDetails: AppointmentDTO): String {
+            val json = Json.encodeToString(userDetails)
+            val encodedJson =
+                Base64.encodeToString(json.toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
+            return "add_record/$encodedJson"
+        }
+    }
     data object Reports : Routes("reports")
     data object UserSettings : Routes("user_settings")
     data object History : Routes("history")

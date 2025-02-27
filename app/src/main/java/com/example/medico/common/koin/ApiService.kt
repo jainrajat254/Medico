@@ -16,10 +16,12 @@ import com.example.medico.user.dto.UserDTO
 import com.example.medico.user.model.Appointments
 import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.model.Medications
+import com.example.medico.user.model.Records
 import com.example.medico.user.model.Reports
 import com.example.medico.user.model.UserDetails
 import com.example.medico.user.responses.AppointmentsResponse
 import com.example.medico.user.responses.MedicationResponse
+import com.example.medico.user.responses.RecordsResponse
 import com.example.medico.user.responses.ReportsResponse
 import com.example.medico.user.responses.UserDetailsResponse
 import com.example.medico.user.responses.UserLoginResponse
@@ -70,5 +72,8 @@ interface ApiService {
     suspend fun getTodaysAbsentAppointments(doctorId: String): Result<List<AppointmentDTO>>
     suspend fun getPastAppointments(doctorId: String): Result<List<AppointmentDTO>>
     suspend fun getFutureAppointments(doctorId: String): Result<List<AppointmentDTO>>
+    suspend fun addRecords(record: Records, userId: String): Result<Records>
+    suspend fun getRecords(id: String): Result<List<RecordsResponse>>
+    suspend fun getRecordFile(recordId: String): Result<ByteArray>
 
 }

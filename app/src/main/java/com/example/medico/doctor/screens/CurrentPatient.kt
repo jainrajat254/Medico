@@ -47,12 +47,12 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.common.utils.BackgroundContent
 import com.example.medico.common.utils.CurrentPatientCard
 import com.example.medico.common.utils.MedicationCardDoc
-import com.example.medico.common.utils.MedicationCardUser
 import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.utils.ReportCard
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.user.dto.AppointmentDTO
 import com.example.medico.user.dto.MedicationsDTO
+import com.example.medico.user.screens.RecordCard
 
 @Composable
 fun CurrentPatientInfo(
@@ -64,15 +64,17 @@ fun CurrentPatientInfo(
 ) {
     val medications by remember { vm.docMedications }.collectAsState()
     val reports by remember { vm.reports }.collectAsState()
+    val records by remember { vm.records }.collectAsState()
     val context = LocalContext.current
 
     var showDialog by remember { mutableStateOf(false) }
-    val isRemovingMedication by remember{ vm.isRemovingMedication }.collectAsState()
+    val isRemovingMedication by remember { vm.isRemovingMedication }.collectAsState()
     var selectedMedication by remember { mutableStateOf<MedicationsDTO?>(null) }
 
     LaunchedEffect(sharedPreferencesManager.getDocId()) {
         vm.doctorMedication(sharedPreferencesManager.getDocId(), userDetails.userId)
         vm.getReports(userDetails.userId)
+        vm.getRecords(userDetails.userId)
     }
 
     Scaffold(
@@ -149,6 +151,36 @@ fun CurrentPatientInfo(
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
+                        text = "Records",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(bottom = 12.dp, start = 8.dp),
+                        color = Color.Black
+                    )
+                }
+
+                if (records.isEmpty()) {
+                    item {
+                        NotAvailable(label = "No Records Available")
+                    }
+                } else {
+                    items(records) { record ->
+                        RecordCard(
+                            record = record,
+                            showExportButton = false,
+                            onViewFullRecordClick = {
+                                vm.downloadAndOpenPdf(
+                                    recordId = record.id,
+                                    context = context
+                                )
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
                         text = "Reports",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
@@ -166,7 +198,12 @@ fun CurrentPatientInfo(
                         ReportCard(
                             report = report,
                             showExportButton = false,
-                            onViewFullReportClick = { vm.downloadAndOpenPdf(report.id, context) }
+                            onViewFullReportClick = {
+                                vm.downloadAndOpenPdf(
+                                    recordId = report.id,
+                                    context = context
+                                )
+                            }
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -236,7 +273,9 @@ fun FloatingActionButtonWithDropdown(navController: NavController, userDetails: 
                 ) {
                     val typeOptions = mapOf(
                         "Add Medication" to Routes.MedAdd.createRoutes(userDetails = userDetails),
-                        "Add Report" to Routes.AddReport.createRoutes(userDetails = userDetails)
+                        "Add Report" to Routes.AddReport.createRoutes(userDetails = userDetails),
+                        "Add Record" to Routes.AddRecord.createRoutes(userDetails = userDetails)
+
                     )
 
                     typeOptions.forEach { (label, route) ->

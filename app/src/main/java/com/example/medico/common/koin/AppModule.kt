@@ -7,6 +7,7 @@ import com.example.medico.common.sharedPreferences.SharedPreferencesManager
 import com.example.medico.doctor.viewModel.AddMedications
 import com.example.medico.doctor.viewModel.DoctorRegister
 import com.example.medico.user.viewModel.AppointmentsViewModel
+import com.example.medico.user.viewModel.RecordsViewModel
 import com.example.medico.user.viewModel.ReportsViewModel
 import com.example.medico.user.viewModel.UserOverviewViewModel
 import io.ktor.client.*
@@ -42,4 +43,6 @@ val appModule = module {
     viewModel { AppointmentsViewModel(get()) }
     viewModel { AddMedications(get(),get()) }
     viewModel { ReportsViewModel(get(),get()) }
+    viewModel { RecordsViewModel(get(),get()) }
+
 }

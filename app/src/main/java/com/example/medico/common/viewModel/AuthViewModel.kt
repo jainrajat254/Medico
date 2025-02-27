@@ -1,5 +1,6 @@
 package com.example.medico.common.viewModel
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -30,6 +31,7 @@ import com.example.medico.user.model.ExtraDetails
 import com.example.medico.user.model.UserDetails
 import com.example.medico.user.responses.AppointmentsResponse
 import com.example.medico.user.responses.MedicationResponse
+import com.example.medico.user.responses.RecordsResponse
 import com.example.medico.user.responses.ReportsResponse
 import com.example.medico.user.responses.UserDetailsResponse
 import com.example.medico.user.responses.UserLoginResponse
@@ -41,7 +43,10 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager: SharedPreferencesManager) : ViewModel() {
+class AuthViewModel(
+    private val apiService: ApiService,
+    sharedPreferencesManager: SharedPreferencesManager,
+) : ViewModel() {
 
     private val _appointments = MutableStateFlow<List<AppointmentsResponse>>(emptyList())
     val appointments: StateFlow<List<AppointmentsResponse>> = _appointments
@@ -61,6 +66,9 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
 
     private val _reports = MutableStateFlow<List<ReportsResponse>>(emptyList())
     val reports: StateFlow<List<ReportsResponse>> = _reports
+
+    private val _records = MutableStateFlow<List<RecordsResponse>>(emptyList())
+    val records: StateFlow<List<RecordsResponse>> = _records
 
     private val _isRemovingMedication = MutableStateFlow(false)
     val isRemovingMedication: StateFlow<Boolean> = _isRemovingMedication.asStateFlow()
@@ -339,10 +347,15 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
                 val result = apiService.getAppointments(id)
                 result.onSuccess { data ->
                     val today = LocalDate.now()
-                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Ensure correct format
+                    val formatter =
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd") // Ensure correct format
 
                     val filteredSortedData = data
-                        .map { it.copy(date = LocalDate.parse(it.date, formatter).toString()) } // Convert to LocalDate
+                        .map {
+                            it.copy(
+                                date = LocalDate.parse(it.date, formatter).toString()
+                            )
+                        } // Convert to LocalDate
                         .filter { LocalDate.parse(it.date) >= today } // Compare as LocalDate
                         .sortedBy { LocalDate.parse(it.date) }
                         .sortedBy { it.time }
@@ -388,89 +401,14 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
         }
     }
 
-    fun getReports(id: String) {
-        viewModelScope.launch {
-            try {
-                val result = apiService.getReports(id)
-                result.onSuccess { data ->
-                    _reports.value = data  // Store the fetched data in StateFlow
-                }.onFailure { e ->
-                    Log.e("Reports", "Error fetching medications", e)
-                }
-            } catch (e: Exception) {
-                Log.e("Reports", "Unexpected error", e)
-            }
-        }
-    }
-
-    fun downloadAndOpenPdf(reportId: String, context: Context) {
-        viewModelScope.launch {
-            val result = apiService.getReportFile(reportId)
-            result.onSuccess { pdfData ->
-                try {
-                    val file = File(context.getExternalFilesDir(null), "report.pdf")
-                    file.writeBytes(pdfData)
-
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.provider",
-                        file
-                    )
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setDataAndType(uri, "application/pdf")
-                    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    Log.e("PDF", "Error opening PDF", e)
-                }
-            }.onFailure { e ->
-                Log.e("API", "Error fetching PDF", e)
-            }
-        }
-    }
-
-    fun exportPdf(reportId: String, context: Context) {
-        viewModelScope.launch {
-            val result = apiService.getReportFile(reportId)
-            result.onSuccess { pdfData ->
-                try {
-                    val downloadsDir =
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    val file = File(downloadsDir, "Report_$reportId.pdf")
-                    file.writeBytes(pdfData)
-
-                    // Show success message
-                    Toast.makeText(context, "PDF saved to Downloads", Toast.LENGTH_SHORT).show()
-
-                    // Optional: Open Share Intent
-                    sharePdf(file, context)
-                } catch (e: Exception) {
-                    Log.e("ExportPDF", "Error saving PDF", e)
-                }
-            }.onFailure { e ->
-                Log.e("ExportPDF", "Error fetching PDF", e)
-            }
-        }
-    }
-
-    private fun sharePdf(file: File, context: Context) {
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/pdf"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        }
-
-        context.startActivity(Intent.createChooser(shareIntent, "Share PDF via"))
-    }
 
     fun getTodaysAppointments(docId: String) {
         viewModelScope.launch {
             try {
                 val result = apiService.getTodaysAppointments(docId)
                 result.onSuccess { data ->
-                    _todaysAppointments.value = data.sortedBy { it.queueIndex } // Sorting by queueIndex
+                    _todaysAppointments.value =
+                        data.sortedBy { it.queueIndex } // Sorting by queueIndex
                 }.onFailure { e ->
                     Log.e("Appointments", "Error fetching today's appointments", e)
                 }
@@ -503,10 +441,14 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
                 val result = apiService.getPastAppointments(doctorId)
                 result.onSuccess { data ->
                     val formatterInput = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Input format
-                    val formatterOutput = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Desired output format
+                    val formatterOutput =
+                        DateTimeFormatter.ofPattern("dd/MM/yyyy") // Desired output format
 
                     _pastAppointments.value = data.map { appointment ->
-                        appointment.copy(date = LocalDate.parse(appointment.date, formatterInput).format(formatterOutput))
+                        appointment.copy(
+                            date = LocalDate.parse(appointment.date, formatterInput)
+                                .format(formatterOutput)
+                        )
                     }
                         .sortedBy { it.queueIndex } // Sort inside each date group by queueIndex
                         .sortedByDescending { it.date } // Sort by date in descending order
@@ -526,11 +468,16 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
             try {
                 val result = apiService.getFutureAppointments(doctorId)
                 result.onSuccess { data ->
-                    val formatterInput = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Assuming input format
-                    val formatterOutput = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Desired format
+                    val formatterInput =
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd") // Assuming input format
+                    val formatterOutput =
+                        DateTimeFormatter.ofPattern("dd/MM/yyyy") // Desired format
 
                     _futureAppointments.value = data.map { appointment ->
-                        appointment.copy(date = LocalDate.parse(appointment.date, formatterInput).format(formatterOutput))
+                        appointment.copy(
+                            date = LocalDate.parse(appointment.date, formatterInput)
+                                .format(formatterOutput)
+                        )
                     }.sortedBy { it.date }.sortedBy { it.queueIndex }
                 }.onFailure { e ->
                     Log.e("Appointments", "Error fetching future appointments", e)
@@ -569,7 +516,6 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
     }
 
 
-
     fun doctorMedication(doctorId: String, userId: String) {
         viewModelScope.launch {
             try {
@@ -596,5 +542,113 @@ class AuthViewModel(private val apiService: ApiService, sharedPreferencesManager
                 _isRemovingMedication.value = false
             }
         }
+    }
+
+    fun getReports(id: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getReports(id)
+                result.onSuccess { data ->
+                    _reports.value = data  // Store the fetched data in StateFlow
+                }.onFailure { e ->
+                    Log.e("Reports", "Error fetching medications", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Reports", "Unexpected error", e)
+            }
+        }
+    }
+
+    fun getRecords(id: String) {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getRecords(id)
+                result.onSuccess { data ->
+                    _records.value = data  // Store the fetched data in StateFlow
+                }.onFailure { e ->
+                    Log.e("Records", "Error fetching medications", e)
+                }
+            } catch (e: Exception) {
+                Log.e("Records", "Unexpected error", e)
+            }
+        }
+    }
+
+    fun downloadAndOpenPdf(recordId: String? = null, reportId: String? = null, context: Context) {
+        viewModelScope.launch {
+            try {
+                val result = when {
+                    reportId != null -> apiService.getReportFile(reportId)
+                    recordId != null -> apiService.getRecordFile(recordId)
+                    else -> return@launch // Exit if both are null
+                }
+
+                result.onSuccess { pdfData ->
+                    val file = File(context.getExternalFilesDir(null), "report.pdf")
+                    file.writeBytes(pdfData)
+
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider",
+                        file
+                    )
+
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/pdf")
+                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    }
+
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        Toast.makeText(context, "No PDF viewer found!", Toast.LENGTH_LONG).show()
+                    }
+                }.onFailure { e ->
+                    Log.e("API", "Error fetching PDF", e)
+                }
+            } catch (e: Exception) {
+                Log.e("PDF", "Unexpected error", e)
+            }
+        }
+    }
+
+    fun exportPdf(reportId: String? = null, recordId: String? = null, context: Context) {
+        viewModelScope.launch {
+            val result = when {
+                reportId != null -> apiService.getReportFile(reportId)
+                recordId != null -> apiService.getRecordFile(recordId)
+                else -> return@launch // Exit if both are null
+            }
+            result.onSuccess { pdfData ->
+                try {
+                    val downloadsDir =
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    val file = File(downloadsDir, "Report_$reportId.pdf")
+                    file.writeBytes(pdfData)
+
+                    // Show success message
+                    Toast.makeText(context, "PDF saved to Downloads", Toast.LENGTH_SHORT).show()
+
+                    // Optional: Open Share Intent
+                    sharePdf(file, context)
+                } catch (e: Exception) {
+                    Log.e("ExportPDF", "Error saving PDF", e)
+                }
+            }.onFailure { e ->
+                Log.e("ExportPDF", "Error fetching PDF", e)
+            }
+        }
+    }
+
+    private fun sharePdf(file: File, context: Context) {
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        context.startActivity(Intent.createChooser(shareIntent, "Share PDF via"))
     }
 }

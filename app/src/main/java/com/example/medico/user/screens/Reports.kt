@@ -33,7 +33,7 @@ import com.example.medico.common.viewModel.AuthViewModel
 fun HealthReports(
     navController: NavHostController,
     sharedPreferencesManager: SharedPreferencesManager,
-    vm: AuthViewModel
+    vm: AuthViewModel,
 ) {
     Scaffold(
         bottomBar = {
@@ -82,8 +82,13 @@ fun HealthReportsList(sharedPreferencesManager: SharedPreferencesManager, vm: Au
                     ReportCard(
                         report = report,
                         showExportButton = true,
-                        onExportClick = { vm.exportPdf(report.id, context) },
-                        onViewFullReportClick = { vm.downloadAndOpenPdf(report.id,context) }
+                        onExportClick = { vm.exportPdf(recordId = report.id, context = context) },
+                        onViewFullReportClick = {
+                            vm.downloadAndOpenPdf(
+                                reportId = report.id,
+                                context = context
+                            )
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
