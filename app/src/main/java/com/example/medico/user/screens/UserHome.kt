@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.medico.R
-import com.example.medico.common.model.Medicines
 import com.example.medico.common.navigation.Routes
 import com.example.medico.common.navigation.UserBottomNavBar
 import com.example.medico.common.sharedPreferences.SharedPreferencesManager
@@ -52,15 +51,6 @@ import com.example.medico.common.utils.NotAvailable
 import com.example.medico.common.viewModel.AuthViewModel
 import com.example.medico.user.responses.AppointmentsResponse
 import com.example.medico.user.responses.MedicationResponse
-
-
-val medicines = listOf(
-    Medicines("Zyocid 500", "At 6:00 AM"),
-    Medicines("Ibuprofen 400", "At 12:00 PM"),
-    Medicines("Amoxicillin 500", "At 3:00 PM"),
-    Medicines("Aspirin 75", "At 6:00 PM"),
-    Medicines("Cetirizine 10", "At 11:00 PM")
-)
 
 @Composable
 fun UserHomePage(

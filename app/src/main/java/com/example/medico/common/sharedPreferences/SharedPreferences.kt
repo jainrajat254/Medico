@@ -44,6 +44,7 @@ class SharedPreferencesManager(context: Context) {
         private const val PREFS_POLICY_NUMBER = "policyNumber"
         private const val PREFS_GROUP_NUMBER = "groupNumber"
         private const val PREFS_COVERAGE_DETAILS = "coverageDetails"
+        private const val PREFS_ROLE = "user_role"
 
 
         private const val DOC_PREFS_ID = "id"
@@ -68,7 +69,6 @@ class SharedPreferencesManager(context: Context) {
         private const val DOC_PREFS_WORKSPACE_NAME = "workspaceName"
         private const val DOC_PREFS_ZIP_CODE = "zipCode"
         private const val DOC_PREFS_PASSWORD = "password"
-
     }
 
     private val sharedPreferences: SharedPreferences =
@@ -148,6 +148,8 @@ class SharedPreferencesManager(context: Context) {
             putString(JWT_TOKEN_KEY, userResponse.token)
             putString(PREFS_ID, userResponse.id)
             putString(PREFS_PASSWORD, userResponse.password)
+            putString(PREFS_ROLE, userResponse.role)
+
             apply()
         }
     }
@@ -163,8 +165,9 @@ class SharedPreferencesManager(context: Context) {
         val token = sharedPreferences.getString(JWT_TOKEN_KEY, null)
         val id = sharedPreferences.getString(PREFS_ID, null)
         val password = sharedPreferences.getString(PREFS_PASSWORD, null)
+        val role = sharedPreferences.getString(PREFS_ROLE, null)
 
-        return if (userFirstName != null && userLastName != null && age != null && gender != null && bloodGroup != null && phone != null && email != null && token != null && id != null && password != null) {
+        return if (userFirstName != null && userLastName != null && age != null && gender != null && bloodGroup != null && phone != null && email != null && token != null && id != null && password != null && role != null) {
             UserLoginResponse(
                 token,
                 id,
@@ -175,7 +178,8 @@ class SharedPreferencesManager(context: Context) {
                 bloodGroup,
                 phone,
                 email,
-                password
+                password,
+                role
             )
         } else {
             null
@@ -219,6 +223,13 @@ class SharedPreferencesManager(context: Context) {
     fun saveUserPassword(password: String) {
         sharedPreferences.edit().apply {
             putString(PREFS_PASSWORD, password)
+            apply()
+        }
+    }
+
+    fun saveDocPassword(password: String) {
+        sharedPreferences.edit().apply {
+            putString(DOC_PREFS_PASSWORD, password)
             apply()
         }
     }
@@ -358,6 +369,10 @@ class SharedPreferencesManager(context: Context) {
 
     fun getUserId(): String {
         return sharedPreferences.getString(PREFS_ID, null).toString()
+    }
+
+    fun getUserRole(): String {
+        return sharedPreferences.getString(PREFS_ROLE, null).toString()
     }
 
     fun getDocId(): String {

@@ -32,7 +32,7 @@ import com.example.medico.user.dto.MedicationsDTO
 import com.example.medico.user.screens.AddressDetails
 import com.example.medico.user.screens.AppThemeScreen
 import com.example.medico.user.screens.BookAppointment
-import com.example.medico.user.screens.ChangePassword
+import com.example.medico.common.screens.ChangePassword
 import com.example.medico.user.screens.CurrentMedications
 import com.example.medico.user.screens.DoctorAppointmentScreen
 import com.example.medico.user.screens.DoctorOverview

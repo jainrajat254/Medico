@@ -38,6 +38,7 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -47,7 +48,7 @@ import kotlinx.serialization.Serializable
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val url = "https://c67c-2409-40d2-12b4-91c8-6cc3-d7d-5683-68aa.ngrok-free.app"
+    private val url = "https://2bc2-2409-40d2-10bd-a157-a12b-2090-73ae-1094.ngrok-free.app"
 
     override suspend fun login(user: LoginCredentials): Result<UserLoginResponse> {
         return try {
@@ -132,14 +133,20 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
         }
     }
 
-    override suspend fun editPassword(data: EditPassword, id: String): Result<UserDetails> {
+    override suspend fun editPassword(data: EditPassword, id: String): Result<String> {
         return try {
-            val response: UserDetails = client.put("$url/u/editPassword/$id") {
+            val response: HttpResponse = client.put("$url/editPassword/$id") {
                 contentType(ContentType.Application.Json)
                 setBody(data)
-            }.body()
-            Log.d("data", "$data  $id")
-            Result.success(response)
+            }
+
+            if (response.status == HttpStatusCode.OK) {
+                val message = response.body<String>()  // Expecting plain string response
+                Result.success(message)
+            } else {
+                val error = response.body<String>()  // Expecting plain string for errors too
+                Result.failure(Exception(error))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

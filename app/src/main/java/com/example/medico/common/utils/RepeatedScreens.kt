@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -576,13 +577,16 @@ fun BackgroundContent(
     showTagline: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    val isDarkMode: Boolean = isSystemInDarkTheme()
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.background_app),
+            painter = painterResource(
+                id = if (isDarkMode) R.drawable.dark else R.drawable.background_app
+            ),
             contentDescription = "App Background", // Accessibility improvement
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -613,6 +617,7 @@ fun BackgroundContentHome(
     name: String,
     content: @Composable () -> Unit,
 ) {
+    val isDarkMode: Boolean = isSystemInDarkTheme()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -620,8 +625,9 @@ fun BackgroundContentHome(
     ) {
         // Background Image
         Image(
-            painter = painterResource(id = R.drawable.background_app),
-            contentDescription = null,
+            painter = painterResource(
+                id = if (isDarkMode) R.drawable.dark else R.drawable.background_app
+            ),            contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )

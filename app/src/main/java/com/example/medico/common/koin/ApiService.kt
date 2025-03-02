@@ -37,7 +37,7 @@ interface ApiService {
         id: String,
     ): Result<DoctorLoginResponse>
 
-    suspend fun editPassword(data: EditPassword, id: String): Result<UserDetails>
+    suspend fun editPassword(data: EditPassword, id: String): Result<String>
     suspend fun editDocAddressDetails(
         data: EditDocAddressDetails,
         id: String,

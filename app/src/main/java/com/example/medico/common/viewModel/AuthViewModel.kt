@@ -183,20 +183,20 @@ class AuthViewModel(
     fun editPassword(
         data: EditPassword,
         userId: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                val response: Result<UserDetails> = apiService.editPassword(data, userId)
-                response.onSuccess {
-                    onSuccess()
-                }.onFailure {
-                    onError("Error during edit: ${it.message}")
+                val response: Result<String> = apiService.editPassword(data, userId)
+                response.onSuccess { message ->
+                    onSuccess(message)  // Send success message back to UI
+                }.onFailure { exception ->
+                    onError(exception.message ?: "Error occurred during password update")
                 }
-                Log.d("data", "$data  $userId")
+                Log.d("editPassword", "$data  $userId")
             } catch (e: Exception) {
-                onError("Error during edit: ${e.message}")
+                onError("Unexpected error: ${e.message}")
             }
         }
     }

@@ -88,7 +88,7 @@ fun DocPersonalDetails(
                         keyboardType = KeyboardType.Number
                     )
                     UserInfoField(
-                        label = "DOB (DD/MM/YYYY)",
+                        label = "DOB (YYYY/MM/DD)",
                         value = dob,
                         isEditing = isEditing,
                         onValueChange = doctorDetails::updateDOB

@@ -145,26 +145,27 @@ class DoctorDetails(private val sharedPreferencesManager: SharedPreferencesManag
         if (uri != _selectedImageUri.value) _selectedImageUri.value = uri
     }
 
-    val dobRegex = Regex("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$")
-
     fun isPersonalDetailsFormValid(): String? {
         return when {
+            // Validate DOB format (YYYY-MM-DD)
+            dob.value.isBlank() || !Regex("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$")
+                .matches(dob.value) ->
+                "Invalid date format. Use YYYY-MM-DD"
 
+            // Validate Aadhar number (exactly 12 digits)
+            uid.value.length != 12 || !uid.value.all { it.isDigit() } ->
+                "Enter a valid Aadhar Number (12 digits)"
 
-            dob.value.isBlank() || !dobRegex.matches(dob.value) ->
-                "Invalid date format. Use DD/MM/YYYY"
-
-            uid.value.toIntOrNull() == null || uid.value.toInt() != 12 ->
-                "Enter a valid Aadhar Number"
-
+            // Validate phone number (exactly 10 digits)
             phone.value.length != 10 || !phone.value.all { it.isDigit() } ->
                 "Phone Number must be 10 digits"
 
-            email.value.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.value)
-                .matches() ->
+            // Validate email format
+            email.value.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.value).matches() ->
                 "Invalid Email Address"
 
             else -> null
         }
     }
+
 }
