@@ -67,8 +67,8 @@ interface ApiService {
 
     suspend fun editPassword(data: EditPassword, id: String): String
     suspend fun editDocAddressDetails(
-        data: EditDocAddressDetails,
         id: String,
+        data: EditDocAddressDetails,
     ): DoctorLoginResponse
 
     suspend fun editDocMedicalDetails(

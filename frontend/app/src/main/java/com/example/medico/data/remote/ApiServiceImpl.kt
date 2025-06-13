@@ -46,7 +46,7 @@ import kotlinx.serialization.Serializable
 
 class ApiServiceImpl(private val client: HttpClient) : ApiService {
 
-    private val BASE_URL = "https://f2bc-2409-40d2-16-a35a-d1dd-5355-ec05-2853.ngrok-free.app"
+    private val BASE_URL = " https://b773-2409-40d2-1027-f3fe-1c47-4c-6f76-90aa.ngrok-free.app"
 
     override suspend fun login(loginRequest: LoginCredentials): UserLoginResponse {
         return client.post("$BASE_URL/login") {
@@ -110,8 +110,8 @@ class ApiServiceImpl(private val client: HttpClient) : ApiService {
     }
 
     override suspend fun editDocAddressDetails(
-        data: EditDocAddressDetails,
         id: String,
+        data: EditDocAddressDetails,
     ): DoctorLoginResponse {
         return client.put("$BASE_URL/doctor/editDocAddressDetails/$id") {
             contentType(ContentType.Application.Json)

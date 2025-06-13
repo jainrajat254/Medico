@@ -27,6 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -42,14 +45,15 @@ import com.example.medico.presentation.ui.navigation.UserBottomNavBar
 import com.example.medico.presentation.ui.screens.BackgroundContent
 import com.example.medico.presentation.ui.screens.NotAvailable
 import com.example.medico.presentation.ui.screens.common.CustomLoader
+import com.example.medico.presentation.viewmodel.RecordsViewModel
 import com.example.medico.utils.ResultState
 import com.example.medico.utils.SharedPreferencesManager
 
 @Composable
 fun Records(
     navController: NavController,
+    recordsViewModel: RecordsViewModel,
     sharedPreferencesManager: SharedPreferencesManager,
-    recordsViewModel: com.example.medico.presentation.viewmodel.RecordsViewModel,
 ) {
     Scaffold(
         bottomBar = { UserBottomNavBar(modifier = Modifier, navController = navController) }
@@ -65,8 +69,8 @@ fun Records(
                     .padding(bottom = 16.dp)
             )
             RecordsList(
-                sharedPreferencesManager = sharedPreferencesManager,
-                recordsViewModel = recordsViewModel
+                recordsViewModel = recordsViewModel,
+                userId = sharedPreferencesManager.getUserProfile()?.id ?: ""
             )
         }
     }
@@ -74,17 +78,18 @@ fun Records(
 
 @Composable
 fun RecordsList(
-    sharedPreferencesManager: SharedPreferencesManager,
-    recordsViewModel: com.example.medico.presentation.viewmodel.RecordsViewModel,
+    recordsViewModel: RecordsViewModel,
+    userId: String,
 ) {
-    val userId = sharedPreferencesManager.getUserProfile()?.id ?: ""
     val getRecordsState by recordsViewModel.getRecordsState.collectAsState()
-
     val context = LocalContext.current
 
-    LaunchedEffect(userId) {
-        if (userId.isNotBlank()) {
-            recordsViewModel.getRecords(userId)
+    var hasLoadedOnce by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!hasLoadedOnce) {
+            recordsViewModel.loadReportsForCurrentUser(userId = userId)
+            hasLoadedOnce = true
         }
     }
 

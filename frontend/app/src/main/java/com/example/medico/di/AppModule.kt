@@ -14,6 +14,12 @@ import com.example.medico.domain.repository.RecordsRepository
 import com.example.medico.domain.repository.ReportsRepository
 import com.example.medico.domain.repository.SettingsRepository
 import com.example.medico.domain.service.ApiService
+import com.example.medico.presentation.viewmodel.AppointmentsViewModel
+import com.example.medico.presentation.viewmodel.AuthViewModel
+import com.example.medico.presentation.viewmodel.MedicationsViewModel
+import com.example.medico.presentation.viewmodel.RecordsViewModel
+import com.example.medico.presentation.viewmodel.ReportsViewModel
+import com.example.medico.presentation.viewmodel.SettingsViewModel
 import com.example.medico.utils.SharedPreferencesManager
 import org.koin.core.module.dsl.*
 import org.koin.dsl.module
@@ -21,8 +27,9 @@ import org.koin.dsl.module
 val appModule = module {
 
     single<ApiService> { ApiServiceImpl(get()) }
-
     single { SharedPreferencesManager(get()) }
+
+    single { get<SharedPreferencesManager>().getUserProfile()?.id.orEmpty() }
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<AppointmentsRepository> { AppointmentsRepositoryImpl(get()) }
@@ -31,14 +38,13 @@ val appModule = module {
     single<ReportsRepository> { ReportsRepositoryImpl(get()) }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
 
-    viewModel { com.example.medico.presentation.viewmodel.AuthViewModel(get()) }
-    viewModel { com.example.medico.presentation.viewmodel.AppointmentsViewModel(get()) }
-    viewModel { com.example.medico.presentation.viewmodel.MedicationsViewModel(get()) }
-    viewModel { com.example.medico.presentation.viewmodel.RecordsViewModel(get()) }
-    viewModel { com.example.medico.presentation.viewmodel.ReportsViewModel(get()) }
-    viewModel { com.example.medico.presentation.viewmodel.SettingsViewModel(get()) }
+    viewModel { AuthViewModel(get()) }
 
-
-
+    viewModel { AppointmentsViewModel(get()) }
+    viewModel { MedicationsViewModel(get()) }
+    viewModel { RecordsViewModel(get()) }
+    viewModel { ReportsViewModel(get()) }
+    viewModel { SettingsViewModel(get()) }
 }
+
 

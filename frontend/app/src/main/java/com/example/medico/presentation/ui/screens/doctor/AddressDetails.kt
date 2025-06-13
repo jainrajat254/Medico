@@ -148,7 +148,7 @@ fun DocAddressDetails(
                                 district,
                                 zipCode
                             )
-                            settingsViewModel.editDocAddressDetails(data, docId)
+                            settingsViewModel.editDocAddressDetails(data, id = docId)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors()

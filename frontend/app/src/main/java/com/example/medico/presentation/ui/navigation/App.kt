@@ -35,7 +35,6 @@ import com.example.medico.presentation.ui.screens.user.AddressDetails
 import com.example.medico.presentation.ui.screens.user.BookAppointment
 import com.example.medico.presentation.ui.screens.user.CurrentMedications
 import com.example.medico.presentation.ui.screens.user.FamilyDetails
-import com.example.medico.presentation.ui.screens.user.HealthReports
 import com.example.medico.presentation.ui.screens.user.InsuranceDetails
 import com.example.medico.presentation.ui.screens.user.LoginPage
 import com.example.medico.presentation.ui.screens.user.Records
@@ -43,6 +42,7 @@ import com.example.medico.presentation.ui.screens.user.UserRegister
 import com.example.medico.presentation.ui.screens.user.UserSettingsPage
 import com.example.medico.presentation.ui.screens.user.DoctorAppointmentScreen
 import com.example.medico.presentation.ui.screens.user.DoctorOverview
+import com.example.medico.presentation.ui.screens.user.HealthReports
 import com.example.medico.presentation.ui.screens.user.MedicationPage
 import com.example.medico.presentation.ui.screens.user.UserHomePage
 import com.example.medico.presentation.ui.screens.user.UserPersonalDetails
@@ -66,7 +66,8 @@ fun App() {
     val medicationsViewModel: MedicationsViewModel = koinViewModel()
     val recordsViewModel: com.example.medico.presentation.viewmodel.RecordsViewModel =
         koinViewModel()
-    val reportsViewModel: ReportsViewModel = koinViewModel()
+    val reportsViewModel: ReportsViewModel =
+        koinViewModel()
     val settingsViewModel: SettingsViewModel = koinViewModel()
 
     NavHost(navController = navController, startDestination = Routes.Welcome.routes) {
@@ -94,8 +95,8 @@ fun App() {
         }
         composable(Routes.Medications.routes) {
             MedicationPage(
-                navController = navController,
                 sharedPreferencesManager = sharedPreferencesManager,
+                navController = navController,
                 medicationsViewModel = medicationsViewModel
             )
         }
@@ -115,15 +116,14 @@ fun App() {
         }
         composable(Routes.CurrentMed.routes) {
             CurrentMedications(
-                sharedPreferencesManager = sharedPreferencesManager,
                 medicationsViewModel = medicationsViewModel
             )
         }
         composable(Routes.Reports.routes) {
             HealthReports(
                 navController = navController,
-                sharedPreferencesManager = sharedPreferencesManager,
-                reportsViewModel = reportsViewModel
+                reportsViewModel = reportsViewModel,
+                sharedPreferencesManager = sharedPreferencesManager
             )
         }
         composable(Routes.UserAppointments.routes) {
@@ -200,6 +200,7 @@ fun App() {
                 val decodedJson =
                     String(Base64.decode(userJsonEncoded, Base64.URL_SAFE or Base64.NO_WRAP))
                 val userDetails = Json.decodeFromString<AppointmentDTO>(decodedJson)
+                val reportsViewModel: ReportsViewModel = koinViewModel()
                 AddReportScreen(
                     navController = navController,
                     sharedPreferencesManager = sharedPreferencesManager,
@@ -240,6 +241,7 @@ fun App() {
                 val decodedJson =
                     String(Base64.decode(userJsonEncoded, Base64.URL_SAFE or Base64.NO_WRAP))
                 val userDetails = Json.decodeFromString<AppointmentDTO>(decodedJson)
+                val reportsViewModel: ReportsViewModel = koinViewModel()
                 CurrentPatientInfo(
                     userDetails = userDetails,
                     index = index,

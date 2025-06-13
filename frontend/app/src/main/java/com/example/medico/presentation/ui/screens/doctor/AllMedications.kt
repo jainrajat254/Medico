@@ -10,6 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -30,16 +33,19 @@ fun AllMedications(
     val oldMedicationsState by medicationsViewModel.oldMedicationsState.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(userId) {
-        medicationsViewModel.getMedications(userId)
-        medicationsViewModel.oldMedications(userId)
-    }
+    var hasLoadedOnce by rememberSaveable { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        if (!hasLoadedOnce) {
+            medicationsViewModel.loadAllMedicationsForCurrentUser(userId = userId)
+            hasLoadedOnce = true
+        }
+    }
     Scaffold { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
             when {
                 getMedicationsState is ResultState.Loading || oldMedicationsState is ResultState.Loading -> {
-                    CustomLoader() // Replace with your custom loader
+                    CustomLoader()
                 }
 
                 getMedicationsState is ResultState.Error || oldMedicationsState is ResultState.Error -> {

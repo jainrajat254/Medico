@@ -13,9 +13,11 @@ import com.example.medico.domain.model.Reports
 import com.example.medico.domain.model.ReportsResponse
 import com.example.medico.domain.repository.ReportsRepository
 import com.example.medico.utils.ResultState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class ReportsViewModel(
@@ -29,16 +31,29 @@ class ReportsViewModel(
         MutableStateFlow<ResultState<List<ReportsResponse>>>(ResultState.Idle)
     val getReportsState: StateFlow<ResultState<List<ReportsResponse>>> = _getReportsState
 
+    fun loadReportsForCurrentUser(userId: String) {
+        if (_getReportsState.value is ResultState.Success) return
+        if (userId.isNotBlank()) {
+            getReports(userId)
+            Log.d("ReportsViewModel", "loadReportsForCurrentUser: fetching reports for user $userId")
+        } else {
+            Log.d("ReportsViewModel", "loadReportsForCurrentUser: userId is blank, skipping fetch")
+        }
+    }
+
     private fun <T> launchWithResult(
         state: MutableStateFlow<ResultState<T>>,
         block: suspend () -> T,
     ) {
         viewModelScope.launch {
             state.value = ResultState.Loading
-            state.value = try {
-                ResultState.Success(block())
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    block()
+                }
+                state.value = ResultState.Success(result)
             } catch (e: Exception) {
-                ResultState.Error(e)
+                state.value = ResultState.Error(e)
             }
         }
     }

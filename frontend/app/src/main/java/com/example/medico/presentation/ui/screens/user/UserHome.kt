@@ -30,6 +30,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -53,6 +57,7 @@ import com.example.medico.presentation.viewmodel.AppointmentsViewModel
 import com.example.medico.presentation.viewmodel.MedicationsViewModel
 import com.example.medico.utils.ResultState
 import com.example.medico.utils.SharedPreferencesManager
+
 
 @Composable
 fun UserHomePage(
@@ -94,7 +99,7 @@ fun UserHomePage(
 
                 item {
                     CurrentMedicationList(
-                        sharedPreferencesManager = sharedPreferencesManager,
+                        userId = user?.id ?: "",
                         medicationsViewModel = medicationsViewModel,
                         navController
                     )
@@ -109,7 +114,7 @@ fun UserHomePage(
                 }
 
                 item {
-                    AppointmentsList(sharedPreferencesManager, appointmentsViewModel)
+                    AppointmentsList(appointmentsViewModel, user?.id ?: "")
                 }
 
                 item {
@@ -122,15 +127,19 @@ fun UserHomePage(
 
 @Composable
 fun CurrentMedicationList(
-    sharedPreferencesManager: SharedPreferencesManager,
+    userId: String,
     medicationsViewModel: MedicationsViewModel,
     navController: NavController,
 ) {
-    val id = sharedPreferencesManager.getUserProfile()?.id ?: ""
     val medicationsState by medicationsViewModel.getMedicationsState.collectAsState()
 
-    LaunchedEffect(id) {
-        medicationsViewModel.getMedications(id)
+    var hasLoadedOnce by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!hasLoadedOnce) {
+            medicationsViewModel.loadCurrentMedicationsForCurrentUser(userId = userId)
+            hasLoadedOnce = true
+        }
     }
 
     when (medicationsState) {
@@ -231,14 +240,17 @@ fun MedicationItem(medication: MedicationResponse, navController: NavController)
 
 @Composable
 fun AppointmentsList(
-    sharedPreferencesManager: SharedPreferencesManager,
     appointmentsViewModel: AppointmentsViewModel,
+    id: String,
 ) {
-    val id = sharedPreferencesManager.getUserProfile()?.id ?: ""
     val appointmentState by appointmentsViewModel.getAppointmentState.collectAsState()
+    var hasLoadedOnce by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(id) {
-        appointmentsViewModel.getAppointments(id)
+    LaunchedEffect(Unit) {
+        if (!hasLoadedOnce) {
+            appointmentsViewModel.loadAppointmentsForCurrentUser(userId = id)
+            hasLoadedOnce = true
+        }
     }
 
     Column(

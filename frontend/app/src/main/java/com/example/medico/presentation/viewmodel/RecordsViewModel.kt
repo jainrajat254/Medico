@@ -13,9 +13,11 @@ import com.example.medico.domain.model.Records
 import com.example.medico.domain.model.RecordsResponse
 import com.example.medico.domain.repository.RecordsRepository
 import com.example.medico.utils.ResultState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class RecordsViewModel(
@@ -29,8 +31,16 @@ class RecordsViewModel(
         MutableStateFlow<ResultState<List<RecordsResponse>>>(ResultState.Idle)
     val getRecordsState: StateFlow<ResultState<List<RecordsResponse>>> = _getRecordsState
 
-    private val _getRecordFileState = MutableStateFlow<ResultState<ByteArray>>(ResultState.Idle)
-    val getRecordFileState: StateFlow<ResultState<ByteArray>> = _getRecordFileState
+    fun loadReportsForCurrentUser(userId: String) {
+        if (_getRecordsState.value is ResultState.Success) return
+        if (userId.isNotBlank()) {
+            getRecords(userId)
+            Log.d("RecordsViewModel", "loadRecordsForCurrentUser: fetching records for user $userId")
+        } else {
+            Log.d("RecordsViewModel", "loadRecordsForCurrentUser: userId is blank, skipping fetch")
+        }
+    }
+
 
     private fun <T> launchWithResult(
         state: MutableStateFlow<ResultState<T>>,
@@ -38,10 +48,13 @@ class RecordsViewModel(
     ) {
         viewModelScope.launch {
             state.value = ResultState.Loading
-            state.value = try {
-                ResultState.Success(block())
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    block()
+                }
+                state.value = ResultState.Success(result)
             } catch (e: Exception) {
-                ResultState.Error(e)
+                state.value = ResultState.Error(e)
             }
         }
     }

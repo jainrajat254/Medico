@@ -34,7 +34,7 @@ public class SecurityConfig {
                         .csrf(customizer ->
                                 customizer.disable())
                         .authorizeHttpRequests(request ->
-                                request.requestMatchers("/**")//("login", "register","users/language/{selectedLanguage}","usernames","/user/stats/{username}")
+                                request.requestMatchers("login", "doctor/register","u/register")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())

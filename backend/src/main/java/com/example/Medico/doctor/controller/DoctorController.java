@@ -29,17 +29,17 @@ public class DoctorController {
         return doctorService.register(doctorDetails);
     }
 
-    @PutMapping("editDocPersonalDetails/{id}")
+    @PutMapping("/editDocPersonalDetails/{id}")
     public DoctorDetails editDocPersonalDetails(@RequestBody @Valid EditDocPersonalDetails userDTO, @PathVariable UUID id) {
         return doctorService.editDocPersonalDetails(userDTO, id);
     }
 
-    @PutMapping("editDocAddressDetails/{id}")
+    @PutMapping("/editDocAddressDetails/{id}")
     public DoctorDetails editDocAddressDetails(@RequestBody @Valid EditDocAddressDetails docDTO, @PathVariable UUID id) {
         return doctorService.editDocAddressDetails(docDTO, id);
     }
 
-    @PutMapping("editDocMedicalDetails/{id}")
+    @PutMapping("/editDocMedicalDetails/{id}")
     public DoctorDetails editDocMedicalDetails(@RequestBody @Valid EditDocMedicalDetails docDTO, @PathVariable UUID id) {
         return doctorService.editDocMedicalDetails(docDTO, id);
     }

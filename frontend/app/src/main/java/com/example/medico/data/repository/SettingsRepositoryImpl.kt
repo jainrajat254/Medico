@@ -39,7 +39,7 @@ class SettingsRepositoryImpl(private val apiService: ApiService) : SettingsRepos
         data: EditDocAddressDetails,
         id: String,
     ): DoctorLoginResponse {
-        return apiService.editDocAddressDetails(data, id)
+        return apiService.editDocAddressDetails(data = data, id = id)
     }
 
     override suspend fun editDocMedicalDetails(

@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -69,9 +72,12 @@ fun HealthReportsList(
     val getReportsState by reportsViewModel.getReportsState.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(userId) {
-        if (userId.isNotBlank()) {
-            reportsViewModel.getReports(userId)
+    var hasLoadedOnce by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!hasLoadedOnce) {
+            reportsViewModel.loadReportsForCurrentUser(userId = userId)
+            hasLoadedOnce = true
         }
     }
 

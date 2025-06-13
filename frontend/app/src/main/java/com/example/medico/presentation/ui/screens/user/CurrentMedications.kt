@@ -31,15 +31,13 @@ import com.example.medico.utils.SharedPreferencesManager
 
 @Composable
 fun CurrentMedications(
-    sharedPreferencesManager: SharedPreferencesManager,
     medicationsViewModel: MedicationsViewModel,
 ) {
 
     Scaffold { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 Text(
                     text = "Current Medications",
@@ -50,7 +48,7 @@ fun CurrentMedications(
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
                 )
-                CurrentMedicationList(sharedPreferencesManager, medicationsViewModel)
+                CurrentMedicationList(medicationsViewModel)
             }
         }
     }
@@ -58,22 +56,12 @@ fun CurrentMedications(
 
 @Composable
 fun CurrentMedicationList(
-    sharedPreferencesManager: SharedPreferencesManager,
     medicationsViewModel: MedicationsViewModel,
 ) {
-    val userId = sharedPreferencesManager.getUserProfile()?.id.orEmpty()
     val medicationsState by medicationsViewModel.getMedicationsState.collectAsState()
 
-    // Trigger API call
-    LaunchedEffect(userId) {
-        if (userId.isNotBlank()) {
-            medicationsViewModel.getMedications(userId)
-        }
-    }
-
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top
+        modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top
     ) {
         when (medicationsState) {
             is ResultState.Loading -> {

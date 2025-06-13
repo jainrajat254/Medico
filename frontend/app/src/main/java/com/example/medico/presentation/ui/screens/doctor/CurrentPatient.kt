@@ -79,7 +79,6 @@ fun CurrentPatientInfo(
     val reportsState by reportsViewModel.getReportsState.collectAsState()
     val isRemovingMedication by medicationsViewModel.removeMedicationState.collectAsState()
 
-    // Initial data fetch
     LaunchedEffect(Unit) {
         medicationsViewModel.doctorMedication(docId, userDetails.userId)
         recordsViewModel.getRecords(userDetails.userId)

@@ -1,5 +1,6 @@
 package com.example.medico.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medico.domain.model.MedicationResponse
@@ -8,9 +9,11 @@ import com.example.medico.domain.model.MedicationsDTO
 import com.example.medico.domain.model.OldMedicationsDTO
 import com.example.medico.domain.repository.MedicationsRepository
 import com.example.medico.utils.ResultState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MedicationsViewModel(
     private val medicationsRepository: MedicationsRepository,
@@ -39,16 +42,39 @@ class MedicationsViewModel(
         MutableStateFlow<ResultState<List<OldMedicationsDTO>>>(ResultState.Idle)
     val oldMedicationsState: StateFlow<ResultState<List<OldMedicationsDTO>>> = _oldMedicationsState
 
+    fun loadAllMedicationsForCurrentUser(userId: String) {
+        if (_oldMedicationsState.value is ResultState.Success && _getMedicationsState.value is ResultState.Success) return
+        oldMedications(userId)
+        Log.d("OLD MEDICATIONS", "CALLING OLD MEDICATIONS")
+        getMedications(userId)
+        Log.d("CURRENT MEDICATIONS", "CALLING CURRENT MEDICATIONS ")
+    }
+
+    fun loadCurrentMedicationsForCurrentUser(userId: String) {
+        if (_getMedicationsState.value is ResultState.Success) return
+        getMedications(userId)
+        Log.d("CURRENT MEDICATIONS", "CALLING CURRENT MEDICATIONS ")
+    }
+
+    fun loadOldMedicationsForCurrentUser(userId: String) {
+        if (_oldMedicationsState.value is ResultState.Success) return
+        oldMedications(userId)
+        Log.d("OLD MEDICATIONS", "CALLING OLD MEDICATIONS ")
+    }
+
     private fun <T> launchWithResult(
         state: MutableStateFlow<ResultState<T>>,
         block: suspend () -> T,
     ) {
         viewModelScope.launch {
             state.value = ResultState.Loading
-            state.value = try {
-                ResultState.Success(block())
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    block()
+                }
+                state.value = ResultState.Success(result)
             } catch (e: Exception) {
-                ResultState.Error(e)
+                state.value = ResultState.Error(e)
             }
         }
     }

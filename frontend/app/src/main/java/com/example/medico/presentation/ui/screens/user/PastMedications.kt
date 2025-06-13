@@ -15,6 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -34,16 +37,18 @@ import com.example.medico.utils.SharedPreferencesManager
 @Composable
 fun MedicationPage(
     navController: NavHostController,
-    sharedPreferencesManager: SharedPreferencesManager,
     medicationsViewModel: MedicationsViewModel,
+    sharedPreferencesManager: SharedPreferencesManager,
 ) {
-    Scaffold(
-        bottomBar = { UserBottomNavBar(navController = navController, modifier = Modifier) }
-    ) { paddingValues ->
+    Scaffold(bottomBar = {
+        UserBottomNavBar(
+            navController = navController,
+            modifier = Modifier
+        )
+    }) { paddingValues ->
         BackgroundContent(paddingValues = paddingValues) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 Text(
                     text = "Past Medications",
@@ -54,7 +59,10 @@ fun MedicationPage(
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
                 )
-                OldMedicationList(sharedPreferencesManager, medicationsViewModel)
+                OldMedicationList(
+                    medicationsViewModel = medicationsViewModel,
+                    userId = sharedPreferencesManager.getUserProfile()?.id.orEmpty()
+                )
             }
         }
     }
@@ -62,23 +70,24 @@ fun MedicationPage(
 
 @Composable
 fun OldMedicationList(
-    sharedPreferencesManager: SharedPreferencesManager,
+    userId: String,
     medicationsViewModel: MedicationsViewModel,
 ) {
-    val context = LocalContext.current
-    val id = sharedPreferencesManager.getUserProfile()?.id ?: ""
     val oldMedicationsState by medicationsViewModel.oldMedicationsState.collectAsState()
 
-    // Fetch medications
-    LaunchedEffect(id) {
-        medicationsViewModel.oldMedications(id)
+    var hasLoadedOnce by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!hasLoadedOnce) {
+            medicationsViewModel.loadOldMedicationsForCurrentUser(userId = userId)
+            hasLoadedOnce = true
+        }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
+            .padding(16.dp), verticalArrangement = Arrangement.Top
     ) {
         when (val result = oldMedicationsState) {
             is ResultState.Loading -> {

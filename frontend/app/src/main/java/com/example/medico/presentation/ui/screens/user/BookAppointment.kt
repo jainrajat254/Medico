@@ -140,7 +140,7 @@ fun BookAppointment(
                                     time = slot,
                                 )
                                 Log.d("DOC ID", doctorDetails.id)
-                                appointmentsViewModel.addAppointments(request = data, id = userId)
+                                appointmentsViewModel.addAppointments(request = data, userId = userId)
                             } else {
                                 Toast.makeText(context, "User ID not found!", Toast.LENGTH_SHORT)
                                     .show()

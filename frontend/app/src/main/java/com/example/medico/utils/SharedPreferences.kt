@@ -29,8 +29,6 @@ class SharedPreferencesManager(context: Context) {
 
         private const val PREFS_FIRST_NAME = "user_firstName"
         private const val PREFS_LAST_NAME = "user_lastName"
-        private const val PREFS_ROLE = "user_role"
-
         private const val PREFS_USER_EXTRA_DETAILS_ID = "extra_details_id"
 
     }
@@ -66,6 +64,10 @@ class SharedPreferencesManager(context: Context) {
         val firstName = sharedPreferences.getString(PREFS_FIRST_NAME, "") ?: ""
         val lastName = sharedPreferences.getString(PREFS_LAST_NAME, "") ?: ""
         return "$firstName $lastName".trim()
+    }
+
+    fun saveJwtToken(token: String) {
+        return sharedPreferences.edit().putString(JWT_TOKEN_KEY, token).apply()
     }
 
     fun getJwtToken(): String? {

@@ -36,11 +36,12 @@ fun SplashScreen(
         delay(2000)
         val isLoggedIn = sharedPreferencesManager.isLoggedIn()
 
-        navController.navigate(
-            if (isLoggedIn) Routes.UserHome.routes else Routes.UserLogin.routes
-        ) {
-            popUpTo(0) { inclusive = true }
-        }
+        navController.navigate(Routes.Welcome.routes)
+//        navController.navigate(
+//            if (isLoggedIn) Routes.UserHome.routes else Routes.UserLogin.routes
+//        ) {
+//            popUpTo(0) { inclusive = true }
+//        }
     }
 }
 

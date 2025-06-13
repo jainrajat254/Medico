@@ -1,7 +1,7 @@
 package com.example.medico
 
 import android.app.Application
-import com.example.cpbyte_portal.di.networkModule
+import com.example.medico.di.networkModule
 import com.example.medico.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin

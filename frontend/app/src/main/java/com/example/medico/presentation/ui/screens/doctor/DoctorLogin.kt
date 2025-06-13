@@ -42,6 +42,7 @@ fun LoginDoc(
             is ResultState.Success -> {
                 isDialog = false
                 val doc = (docLoginState as ResultState.Success).data
+                sharedPreferencesManager.saveJwtToken(doc.token)
                 sharedPreferencesManager.saveDocProfile(doc)
                 navController.navigate(Routes.DoctorHome.routes) {
                     popUpTo(Routes.DoctorLogin.routes) { inclusive = true }

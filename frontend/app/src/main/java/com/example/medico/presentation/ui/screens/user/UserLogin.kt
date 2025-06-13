@@ -64,6 +64,7 @@ fun LoginPage(
             is ResultState.Success -> {
                 isDialog = false
                 val user = (userLoginState as ResultState.Success).data
+                sharedPreferencesManager.saveJwtToken(user.token)
                 sharedPreferencesManager.saveUserProfile(user)
                 navController.navigate(Routes.UserHome.routes) {
                     popUpTo(Routes.UserLogin.routes) { inclusive = true }
